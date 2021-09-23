@@ -1,5 +1,5 @@
 
-## quickstart-sudo-consulting-serverless-wordpress—Quick Start
+## quickstart-sudo-consultants-serverless-wordpress—Quick Start
 
 For architectural details, step-by-step instructions, and customization options, see the [deployment guide](https://aws-quickstart.github.io/quickstart-sudo-consulting-serverless-wordpress/).
 
