@@ -1,0 +1,274 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description:
+  This template deploys WordPress into an existing VPC. **WARNING** This
+  template creates ECS Fargate containers and related resources. You will be billed for the
+  AWS resources used if you create a stack from this template.
+Parameters:
+  DBBackupRetentionPeriod:
+    ConstraintDescription:
+      Database backup retention period must be between 1 and
+      35 days
+    Default: "7"
+    Description: The number of days for which automatic DB snapshots are retained
+    MaxValue: "35"
+    MinValue: "1"
+    Type: Number
+  DBPreferredBackupWindow:
+    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
+    ConstraintDescription:
+      Preferred backup window must be left blank or in the form
+      of HH:MM-HH:MM
+    Default: ""
+    Description: "(Optional) Preferred backup window"
+    Type: String
+  DBStorageEncrypted:
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+    Description: Select true/false to enable storage encryption in the database instances
+    Type: String
+  DBName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Default: QuickstartAuroraDB
+    Description: Name of Aurora DB for WordPress Stack
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
+  DBMasterUserPassword:
+    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
+    ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
+    Description: The database admin account password (username is 'root').
+    MaxLength: "41"
+    MinLength: "8"
+    NoEcho: "True"
+    Type: String
+  DBMaxCapacity:
+    Default: "16"
+    Description: Aurora serverless DB max capacity
+    Type: Number
+  DBMinCapacity:
+    Default: "2"
+    Description: Aurora serverless DB min capacity
+    Type: Number
+  VPCID:
+    Description:
+      VPC-ID of your existing Virtual Private Cloud (VPC) where you want
+      to depoy RDS
+    Type: AWS::EC2::VPC::Id
+  ALBAccessCIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description:
+      Allowed CIDR block for external web access to the Application Load
+      Balancer
+    Type: String
+  BastionSecurityGroupID:
+    Description: (Optional) ID of the Bastion Security Group (e.g., sg-1d2c3b4a)
+    Type: String
+    Default: ""
+  QSS3BucketName:
+    AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
+    ConstraintDescription:
+      S3 bucket name can include numbers, lowercase letters,
+      uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).
+    Default: aws-quickstart
+    Description:
+      Alphanumeric string which identifies the S3 bucket name for the Quick
+      Start assets. It's the bucket to store the copy of the Quick Start assets if
+      you decided to customize or extend them for your own use.
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: "^[0-9a-zA-Z-/._]*$"
+    ConstraintDescription:
+      S3 key prefix can include numbers, lowercase letters, uppercase
+      letters, hyphens (-), and forward slash (/).
+    Default: wordpress-cfn/
+    Description:
+      Alphanumeric string which identifies the S3 key prefix used to simulate
+      a folder for your copy of the Quick Start assets if you decided to customize
+      or extend them for your own use.
+    Type: String
+  QSS3BucketRegion:
+    Default: us-east-1
+    Description:
+      The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
+      hosted. When using your own bucket, you must specify this value.
+    Type: String
+  ContainerDesiredCapacity:
+    Default: "2"
+    Description:
+      Desired number of WordPress containers. This will set the number of
+      containers when the scaling group is created, then the autoscaler will increase
+      or decrease the current number of containers as the scaling events occur.
+    Type: Number
+  ContainerMaxSize:
+    Default: "12"
+    Description:
+      Maximum number of WordPress EC2 containers in the Auto Scaling group.
+      It specifies the maximum number of replicas when scaling up.
+    Type: Number
+  ContainerMinSize:
+    Default: "1"
+    Description:
+      Minimum number of WordPress EC2 instances in the Auto Scaling group.
+      It specifies the minimum number of replicas when scaling down.
+    Type: Number
+  ContainerCpu:
+    Type: String
+    Default: "256"
+    AllowedValues:
+      - "256"
+      - "512"
+      - "1024"
+      - "2048"
+      - "4096"
+    # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
+    # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
+    # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
+    # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
+    # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
+  ContainerMemory:
+    Type: String
+    Default: "0.5GB"
+  ContainerImage:
+    Type: String
+    Default: "docker.io/wordpress:latest"
+  PrivateSubnets:
+    ConstraintDescription: Must be list of existing subnet Ids
+    Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
+    Type: List<AWS::EC2::Subnet::Id>
+  PublicSubnets:
+    ConstraintDescription: Must be list of existing subnet Ids
+    Default: ""
+    Description:
+      A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
+      would be launched
+    Type: List<AWS::EC2::Subnet::Id>
+  DBClusterName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Default: WordPressDBCluster
+    Description: Name of Aurora DB Cluster
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
+  NumberOfPrivateSubnets:
+    AllowedValues:
+      - "2"
+      - "3"
+      - "4"
+    Default: "2"
+    Description: Number of Private subnets to use in the VPC . This must match your selections in the list of PrivateSubnets parameter.
+    Type: String
+
+Rules:
+  EFSSupportedRegionRule:
+    Assertions:
+      - Assert:
+          Fn::Contains:
+            - - af-south-1
+              - ap-northeast-1
+              - ap-northeast-2
+              - ap-south-1
+              - ap-southeast-1
+              - ap-southeast-2
+              - ca-central-1
+              - eu-central-1
+              - eu-west-1
+              - eu-west-2
+              - eu-west-3
+              - us-east-1
+              - us-east-2
+              - us-west-1
+              - us-west-2
+            - Ref: AWS::Region
+        AssertDescription:
+          This Quick Start uses Amazon EFS which is only available
+          in the Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Mumbai),
+          Asia Pacific (Singapore), Asia Pacific (Sydney), Canada (Central), EU (Frankfurt),
+          EU (Ireland), EU (London), EU (Paris), US East (N. Virginia), US East (Ohio),
+          US West (Northern California) and US West (Oregon) regions. Please launch
+          the stack in one of these regions
+Conditions:
+  UsingDefaultBucket: !Equals [Ref: QSS3BucketName, "aws-quickstart"]
+
+Resources:
+  SecurityGroupsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/securitygroups.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub "aws-quickstart-${AWS::Region}"
+            - !Ref "QSS3BucketName"
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref "AWS::Region"
+            - !Ref "QSS3BucketRegion"
+      Parameters:
+        VPCID: !Ref VPCID
+        ALBAccessCIDR: !Ref ALBAccessCIDR
+        BastionSecurityGroupID: !Ref BastionSecurityGroupID
+
+  RDSAuroraStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/rdsaurora.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub "aws-quickstart-${AWS::Region}"
+            - !Ref "QSS3BucketName"
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref "AWS::Region"
+            - !Ref "QSS3BucketRegion"
+      Parameters:
+        PrivateSubnets: !Join [",", !Ref PrivateSubnets]
+        AuroraRDSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.AuroraRDSSecurityGroup
+        DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
+        DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
+        DBStorageEncrypted: !Ref DBStorageEncrypted
+        DBClusterName: !Ref DBClusterName
+        DBName: !Ref DBName
+        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBMaxCapacity: !Ref DBMaxCapacity
+        DBMinCapacity: !Ref DBMinCapacity
+
+  ContainerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/container.template.yaml
+        - S3Bucket: !If
+            - UsingDefaultBucket
+            - !Sub "aws-quickstart-${AWS::Region}"
+            - !Ref "QSS3BucketName"
+          S3Region: !If
+            - UsingDefaultBucket
+            - !Ref "AWS::Region"
+            - !Ref "QSS3BucketRegion"
+      Parameters:
+        PublicSubnets: !Join [",", !Ref PublicSubnets]
+        PrivateSubnets: !Join [",", !Ref PrivateSubnets]
+        NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
+        EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroup
+        ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroup
+        DBEndpointAddress: !GetAtt RDSAuroraStack.Outputs.AuroraEndPointAddress
+        DBMasterUserPassword: !Ref DBMasterUserPassword
+        ContainerMinSize: !Ref ContainerMinSize
+        ContainerMaxSize: !Ref ContainerMaxSize
+        ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
+        VPCID: !Ref VPCID
+        ALBSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ALBSecurityGroup
+        ContainerCpu: !Ref ContainerCpu
+        ContainerMemory: !Ref ContainerMemory
+        ContainerImage: !Ref ContainerImage
+        DBName: !Ref DBName
+
+Outputs:
+  ELBURL:
+    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
+    Value: !GetAtt ContainerStack.Outputs.ELBURL

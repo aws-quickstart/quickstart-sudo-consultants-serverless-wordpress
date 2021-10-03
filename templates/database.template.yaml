@@ -1,0 +1,119 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Creates a RDS Aurora-Serverless MySQL.
+Parameters:
+  PrivateSubnets:
+    ConstraintDescription: Must be list of existing subnet Ids
+    Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
+    Type: List<AWS::EC2::Subnet::Id>
+  AuroraRDSSecurityGroup:
+    Description: Aurora Security Group
+    Type: AWS::EC2::SecurityGroup::Id
+  DBBackupRetentionPeriod:
+    ConstraintDescription: Database backup retention period must be between 1 and 35 days
+    Default: "7"
+    Description: The number of days for which automatic DB snapshots are retained
+    MaxValue: "35"
+    MinValue: "1"
+    Type: Number
+  DBPreferredBackupWindow:
+    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
+    ConstraintDescription: Preferred backup window must be left blank or in the form of HH:MM-HH:MM
+    Default: ""
+    Description: "(Optional) Preferred backup window"
+    Type: String
+  DBStorageEncrypted:
+    AllowedValues:
+      - "true"
+      - "false"
+    Default: "false"
+    Description: Select true/false to enable storage encryption in the database instances
+    Type: String
+  DBClusterName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Default: DBCluster
+    Description: Name of Aurora DB Cluster
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
+  DBName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Default: mydb
+    Description: Name of the Database
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
+  DBMasterUserPassword:
+    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
+    ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
+    Description: The database admin account password (username is 'root').
+    MaxLength: "41"
+    MinLength: "8"
+    NoEcho: "True"
+    Type: String
+  DBMaxCapacity:
+    Default: "16"
+    Description: Aurora serverless DB max capacity
+    Type: Number
+  DBMinCapacity:
+    Default: "2"
+    Description: Aurora serverless DB min capacity
+    Type: Number
+
+Conditions:
+  EnableStorageEncryption: !Equals [!Ref DBStorageEncrypted, "true"]
+
+Resources:
+  AuroraDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets available for the RDS Aurora DB Instance
+      SubnetIds: !Ref PrivateSubnets
+  AuroraDBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      StorageEncrypted: !If [EnableStorageEncryption, true, false]
+      BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
+      PreferredBackupWindow: !Ref DBPreferredBackupWindow
+      DBSubnetGroupName: !Ref AuroraDBSubnetGroup
+      Engine: aurora-mysql
+      EngineVersion: "5.7"
+      EngineMode: serverless
+      ScalingConfiguration:
+        AutoPause: true
+        MaxCapacity: !Ref DBMaxCapacity
+        MinCapacity: !Ref DBMinCapacity
+        SecondsUntilAutoPause: 300
+      MasterUsername: admin
+      MasterUserPassword: !Ref DBMasterUserPassword
+      DatabaseName: !Ref DBName
+      DBClusterIdentifier: !Ref DBClusterName
+      VpcSecurityGroupIds:
+        - !Ref AuroraRDSSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Ref DBClusterName
+
+Outputs:
+  AuroraEndPoints:
+    Description: Aurora Cluster Endpoint to connect
+    Value:
+      !Join [
+        "",
+        [
+          !GetAtt AuroraDBCluster.Endpoint.Address,
+          ":",
+          !GetAtt AuroraDBCluster.Endpoint.Port,
+          "/",
+          !Ref DBName,
+        ],
+      ]
+  DBName:
+    Description: Aurora DBName
+    Value: !Ref DBName
+  AuroraEndPointAddress:
+    Description: Aurora Endpoint to connect
+    Value: !GetAtt AuroraDBCluster.Endpoint.Address
+  AuroraEndPointPort:
+    Description: Aurora Endpoint to connect
+    Value: !GetAtt AuroraDBCluster.Endpoint.Port
