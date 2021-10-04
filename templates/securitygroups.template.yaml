@@ -1,9 +1,9 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: WordPress Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS
+Description: WordPress Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS. (qs-123456)
 Parameters:
   VPCID:
-    Description: VPC-ID of your existing Virtual Private Cloud (VPC) where you want to deploy RDS
+    Description: ID of the VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
   ALBAccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"

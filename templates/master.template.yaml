@@ -1,9 +1,8 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
-  This template creates a new VPC and deploys WordPress. **WARNING** This
-  template creates new VPC, Fargate containers, Aurora Database and related resources. You will be billed for the
-  AWS resources used if you create a stack from this template.
+  This template creates a new VPC and deploys WordPress in a Serverless architecture. **WARNING** You will be billed for the
+  AWS resources used if you create a stack from this template. (qs-123456)
 Parameters:
   AvailabilityZones:
     Description: "List of Availability Zones to use for the subnets in the VPC. Note: ( The logical order is preserved and only 2 AZs are used for this deployment."
@@ -174,13 +173,6 @@ Parameters:
     Default: ""
     Description: "(Optional) Preferred backup window"
     Type: String
-  DBStorageEncrypted:
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
-    Description: Select true/false to enable storage encryption in the database instances
-    Type: String
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     Default: QuickstartAuroraDB
@@ -188,10 +180,10 @@ Parameters:
     MaxLength: "64"
     MinLength: "5"
     Type: String
-  DBMasterUserPassword:
+  DBAdminUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
-    Description: The database admin account password (username is 'root').
+    Description: The database admin account password (username is 'admin').
     MaxLength: "41"
     MinLength: "8"
     NoEcho: "True"
@@ -375,9 +367,8 @@ Resources:
         QSS3BucketRegion: !Ref QSS3BucketRegion
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
-        DBStorageEncrypted: !Ref DBStorageEncrypted
         DBName: !Ref DBName
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBAdminUserPassword: !Ref DBAdminUserPassword
         DBMaxCapacity: !Ref DBMaxCapacity
         DBMinCapacity: !Ref DBMinCapacity
         VPCID: !GetAtt VPCStack.Outputs.VPCID

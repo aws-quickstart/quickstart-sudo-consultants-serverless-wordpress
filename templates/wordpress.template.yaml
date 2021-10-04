@@ -1,9 +1,8 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
-  This template deploys WordPress into an existing VPC. **WARNING** This
-  template creates ECS Fargate containers and related resources. You will be billed for the
-  AWS resources used if you create a stack from this template.
+  This template deploys WordPress serverless. **WARNING** You will be billed for the
+  AWS resources used if you create a stack from this template. (qs-123456)
 Parameters:
   DBBackupRetentionPeriod:
     ConstraintDescription:
@@ -22,13 +21,6 @@ Parameters:
     Default: ""
     Description: "(Optional) Preferred backup window"
     Type: String
-  DBStorageEncrypted:
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
-    Description: Select true/false to enable storage encryption in the database instances
-    Type: String
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     Default: QuickstartAuroraDB
@@ -36,7 +28,7 @@ Parameters:
     MaxLength: "64"
     MinLength: "5"
     Type: String
-  DBMasterUserPassword:
+  DBAdminUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
     Description: The database admin account password (username is 'root').
@@ -53,9 +45,7 @@ Parameters:
     Description: Aurora serverless DB min capacity
     Type: Number
   VPCID:
-    Description:
-      VPC-ID of your existing Virtual Private Cloud (VPC) where you want
-      to depoy RDS
+    Description: ID of the VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
   ALBAccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
@@ -230,10 +220,9 @@ Resources:
         AuroraRDSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.AuroraRDSSecurityGroup
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
-        DBStorageEncrypted: !Ref DBStorageEncrypted
         DBClusterName: !Ref DBClusterName
         DBName: !Ref DBName
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBAdminUserPassword: !Ref DBAdminUserPassword
         DBMaxCapacity: !Ref DBMaxCapacity
         DBMinCapacity: !Ref DBMinCapacity
 
@@ -257,7 +246,7 @@ Resources:
         EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroup
         ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroup
         DBEndpointAddress: !GetAtt RDSAuroraStack.Outputs.AuroraEndPointAddress
-        DBMasterUserPassword: !Ref DBMasterUserPassword
+        DBAdminUserPassword: !Ref DBAdminUserPassword
         ContainerMinSize: !Ref ContainerMinSize
         ContainerMaxSize: !Ref ContainerMaxSize
         ContainerDesiredCapacity: !Ref ContainerDesiredCapacity

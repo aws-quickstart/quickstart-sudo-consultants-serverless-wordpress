@@ -1,6 +1,7 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Creates a RDS Aurora-Serverless MySQL.
+Description: Creates a RDS Aurora-Serverless MySQL. **WARNING** You will be billed for the
+  AWS resources used if you create a stack from this template. (qs-123456)
 Parameters:
   PrivateSubnets:
     ConstraintDescription: Must be list of existing subnet Ids
@@ -22,13 +23,6 @@ Parameters:
     Default: ""
     Description: "(Optional) Preferred backup window"
     Type: String
-  DBStorageEncrypted:
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
-    Description: Select true/false to enable storage encryption in the database instances
-    Type: String
   DBClusterName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     Default: DBCluster
@@ -43,10 +37,10 @@ Parameters:
     MaxLength: "64"
     MinLength: "5"
     Type: String
-  DBMasterUserPassword:
+  DBAdminUserPassword:
     AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
     ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
-    Description: The database admin account password (username is 'root').
+    Description: The database admin account password (username is 'admin').
     MaxLength: "41"
     MinLength: "8"
     NoEcho: "True"
@@ -60,9 +54,6 @@ Parameters:
     Description: Aurora serverless DB min capacity
     Type: Number
 
-Conditions:
-  EnableStorageEncryption: !Equals [!Ref DBStorageEncrypted, "true"]
-
 Resources:
   AuroraDBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -72,7 +63,7 @@ Resources:
   AuroraDBCluster:
     Type: AWS::RDS::DBCluster
     Properties:
-      StorageEncrypted: !If [EnableStorageEncryption, true, false]
+      StorageEncrypted: true
       BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
       PreferredBackupWindow: !Ref DBPreferredBackupWindow
       DBSubnetGroupName: !Ref AuroraDBSubnetGroup
@@ -85,7 +76,7 @@ Resources:
         MinCapacity: !Ref DBMinCapacity
         SecondsUntilAutoPause: 300
       MasterUsername: admin
-      MasterUserPassword: !Ref DBMasterUserPassword
+      MasterUserPassword: !Ref DBAdminUserPassword
       DatabaseName: !Ref DBName
       DBClusterIdentifier: !Ref DBClusterName
       VpcSecurityGroupIds:
