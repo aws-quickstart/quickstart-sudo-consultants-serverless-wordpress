@@ -1,0 +1,9 @@
+:quickstart-project-name: quickstart-sudo-consultants-serverless-wordpress
+:partner-company-name: SUDO Consultants, Ltd.
+:doc-month: May
+:doc-year: 2020
+:deployment_time: 30 minutes / 1 hour
+:default_deployment_region: us-east-1
+:partner-product-name: Wordpress Serverless
+:partner-contributors: Saif Ali
+:quickstart-contributors: (TODO)Jim Smith - AWS Global Partner SA, AWS & Joe Jones - Technical Product Manager, AWS

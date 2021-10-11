@@ -1,7 +1,8 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Creates an EFS Filesystem, ECS Cluster, Application load balancer and related resources. **WARNING** You will be billed for the
-  AWS resources used if you create a stack from this template. (qs-123456) 
+Description:
+  Creates an EFS Filesystem, ECS Cluster, Application load balancer and related resources. **WARNING** You will be billed for the
+  AWS resources used if you create a stack from this template. (qs-123456)
 
 Parameters:
   PrivateSubnets:
@@ -10,14 +11,14 @@ Parameters:
     Description:
       A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
       would be launched
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
   PublicSubnets:
     ConstraintDescription: Must be list of existing subnet Ids
     Default: ""
     Description:
       A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
       would be launched
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
   EFSSecurityGroup:
     Description: EFS Security Group
     Type: AWS::EC2::SecurityGroup::Id

@@ -132,9 +132,9 @@ Parameters:
       cannot start or end with a hyphen (-).
     Type: String
   QSS3KeyPrefix:
+    Default: quickstart-wordpress-serverless/
     AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), dots (.) and forward slash (/). The prefix should end with a forward slash (/).
-    Default: quickstart-serverless-wordpress/
     Description:
       S3 key prefix for the Quick Start assets. Quick Start key prefix can
       include numbers, lowercase letters, uppercase letters, hyphens (-), dots
@@ -155,7 +155,12 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR Block for the VPC.
     Type: String
-
+  DBClusterName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Description: Name of Aurora DB Cluster
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
   DBBackupRetentionPeriod:
     ConstraintDescription:
       Database backup retention period must be between 1 and
@@ -175,7 +180,6 @@ Parameters:
     Type: String
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: QuickstartAuroraDB
     Description: Name of Aurora DB for WordPress Stack
     MaxLength: "64"
     MinLength: "5"
@@ -242,13 +246,6 @@ Parameters:
   ContainerImage:
     Type: String
     Default: "docker.io/wordpress:latest"
-  DBClusterName:
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: WordPressDBCluster
-    Description: Name of Aurora DB Cluster
-    MaxLength: "64"
-    MinLength: "5"
-    Type: String
   NumberOfPrivateSubnets:
     AllowedValues:
       - "2"
@@ -316,71 +313,72 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         VPCTenancy: !Ref VPCTenancy
 
-  BastionStack:
-    Type: "AWS::CloudFormation::Stack"
+  # BastionStack:
+  #   Type: "AWS::CloudFormation::Stack"
+  #   Properties:
+  #     TemplateURL: !Sub
+  #       - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
+  #       - S3Bucket: !If
+  #           - UsingDefaultBucket
+  #           - !Sub "aws-quickstart-${AWS::Region}"
+  #           - !Ref "QSS3BucketName"
+  #         S3Region: !If
+  #           - UsingDefaultBucket
+  #           - !Ref "AWS::Region"
+  #           - !Ref "QSS3BucketRegion"
+  #     Parameters:
+  #       BastionAMIOS: !Ref BastionAMIOS
+  #       BastionHostName: !Ref BastionHostName
+  #       BastionBanner: !Ref BastionBanner
+  #       BastionInstanceType: !Ref BastionInstanceType
+  #       BastionTenancy: !Ref BastionTenancy
+  #       EnableBanner: !Ref EnableBanner
+  #       EnableTCPForwarding: !Ref EnableTCPForwarding
+  #       EnableX11Forwarding: !Ref EnableX11Forwarding
+  #       KeyPairName: !Ref KeyPairName
+  #       NumBastionHosts: !Ref NumBastionHosts
+  #       PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+  #       PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+  #       QSS3BucketRegion: !Ref QSS3BucketRegion
+  #       QSS3BucketName: !Ref QSS3BucketName
+  #       QSS3KeyPrefix: !Ref QSS3KeyPrefix
+  #       RemoteAccessCIDR: !Ref RemoteAccessCIDR
+  #       VPCID: !GetAtt VPCStack.Outputs.VPCID
+
+  WordPressStack:
+    Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/wordpress.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub "aws-quickstart-${AWS::Region}"
             - !Ref "QSS3BucketName"
           S3Region: !If
             - UsingDefaultBucket
-            - !Ref "AWS::Region"
-            - !Ref "QSS3BucketRegion"
-      Parameters:
-        BastionAMIOS: !Ref BastionAMIOS
-        BastionHostName: !Ref BastionHostName
-        BastionBanner: !Ref BastionBanner
-        BastionInstanceType: !Ref BastionInstanceType
-        BastionTenancy: !Ref BastionTenancy
-        EnableBanner: !Ref EnableBanner
-        EnableTCPForwarding: !Ref EnableTCPForwarding
-        EnableX11Forwarding: !Ref EnableX11Forwarding
-        KeyPairName: !Ref KeyPairName
-        NumBastionHosts: !Ref NumBastionHosts
-        PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
-        PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        QSS3BucketRegion: !Ref QSS3BucketRegion
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Ref QSS3KeyPrefix
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-
-  WordPressStack:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub 
-          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/wordpress.template.yaml
-          - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-            S3Region: !If
-              - UsingDefaultBucket
-              - !Ref AWS::Region
-              - !Ref QSS3BucketRegion
+            - !Ref AWS::Region
+            - !Ref QSS3BucketRegion
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
+        DBClusterName: !Ref DBClusterName
         DBName: !Ref DBName
         DBAdminUserPassword: !Ref DBAdminUserPassword
         DBMaxCapacity: !Ref DBMaxCapacity
         DBMinCapacity: !Ref DBMinCapacity
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         ALBAccessCIDR: !Ref ALBAccessCIDR
-        BastionSecurityGroupID: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
+        # BastionSecurityGroupID: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
         ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
         ContainerMaxSize: !Ref ContainerMaxSize
         ContainerMinSize: !Ref ContainerMinSize
         ContainerCpu: !Ref ContainerCpu
         ContainerMemory: !Ref ContainerMemory
         ContainerImage: !Ref ContainerImage
-        PrivateSubnets:
+        PrivateSubnets: !Join
           - ","
           - - !GetAtt VPCStack.Outputs.PrivateSubnet1AID
             - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
@@ -388,11 +386,9 @@ Resources:
           - ","
           - - !GetAtt VPCStack.Outputs.PublicSubnet1ID
             - !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        DBClusterName: !Ref DBClusterName
         NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
 
 Outputs:
   ELBURL:
-    Description:
-      The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
+    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
     Value: !GetAtt WordPressStack.Outputs.ELBURL

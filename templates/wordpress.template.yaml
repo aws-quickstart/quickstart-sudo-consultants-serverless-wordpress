@@ -23,7 +23,6 @@ Parameters:
     Type: String
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: QuickstartAuroraDB
     Description: Name of Aurora DB for WordPress Stack
     MaxLength: "64"
     MinLength: "5"
@@ -70,11 +69,11 @@ Parameters:
       you decided to customize or extend them for your own use.
     Type: String
   QSS3KeyPrefix:
+    Default: quickstart-wordpress-serverless/
     AllowedPattern: "^[0-9a-zA-Z-/._]*$"
     ConstraintDescription:
       S3 key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
-    Default: wordpress-cfn/
     Description:
       Alphanumeric string which identifies the S3 key prefix used to simulate
       a folder for your copy of the Quick Start assets if you decided to customize
@@ -128,17 +127,16 @@ Parameters:
   PrivateSubnets:
     ConstraintDescription: Must be list of existing subnet Ids
     Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
   PublicSubnets:
     ConstraintDescription: Must be list of existing subnet Ids
     Default: ""
     Description:
       A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
       would be launched
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
   DBClusterName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: WordPressDBCluster
     Description: Name of Aurora DB Cluster
     MaxLength: "64"
     MinLength: "5"
@@ -200,13 +198,13 @@ Resources:
       Parameters:
         VPCID: !Ref VPCID
         ALBAccessCIDR: !Ref ALBAccessCIDR
-        BastionSecurityGroupID: !Ref BastionSecurityGroupID
+        # BastionSecurityGroupID: !Ref BastionSecurityGroupID
 
-  RDSAuroraStack:
+  DatabaseStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/rdsaurora.template.yaml
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/database.template.yaml
         - S3Bucket: !If
             - UsingDefaultBucket
             - !Sub "aws-quickstart-${AWS::Region}"
@@ -216,8 +214,8 @@ Resources:
             - !Ref "AWS::Region"
             - !Ref "QSS3BucketRegion"
       Parameters:
-        PrivateSubnets: !Join [",", !Ref PrivateSubnets]
-        AuroraRDSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.AuroraRDSSecurityGroup
+        PrivateSubnets: !Ref PrivateSubnets
+        AuroraRDSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.AuroraRDSSecurityGroupId
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
         DBClusterName: !Ref DBClusterName
@@ -240,18 +238,18 @@ Resources:
             - !Ref "AWS::Region"
             - !Ref "QSS3BucketRegion"
       Parameters:
-        PublicSubnets: !Join [",", !Ref PublicSubnets]
-        PrivateSubnets: !Join [",", !Ref PrivateSubnets]
+        PublicSubnets: !Ref PublicSubnets
+        PrivateSubnets: !Ref PrivateSubnets
         NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
-        EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroup
-        ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroup
+        EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroupId
+        ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroupId
         DBEndpointAddress: !GetAtt RDSAuroraStack.Outputs.AuroraEndPointAddress
         DBAdminUserPassword: !Ref DBAdminUserPassword
         ContainerMinSize: !Ref ContainerMinSize
         ContainerMaxSize: !Ref ContainerMaxSize
         ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
         VPCID: !Ref VPCID
-        ALBSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ALBSecurityGroup
+        ALBSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ALBSecurityGroupId
         ContainerCpu: !Ref ContainerCpu
         ContainerMemory: !Ref ContainerMemory
         ContainerImage: !Ref ContainerImage

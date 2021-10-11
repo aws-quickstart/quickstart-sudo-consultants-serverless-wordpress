@@ -1,12 +1,13 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Creates a RDS Aurora-Serverless MySQL. **WARNING** You will be billed for the
+Description:
+  Creates a RDS Aurora-Serverless MySQL. **WARNING** You will be billed for the
   AWS resources used if you create a stack from this template. (qs-123456)
 Parameters:
   PrivateSubnets:
     ConstraintDescription: Must be list of existing subnet Ids
     Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: CommaDelimitedList
   AuroraRDSSecurityGroup:
     Description: Aurora Security Group
     Type: AWS::EC2::SecurityGroup::Id
@@ -25,21 +26,20 @@ Parameters:
     Type: String
   DBClusterName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: DBCluster
-    Description: Name of Aurora DB Cluster
+    Description: Name of the Aurora DB Cluster
     MaxLength: "64"
     MinLength: "5"
     Type: String
+    Default: myRDSCluster
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Default: mydb
     Description: Name of the Database
     MaxLength: "64"
     MinLength: "5"
     Type: String
+    Default: myDatabase
   DBAdminUserPassword:
-    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
-    ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
+    ConstraintDescription: Min 8 alphanumeric.
     Description: The database admin account password (username is 'admin').
     MaxLength: "41"
     MinLength: "8"

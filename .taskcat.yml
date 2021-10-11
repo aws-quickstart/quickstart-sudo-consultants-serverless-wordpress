@@ -1,0 +1,25 @@
+general:
+  s3_regional_buckets: true
+project:
+  name: quickstart-wordpress-serverless
+  owner: saif.ali@sudoconsultants.com
+  package_lambda: false
+  regions:
+    - us-west-1
+  parameters:
+    QSS3BucketName: $[taskcat_autobucket]
+    QSS3BucketRegion: $[taskcat_current_region]
+    AvailabilityZones: $[taskcat_genaz_2]
+    KeyPairName: wp-key
+    BastionAMIOS: Amazon-Linux2-HVM
+    RemoteAccessCIDR: 0.0.0.0/0
+    VPCCIDR: 10.0.0.0/16
+    DBName: wordpressdb
+    DBClusterName: wordpressdbcluster
+    DBAdminUserPassword: $[taskcat_genpass_16A]
+    ALBAccessCIDR: 0.0.0.0/0
+    NumberOfPrivateSubnets: "2"
+
+tests:
+  quickstart-wordpress-serverless:
+    template: templates/master.template.yaml

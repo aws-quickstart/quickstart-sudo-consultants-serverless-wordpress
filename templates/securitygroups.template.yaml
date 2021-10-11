@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: WordPress Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS. (qs-123456)
+Description: Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS. (qs-123456)
 Parameters:
   VPCID:
     Description: ID of the VPC (e.g., vpc-0343606e).
@@ -135,19 +135,19 @@ Resources:
       GroupId: !GetAtt ContainerSecurityGroup.GroupId
 
 Outputs:
-  AuroraRDSSecurityGroup:
+  AuroraRDSSecurityGroupId:
     Description: Aurora Security Group
-    Value: !Ref AuroraRDSSecurityGroup
-  ALBSecurityGroup:
+    Value: !GetAtt AuroraRDSSecurityGroup.GroupId
+  ALBSecurityGroupId:
     Description: ELB Security Group
-    Value: !Ref ALBSecurityGroup
-  ContainerSecurityGroup:
+    Value: !GetAtt ALBSecurityGroup.GroupId
+  ContainerSecurityGroupId:
     Description: Web Server Security Group
-    Value: !Ref ContainerSecurityGroup
-  EFSSecurityGroup:
+    Value: !GetAtt ContainerSecurityGroup.GroupId
+  EFSSecurityGroupId:
     Description: EFS Security Group
-    Value: !Ref EFSSecurityGroup
-  BastionSecurityGroup:
+    Value: !GetAtt EFSSecurityGroup.GroupId
+  BastionSecurityGroupId:
     Description: Bastion Security Group
     Value: !If
       - BastionEnableCondition
