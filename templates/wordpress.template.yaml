@@ -243,7 +243,7 @@ Resources:
         NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
         EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroupId
         ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroupId
-        DBEndpointAddress: !GetAtt RDSAuroraStack.Outputs.AuroraEndPointAddress
+        DBEndpointAddress: !GetAtt DatabaseStack.Outputs.AuroraEndPointAddress
         DBAdminUserPassword: !Ref DBAdminUserPassword
         ContainerMinSize: !Ref ContainerMinSize
         ContainerMaxSize: !Ref ContainerMaxSize
