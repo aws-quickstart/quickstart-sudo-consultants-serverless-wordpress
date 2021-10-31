@@ -2,182 +2,277 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
   This template deploys WordPress serverless. **WARNING** You will be billed for the
-  AWS resources used if you create a stack from this template. (qs-123456)
+  AWS resources used if you create a stack from this template.
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Quickstart configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
+      - Label:
+          default: Network configuration
+        Parameters:
+          - VPCID
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+          - BastionSecurityGroupId
+      - Label:
+          default: Database configuration
+        Parameters:
+          - DBName
+          - DBClusterName
+          - DBUserName
+          - DBUserPassword
+          - DBMaxCapacity
+          - DBMinCapacity
+          - DBBackupRetentionPeriod
+          - DBPreferredBackupWindow
+      - Label:
+          default: Container configuration
+        Parameters:
+          - ContainerImage
+          - ContainerCpu
+          - ContainerMemory
+          - ContainerMaxSize
+          - ContainerDesiredCapacity
+          - ContainerMinSize
+          - ALBAccessCIDR
+      - Label:
+          default: FileSystem configuration
+        Parameters:
+          - EFSFileSystemName
+          - EFSProvisionedThroughputInMibps
+          - EFSPerformanceMode
+          - EFSThroughputMode
+    ParameterLabels:
+      QSS3BucketName:
+        default: Quickstart S3 bucket name
+      QSS3KeyPrefix:
+        default: Quickstart S3 key prefix
+      QSS3BucketRegion:
+        default: Quickstart S3 bucket region
+      ALBAccessCIDR:
+        default: ALB access CIDR
+      BastionSecurityGroupId:
+        default: Bastion security group Id
+      ContainerCpu:
+        default: Container cpu
+      ContainerDesiredCapacity:
+        default: Container desired capacity
+      ContainerImage:
+        default: Container image
+      ContainerMaxSize:
+        default: Container max size
+      ContainerMemory:
+        default: Container memory
+      ContainerMinSize:
+        default: Container min size
+      DBBackupRetentionPeriod:
+        default: DB backup retention period
+      DBClusterName:
+        default: DB cluster name
+      DBMaxCapacity:
+        default: DB max capacity
+      DBMinCapacity:
+        default: DB min capacity
+      DBName:
+        default: DB name
+      DBPreferredBackupWindow:
+        default: DB preferred backup window
+      DBUserName:
+        default: DB user name
+      DBUserPassword:
+        default: DB user password
+      PrivateSubnet1ID:
+        default: Private subnet 1 Id
+      PrivateSubnet2ID:
+        default: Private subnet 2 Id
+      PrivateSubnet3ID:
+        default: Private subnet 3 Id
+      PublicSubnet1ID:
+        default: Public subnet 1 Id
+      PublicSubnet2ID:
+        default: Public subnet 2 Id
+      PublicSubnet3ID:
+        default: Public subnet 3 Id
+      EFSProvisionedThroughputInMibps:
+        default: EFS provisioned throughput in mibps
+      EFSFileSystemName:
+        default: EFS file system name
+      EFSPerformanceMode:
+        default: EFS performance mode
+      EFSThroughputMode:
+        default: EFS throughput mode
+      VPCID:
+        default: VPC Id
 Parameters:
-  DBBackupRetentionPeriod:
-    ConstraintDescription:
-      Database backup retention period must be between 1 and
-      35 days
-    Default: "7"
-    Description: The number of days for which automatic DB snapshots are retained
-    MaxValue: "35"
-    MinValue: "1"
-    Type: Number
-  DBPreferredBackupWindow:
-    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
-    ConstraintDescription:
-      Preferred backup window must be left blank or in the form
-      of HH:MM-HH:MM
-    Default: ""
-    Description: "(Optional) Preferred backup window"
-    Type: String
-  DBName:
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Description: Name of Aurora DB for WordPress Stack
-    MaxLength: "64"
-    MinLength: "5"
-    Type: String
-  DBAdminUserPassword:
-    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
-    ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
-    Description: The database admin account password (username is 'root').
-    MaxLength: "41"
-    MinLength: "8"
-    NoEcho: "True"
-    Type: String
-  DBMaxCapacity:
-    Default: "16"
-    Description: Aurora serverless DB max capacity
-    Type: Number
-  DBMinCapacity:
-    Default: "2"
-    Description: Aurora serverless DB min capacity
-    Type: Number
-  VPCID:
-    Description: ID of the VPC (e.g., vpc-0343606e).
-    Type: AWS::EC2::VPC::Id
-  ALBAccessCIDR:
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description:
-      Allowed CIDR block for external web access to the Application Load
-      Balancer
-    Type: String
-  BastionSecurityGroupID:
-    Description: (Optional) ID of the Bastion Security Group (e.g., sg-1d2c3b4a)
-    Type: String
-    Default: ""
   QSS3BucketName:
+    Type: String
+    Default: aws-quickstart
+    Description:
+      Alphanumeric String which identifies the S3 bucket name for the Quick
+      Start assets. It's the bucket to store the copy of the Quick Start assets if
+      you decided to customize or extend them for your own use.
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
     ConstraintDescription:
       S3 bucket name can include numbers, lowercase letters,
       uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).
-    Default: aws-quickstart
-    Description:
-      Alphanumeric string which identifies the S3 bucket name for the Quick
-      Start assets. It's the bucket to store the copy of the Quick Start assets if
-      you decided to customize or extend them for your own use.
-    Type: String
   QSS3KeyPrefix:
+    Type: String
     Default: quickstart-wordpress-serverless/
+    Description:
+      Alphanumeric String which identifies the S3 key prefix used to simulate
+      a folder for your copy of the Quick Start assets if you decided to customize
+      or extend them for your own use.
     AllowedPattern: "^[0-9a-zA-Z-/._]*$"
     ConstraintDescription:
       S3 key prefix can include numbers, lowercase letters, uppercase
       letters, hyphens (-), and forward slash (/).
-    Description:
-      Alphanumeric string which identifies the S3 key prefix used to simulate
-      a folder for your copy of the Quick Start assets if you decided to customize
-      or extend them for your own use.
-    Type: String
   QSS3BucketRegion:
+    Type: String
     Default: us-east-1
     Description:
       The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
       hosted. When using your own bucket, you must specify this value.
+  ALBAccessCIDR:
     Type: String
+    Default: 0.0.0.0/0
+    Description: Allowed CIDR block for external web access to the Application Load Balancer
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+  BastionSecurityGroupId:
+    Type: String
+    Default: ""
+    Description: (Optional) ID of the Bastion Security Group (e.g., sg-1d2c3b4a)
+  ContainerCpu:
+    Type: String
+    Default: "256"
+    Description: ""
+    AllowedValues: ["256", "512", "1024", "2048", "4096"]
   ContainerDesiredCapacity:
+    Type: Number
     Default: "2"
     Description:
       Desired number of WordPress containers. This will set the number of
-      containers when the scaling group is created, then the autoscaler will increase
+      containers when the scaling group is created, then the auto scaler will increase
       or decrease the current number of containers as the scaling events occur.
-    Type: Number
+  ContainerImage:
+    Type: String
+    Default: "docker.io/wordpress:latest"
+    Description: ""
   ContainerMaxSize:
+    Type: Number
     Default: "12"
     Description:
       Maximum number of WordPress EC2 containers in the Auto Scaling group.
       It specifies the maximum number of replicas when scaling up.
-    Type: Number
+  ContainerMemory:
+    Type: String
+    Default: "0.5GB"
+    Description: ""
   ContainerMinSize:
+    Type: Number
     Default: "1"
     Description:
       Minimum number of WordPress EC2 instances in the Auto Scaling group.
       It specifies the minimum number of replicas when scaling down.
+  DBBackupRetentionPeriod:
     Type: Number
-  ContainerCpu:
-    Type: String
-    Default: "256"
-    AllowedValues:
-      - "256"
-      - "512"
-      - "1024"
-      - "2048"
-      - "4096"
-    # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
-    # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
-    # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
-    # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
-    # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-  ContainerMemory:
-    Type: String
-    Default: "0.5GB"
-  ContainerImage:
-    Type: String
-    Default: "docker.io/wordpress:latest"
-  PrivateSubnets:
-    ConstraintDescription: Must be list of existing subnet Ids
-    Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
-    Type: CommaDelimitedList
-  PublicSubnets:
-    ConstraintDescription: Must be list of existing subnet Ids
-    Default: ""
-    Description:
-      A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
-      would be launched
-    Type: CommaDelimitedList
+    Default: "7"
+    Description: The number of days for which automatic DB snapshots are retained
+    ConstraintDescription: Database backup retention period must be between 1 and 35 days
+    MaxValue: "35"
+    MinValue: "1"
   DBClusterName:
+    Type: String
+    Default: "myDBCluster"
+    Description: Aurora DB Cluster Name
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Description: Name of Aurora DB Cluster
     MaxLength: "64"
     MinLength: "5"
-    Type: String
-  NumberOfPrivateSubnets:
-    AllowedValues:
-      - "2"
-      - "3"
-      - "4"
+  DBMaxCapacity:
+    Type: Number
+    Default: "16"
+    Description: Aurora serverless DB max capacity
+  DBMinCapacity:
+    Type: Number
     Default: "2"
-    Description: Number of Private subnets to use in the VPC . This must match your selections in the list of PrivateSubnets parameter.
+    Description: Aurora serverless DB min capacity
+  DBName:
     Type: String
+    Default: "myDatabase"
+    Description: Database Name
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MaxLength: "64"
+    MinLength: "5"
+  DBPreferredBackupWindow:
+    Type: String
+    Default: ""
+    Description: "(Optional) Preferred backup window"
+    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
+    ConstraintDescription: Preferred backup window must be left blank or in the form of HH:MM-HH:MM
+  DBUserName:
+    Type: String
+    Default: admin
+    Description: Database user name
+  DBUserPassword:
+    Type: String
+    Description: Database user password
+    MaxLength: "41"
+    MinLength: "8"
+    NoEcho: "True"
+  PrivateSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PrivateSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PrivateSubnet3ID:
+    Type: String
+    Default: ""
+    Description: ""
+  PublicSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PublicSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: ""
+  PublicSubnet3ID:
+    Type: String
+    Default: ""
+    Description: ""
+  EFSProvisionedThroughputInMibps:
+    Type: Number
+    Default: 0
+    Description: ""
+    MinValue: 0
+    MaxValue: 1024
+  EFSFileSystemName:
+    Type: String
+    Default: myFileSystem
+    Description: EFS FileSystem Name
+  EFSPerformanceMode:
+    Type: String
+    Default: generalPurpose
+    Description: EFS FileSystem Performance mode
+    AllowedValues: [generalPurpose, maxIO]
+  EFSThroughputMode:
+    Type: String
+    Default: bursting
+    Description: EFS FileSystem Throughput mode
+    AllowedValues: [bursting, provisioned]
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: ID of the VPC (e.g., vpc-0343606e).
 
-Rules:
-  EFSSupportedRegionRule:
-    Assertions:
-      - Assert:
-          Fn::Contains:
-            - - af-south-1
-              - ap-northeast-1
-              - ap-northeast-2
-              - ap-south-1
-              - ap-southeast-1
-              - ap-southeast-2
-              - ca-central-1
-              - eu-central-1
-              - eu-west-1
-              - eu-west-2
-              - eu-west-3
-              - us-east-1
-              - us-east-2
-              - us-west-1
-              - us-west-2
-            - Ref: AWS::Region
-        AssertDescription:
-          This Quick Start uses Amazon EFS which is only available
-          in the Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Mumbai),
-          Asia Pacific (Singapore), Asia Pacific (Sydney), Canada (Central), EU (Frankfurt),
-          EU (Ireland), EU (London), EU (Paris), US East (N. Virginia), US East (Ohio),
-          US West (Northern California) and US West (Oregon) regions. Please launch
-          the stack in one of these regions
 Conditions:
   UsingDefaultBucket: !Equals [Ref: QSS3BucketName, "aws-quickstart"]
 
@@ -187,75 +282,129 @@ Resources:
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/securitygroups.template.yaml
-        - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-          S3Region: !If
-            - UsingDefaultBucket
-            - !Ref "AWS::Region"
-            - !Ref "QSS3BucketRegion"
+        - S3Region:
+            !If [UsingDefaultBucket, !Ref "AWS::Region", !Ref QSS3BucketRegion]
+          S3Bucket:
+            !If [
+              UsingDefaultBucket,
+              !Sub "${QSS3BucketName}-${AWS::Region}",
+              !Ref QSS3BucketName,
+            ]
       Parameters:
         VPCID: !Ref VPCID
         ALBAccessCIDR: !Ref ALBAccessCIDR
-        # BastionSecurityGroupID: !Ref BastionSecurityGroupID
+        BastionSecurityGroupId: !Ref BastionSecurityGroupId
+
+  FileSystemStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub
+        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/filesystem.template.yaml
+        - S3Region:
+            !If [UsingDefaultBucket, !Ref "AWS::Region", !Ref QSS3BucketRegion]
+          S3Bucket:
+            !If [
+              UsingDefaultBucket,
+              !Sub "${QSS3BucketName}-${AWS::Region}",
+              !Ref QSS3BucketName,
+            ]
+      Parameters:
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        EFSPerformanceMode: !Ref EFSPerformanceMode
+        EFSProvisionedThroughputInMibps: !Ref EFSProvisionedThroughputInMibps
+        EFSThroughputMode: !Ref EFSThroughputMode
+        EFSFileSystemName: !Ref EFSFileSystemName
+        FileSystemSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.FileSystemSecurityGroupId
 
   DatabaseStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/database.template.yaml
-        - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-          S3Region: !If
-            - UsingDefaultBucket
-            - !Ref "AWS::Region"
-            - !Ref "QSS3BucketRegion"
+        - S3Region:
+            !If [UsingDefaultBucket, !Ref "AWS::Region", !Ref QSS3BucketRegion]
+          S3Bucket:
+            !If [
+              UsingDefaultBucket,
+              !Sub "${QSS3BucketName}-${AWS::Region}",
+              !Ref QSS3BucketName,
+            ]
       Parameters:
-        PrivateSubnets: !Ref PrivateSubnets
-        AuroraRDSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.AuroraRDSSecurityGroupId
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet3ID: !Ref PrivateSubnet3ID
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
         DBClusterName: !Ref DBClusterName
         DBName: !Ref DBName
-        DBAdminUserPassword: !Ref DBAdminUserPassword
+        DBUserName: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
         DBMaxCapacity: !Ref DBMaxCapacity
         DBMinCapacity: !Ref DBMinCapacity
+        DBSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.DBSecurityGroupId
 
   ContainerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/container.template.yaml
-        - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-          S3Region: !If
-            - UsingDefaultBucket
-            - !Ref "AWS::Region"
-            - !Ref "QSS3BucketRegion"
+        - S3Region:
+            !If [UsingDefaultBucket, !Ref "AWS::Region", !Ref QSS3BucketRegion]
+          S3Bucket:
+            !If [
+              UsingDefaultBucket,
+              !Sub "${QSS3BucketName}-${AWS::Region}",
+              !Ref QSS3BucketName,
+            ]
       Parameters:
-        PublicSubnets: !Ref PublicSubnets
-        PrivateSubnets: !Ref PrivateSubnets
-        NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
-        EFSSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.EFSSecurityGroupId
-        ContainerSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroupId
-        DBEndpointAddress: !GetAtt DatabaseStack.Outputs.AuroraEndPointAddress
-        DBAdminUserPassword: !Ref DBAdminUserPassword
+        PublicSubnet1ID: !Ref PublicSubnet1ID
+        PublicSubnet2ID: !Ref PublicSubnet2ID
+        PublicSubnet3ID: !Ref PublicSubnet3ID
+        PrivateSubnet1ID: !Ref PrivateSubnet1ID
+        PrivateSubnet2ID: !Ref PrivateSubnet2ID
+        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        DBUserName: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
+        DBName: !Ref DBName
+        VPCID: !Ref VPCID
         ContainerMinSize: !Ref ContainerMinSize
         ContainerMaxSize: !Ref ContainerMaxSize
         ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
-        VPCID: !Ref VPCID
-        ALBSecurityGroup: !GetAtt SecurityGroupsStack.Outputs.ALBSecurityGroupId
         ContainerCpu: !Ref ContainerCpu
         ContainerMemory: !Ref ContainerMemory
         ContainerImage: !Ref ContainerImage
-        DBName: !Ref DBName
+        FileSystemId: !GetAtt FileSystemStack.Outputs.FileSystemId
+        ContainerSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.ContainerSecurityGroupId
+        LoadBalancerSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.LoadBalancerSecurityGroupId
+        DBEndpoint: !GetAtt DatabaseStack.Outputs.DBEndpoint
 
 Outputs:
-  ELBURL:
-    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
-    Value: !GetAtt ContainerStack.Outputs.ELBURL
+  # container
+  ApplicationLoadBalancerDNSName:
+    Description: "The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record"
+    Value: !GetAtt ContainerStack.Outputs.ApplicationLoadBalancerDNSName
+  ApplicationLoadBalancerName:
+    Description: "Application load balancer name"
+    Value: !GetAtt ContainerStack.Outputs.ApplicationLoadBalancerName
+  DBPasswordSecret:
+    Description: "The database password secret ARN"
+    Value: !GetAtt ContainerStack.Outputs.DBPasswordSecret
+  Cluster:
+    Description: "Name of the ECS Cluster"
+    Value: !GetAtt ContainerStack.Outputs.Cluster
+  TaskDefinition:
+    Description: "ECS cluster task definition ARN"
+    Value: !GetAtt ContainerStack.Outputs.TaskDefinition
+  # database
+  DBEndpoint:
+    Description: "Database connection endpoint"
+    Value: !GetAtt DatabaseStack.Outputs.DBEndpoint
+  DBName:
+    Description: "Database name"
+    Value: !GetAtt DatabaseStack.Outputs.DBName
+  # filesystem
+  FileSystemId:
+    Description: "FileSystem Id"
+    Value: !GetAtt FileSystemStack.Outputs.FileSystemId

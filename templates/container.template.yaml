@@ -1,164 +1,74 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
-  Creates an EFS Filesystem, ECS Cluster, Application load balancer and related resources. **WARNING** You will be billed for the
-  AWS resources used if you create a stack from this template. (qs-123456)
-
+  Creates an ECS Cluster, Application load balancer and related resources. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
 Parameters:
-  PrivateSubnets:
-    ConstraintDescription: Must be list of existing subnet Ids
-    Default: ""
-    Description:
-      A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
-      would be launched
-    Type: CommaDelimitedList
-  PublicSubnets:
-    ConstraintDescription: Must be list of existing subnet Ids
-    Default: ""
-    Description:
-      A list of subnet identifiers of Amazon VPCs where the WebServer Autoscaling
-      would be launched
-    Type: CommaDelimitedList
-  EFSSecurityGroup:
-    Description: EFS Security Group
-    Type: AWS::EC2::SecurityGroup::Id
-  ContainerSecurityGroup:
-    Description: Container Security Group
-    Type: AWS::EC2::SecurityGroup::Id
-  DBEndpointAddress:
-    Description: Aurora DB Endpoint
+  PublicSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet3ID:
     Type: String
-  DBAdminUserPassword:
-    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
-    ConstraintDescription: Min 8 chars. Cannot contain white space, @, /, "
-    Description:
-      8-41 character, alphanumeric string to be used as the database admin
-      account password (database admin username is 'admin').
-    MaxLength: "41"
-    MinLength: "8"
-    NoEcho: "True"
+    Default: ""
+  PrivateSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet3ID:
+    Type: String
+    Default: ""
+  FileSystemId:
+    Type: String
+  ContainerSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+  LoadBalancerSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+  DBEndpoint:
+    Type: String
+  DBUserName:
+    Type: String
+  DBUserPassword:
+    Type: String
+  DBName:
     Type: String
   ContainerMinSize:
-    Default: "1"
-    Description:
-      Minimum number of WordPress EC2 containers in the Auto Scaling group.
-      It specifies the minimum number of replicas when scaling down.
     Type: Number
   ContainerMaxSize:
-    Default: "10"
-    Description:
-      Maximum number of WordPress EC2 containers in the Auto Scaling group.
-      It specifies the maximum number of replicas when scaling up.
     Type: Number
   ContainerDesiredCapacity:
-    Default: "2"
-    Description:
-      Desired number of WordPress containers. This will set the number of
-      containers when the scaling group is created, then the autoscaler will increase
-      or decrease the current number of containers as the scaling events occur.
     Type: Number
   VPCID:
-    Description: ID of the VPC (e.g., vpc-0343606e).
     Type: AWS::EC2::VPC::Id
-  ALBSecurityGroup:
-    Description: ALB Security Group
-    Type: AWS::EC2::SecurityGroup::Id
   ContainerCpu:
     Type: String
-    Default: "256"
-    AllowedValues:
-      - "256"
-      - "512"
-      - "1024"
-      - "2048"
-      - "4096"
   ContainerMemory:
     Type: String
-    Default: "0.5GB"
   ContainerImage:
     Type: String
-    Default: "docker.io/wordpress:latest"
-  DBName:
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Description: Database name for WordPress Stack
-    MaxLength: 64
-    MinLength: 5
-    Type: String
-  NumberOfPrivateSubnets:
-    AllowedValues:
-      - "2"
-      - "3"
-      - "4"
-    Default: "2"
-    Description: Number of Private subnets to use in the VPC . This must match your selections in the list of PrivateSubnets parameter.
-    Type: String
-
 Conditions:
-  3AZCondition: !Or
-    - !Equals [!Ref NumberOfPrivateSubnets, "3"]
-    - !Condition "4AZCondition"
-  4AZCondition: !Equals [!Ref NumberOfPrivateSubnets, "4"]
-
+  3AZDeployment: !And
+    - !Not [!Equals [!Ref PrivateSubnet3ID, ""]]
+    - !Not [!Equals [!Ref PublicSubnet3ID, ""]]
 Resources:
-  WordpressEFS:
-    Type: AWS::EFS::FileSystem
+  DBPasswordSecret:
+    Type: "AWS::SecretsManager::Secret"
     Properties:
-      PerformanceMode: generalPurpose
-      Encrypted: true
-  WordpressEFSMountTarget1:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref WordpressEFS
-      SubnetId: !Select
-        - 0
-        - !Ref PrivateSubnets
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-  WordpressEFSMountTarget2:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref WordpressEFS
-      SubnetId: !Select
-        - 1
-        - !Ref PrivateSubnets
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-  WordpressEFSMountTarget3:
-    Condition: 3AZCondition
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref WordpressEFS
-      SubnetId: !Select
-        - 2
-        - !Ref PrivateSubnets
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-  WordpressEFSMountTarget4:
-    Condition: 4AZCondition
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref WordpressEFS
-      SubnetId: !Select
-        - 3
-        - !Ref PrivateSubnets
-      SecurityGroups:
-        - !Ref EFSSecurityGroup
-
+      Name: WORDPRESS_DB_PASSWORD
+      SecretString: !Ref DBUserPassword
   WordpressAccessPoint:
     Type: AWS::EFS::AccessPoint
     Properties:
-      FileSystemId: !Ref WordpressEFS
+      FileSystemId: !Ref FileSystemId
       RootDirectory:
         CreationInfo:
           OwnerGid: "708798"
           OwnerUid: "7987987"
           Permissions: "0755"
         Path: "/wp-content"
-
   Cluster:
-    Type: AWS::ECS::Cluster
+    Type: "AWS::ECS::Cluster"
   ContainerExecutionRole:
-    Type: AWS::IAM::Role
+    Type: "AWS::IAM::Role"
     Properties:
       Path: "/"
       AssumeRolePolicyDocument:
@@ -180,7 +90,7 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: !Ref DBPasswordSecret
   TaskRole:
-    Type: AWS::IAM::Role
+    Type: "AWS::IAM::Role"
     Properties:
       Path: "/"
       AssumeRolePolicyDocument:
@@ -199,15 +109,8 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: !Ref DBPasswordSecret
-
-  DBPasswordSecret:
-    Type: AWS::SecretsManager::Secret
-    Properties:
-      Name: WORDPRESS_DB_PASSWORD
-      SecretString: !Sub '{"WORDPRESS_DB_PASSWORD":"${DBAdminUserPassword}"}'
-
   TaskDefinition:
-    Type: AWS::ECS::TaskDefinition
+    Type: "AWS::ECS::TaskDefinition"
     Properties:
       NetworkMode: awsvpc
       RequiresCompatibilities:
@@ -222,19 +125,19 @@ Resources:
             AuthorizationConfig:
               AccessPointId: !Ref WordpressAccessPoint
               IAM: DISABLED
-            FilesystemId: !Ref WordpressEFS
+            FilesystemId: !Ref FileSystemId
             TransitEncryption: ENABLED
       ContainerDefinitions:
-        - Name: !Join ["-", [!Ref AWS::StackName, "Container"]]
+        - Name: !Join ["-", [!Ref "AWS::StackName", "Container"]]
           Image: !Ref ContainerImage
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Ref AWS::Region
+              awslogs-region: !Ref "AWS::Region"
               awslogs-group: !Ref TaskLogGroup
-              awslogs-stream-prefix: !Ref AWS::StackName
+              awslogs-stream-prefix: !Ref "AWS::StackName"
           MountPoints:
             - SourceVolume: "efs-wp-content"
               ContainerPath: "/var/www/html/wp-content"
@@ -244,16 +147,15 @@ Resources:
               ValueFrom: !Ref DBPasswordSecret
           Environment:
             - Name: WORDPRESS_DB_HOST
-              Value: !Ref DBEndpointAddress
+              Value: !Ref DBEndpoint
             - Name: WORDPRESS_DB_NAME
               Value: !Ref DBName
             - Name: WORDPRESS_DB_USER
-              Value: admin
+              Value: !Ref DBUserName
             - Name: WORDPRESS_CONFIG_EXTRA
               Value: !Sub define('WP_HOME','http://${ApplicationLoadBalancer.DNSName}');define('WP_SITEURL','http://${ApplicationLoadBalancer.DNSName}');define('CONCATENATE_SCRIPTS', false);define('WPINV_USE_PHP_SESSIONS', false);define('FS_METHOD','direct');
-
   Service:
-    Type: AWS::ECS::Service
+    Type: "AWS::ECS::Service"
     DependsOn:
       - ALBListenerHTTP
     Properties:
@@ -269,29 +171,38 @@ Resources:
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
-          Subnets: !Ref PrivateSubnets
-          SecurityGroups:
-            - !Ref ContainerSecurityGroup
+          Subnets: !If
+            - 3AZDeployment
+            - [
+                !Ref PrivateSubnet1ID,
+                !Ref PrivateSubnet2ID,
+                !Ref PrivateSubnet3ID,
+              ]
+            - [!Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID]
+          SecurityGroups: [!Ref ContainerSecurityGroupId]
       LoadBalancers:
         - ContainerName: !Join ["-", [!Ref AWS::StackName, "Container"]]
           ContainerPort: 80
           TargetGroupArn: !Ref ALBTargetGroup
   ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
+      Subnets: !If
+        - 3AZDeployment
+        - [!Ref PublicSubnet1ID, !Ref PublicSubnet2ID, !Ref PublicSubnet3ID]
+        - [!Ref PublicSubnet1ID, !Ref PublicSubnet2ID]
+      SecurityGroups: [!Ref LoadBalancerSecurityGroupId]
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
           Value: "60"
       Scheme: internet-facing
-      Subnets: !Ref PublicSubnets
-      SecurityGroups:
-        - !Ref ALBSecurityGroup
       Tags:
         - Key: Name
           Value: WordpressALB
   ALBTargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     Properties:
+      VpcId: !Ref VPCID
       HealthCheckIntervalSeconds: 30
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
@@ -302,7 +213,6 @@ Resources:
         HttpCode: "200,301"
       Protocol: HTTP
       UnhealthyThresholdCount: 5
-      VpcId: !Ref VPCID
       TargetType: ip
       TargetGroupAttributes:
         - Key: stickiness.enabled
@@ -313,14 +223,13 @@ Resources:
           Value: "30"
         - Key: deregistration_delay.timeout_seconds
           Value: "60"
-
   ALBListenerHTTP:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref ALBTargetGroup
-      LoadBalancerArn: !Ref ApplicationLoadBalancer
       Port: 80
       Protocol: HTTP
   AutoScalingRole:
@@ -335,11 +244,11 @@ Resources:
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
   TaskLogGroup:
-    Type: AWS::Logs::LogGroup
+    Type: "AWS::Logs::LogGroup"
     Properties:
-      LogGroupName: !Join ["", [/ecs/, !Ref AWS::StackName]]
+      LogGroupName: !Join ["", [/ecs/, !Ref "AWS::StackName"]]
   AutoScalingTarget:
-    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
     Properties:
       MinCapacity: !Ref ContainerMinSize
       MaxCapacity: !Ref ContainerMaxSize
@@ -347,21 +256,31 @@ Resources:
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
       RoleARN: !GetAtt AutoScalingRole.Arn
-
   AutoScalingPolicy:
-    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
     Properties:
-      PolicyName: !Join ["", [!Ref AWS::StackName, AutoScalingPolicy]]
+      PolicyName: !Join ["", [!Ref "AWS::StackName", AutoScalingPolicy]]
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref AutoScalingTarget
       TargetTrackingScalingPolicyConfiguration:
         PredefinedMetricSpecification:
-          PredefinedMetricType: ECSServiceAverageCPUUtilization
+          PredefinedMetricType: "ECSServiceAverageCPUUtilization"
         ScaleInCooldown: 10
         ScaleOutCooldown: 10
         TargetValue: 75
-
 Outputs:
-  ELBURL:
-    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
+  ApplicationLoadBalancerDNSName:
+    Description: "The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record"
     Value: !GetAtt ApplicationLoadBalancer.DNSName
+  ApplicationLoadBalancerName:
+    Description: "Application load balancer name"
+    Value: !GetAtt ApplicationLoadBalancer.LoadBalancerName
+  DBPasswordSecret:
+    Description: "The database password secret ARN"
+    Value: !Ref DBPasswordSecret
+  Cluster:
+    Description: "Name of the ECS Cluster"
+    Value: !Ref Cluster
+  TaskDefinition:
+    Description: "ECS cluster task definition ARN"
+    Value: !Ref TaskDefinition

@@ -1,16 +1,55 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description:
-  Creates a RDS Aurora-Serverless MySQL. **WARNING** You will be billed for the
-  AWS resources used if you create a stack from this template. (qs-123456)
+Description: Creates a RDS Aurora-Serverless MySQL. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network configuration
+        Parameters:
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - DBSecurityGroupId
+      - Label:
+          default: Database configuration
+        Parameters:
+          - DBClusterName
+          - DBName
+          - DBUserName
+          - DBUserPassword
+          - DBMaxCapacity
+          - DBMinCapacity
+          - DBBackupRetentionPeriod
+          - DBPreferredBackupWindow
+    ParameterLabels:
+      DBName:
+        default: Database name
+      DBBackupRetentionPeriod:
+        default: Database backup retention period
+      DBClusterName:
+        default: Database cluster name
+      DBUserName:
+        default: Database username
+      DBUserPassword:
+        default: Database password
+      PrivateSubnet1ID:
+        default: Private subnet 1 ID
+      PrivateSubnet2ID:
+        default: Private subnet 2 ID
+      PrivateSubnet3ID:
+        default: Private subnet 3 ID
+      DBSecurityGroupId:
+        default: Database security group ID
 Parameters:
-  PrivateSubnets:
-    ConstraintDescription: Must be list of existing subnet Ids
-    Description: At least two existing Subnets in separate Availability Zones your Virtual Private Cloud (VPC)
-    Type: CommaDelimitedList
-  AuroraRDSSecurityGroup:
-    Description: Aurora Security Group
-    Type: AWS::EC2::SecurityGroup::Id
+  PrivateSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet3ID:
+    Type: String
+    Default: ""
   DBBackupRetentionPeriod:
     ConstraintDescription: Database backup retention period must be between 1 and 35 days
     Default: "7"
@@ -30,7 +69,7 @@ Parameters:
     MaxLength: "64"
     MinLength: "5"
     Type: String
-    Default: myRDSCluster
+    Default: myDBCluster
   DBName:
     AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
     Description: Name of the Database
@@ -38,7 +77,14 @@ Parameters:
     MinLength: "5"
     Type: String
     Default: myDatabase
-  DBAdminUserPassword:
+  DBUserName:
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    Description: Name of the User
+    MaxLength: "64"
+    MinLength: "5"
+    Type: String
+    Default: admin
+  DBUserPassword:
     ConstraintDescription: Min 8 alphanumeric.
     Description: The database admin account password (username is 'admin').
     MaxLength: "41"
@@ -53,20 +99,27 @@ Parameters:
     Default: "2"
     Description: Aurora serverless DB min capacity
     Type: Number
-
+  DBSecurityGroupId:
+    Description: Aurora Security Group
+    Type: AWS::EC2::SecurityGroup::Id
+Conditions:
+  3AZDeployment: !Not [!Equals [!Ref PrivateSubnet3ID, ""]]
 Resources:
-  AuroraDBSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
+  DBSubnetGroup:
+    Type: "AWS::RDS::DBSubnetGroup"
     Properties:
       DBSubnetGroupDescription: Subnets available for the RDS Aurora DB Instance
-      SubnetIds: !Ref PrivateSubnets
-  AuroraDBCluster:
-    Type: AWS::RDS::DBCluster
+      SubnetIds: !If
+        - 3AZDeployment
+        - [!Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID, !Ref PrivateSubnet3ID]
+        - [!Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID]
+  DBCluster:
+    Type: "AWS::RDS::DBCluster"
     Properties:
       StorageEncrypted: true
       BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
       PreferredBackupWindow: !Ref DBPreferredBackupWindow
-      DBSubnetGroupName: !Ref AuroraDBSubnetGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
       Engine: aurora-mysql
       EngineVersion: "5.7"
       EngineMode: serverless
@@ -75,36 +128,29 @@ Resources:
         MaxCapacity: !Ref DBMaxCapacity
         MinCapacity: !Ref DBMinCapacity
         SecondsUntilAutoPause: 300
-      MasterUsername: admin
-      MasterUserPassword: !Ref DBAdminUserPassword
+      MasterUsername: !Ref DBUserName
+      MasterUserPassword: !Ref DBUserPassword
       DatabaseName: !Ref DBName
       DBClusterIdentifier: !Ref DBClusterName
-      VpcSecurityGroupIds:
-        - !Ref AuroraRDSSecurityGroup
+      VpcSecurityGroupIds: [!Ref DBSecurityGroupId]
       Tags:
         - Key: Name
           Value: !Ref DBClusterName
 
 Outputs:
-  AuroraEndPoints:
-    Description: Aurora Cluster Endpoint to connect
+  DBEndpoint:
+    Description: "Database connection endpoint"
     Value:
       !Join [
         "",
         [
-          !GetAtt AuroraDBCluster.Endpoint.Address,
+          !GetAtt DBCluster.Endpoint.Address,
           ":",
-          !GetAtt AuroraDBCluster.Endpoint.Port,
+          !GetAtt DBCluster.Endpoint.Port,
           "/",
           !Ref DBName,
         ],
       ]
   DBName:
-    Description: Aurora DBName
+    Description: "Database name"
     Value: !Ref DBName
-  AuroraEndPointAddress:
-    Description: Aurora Endpoint to connect
-    Value: !GetAtt AuroraDBCluster.Endpoint.Address
-  AuroraEndPointPort:
-    Description: Aurora Endpoint to connect
-    Value: !GetAtt AuroraDBCluster.Endpoint.Port

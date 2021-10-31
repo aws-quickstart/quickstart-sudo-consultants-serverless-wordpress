@@ -1,120 +1,189 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
-  This template creates a new VPC and deploys WordPress in a Serverless architecture. **WARNING** You will be billed for the
-  AWS resources used if you create a stack from this template. (qs-123456)
+  This template creates a new VPC and deploys WordPress in a Serverless architecture. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
 Parameters:
-  AvailabilityZones:
-    Description: "List of Availability Zones to use for the subnets in the VPC. Note: ( The logical order is preserved and only 2 AZs are used for this deployment."
-    Type: "List<AWS::EC2::AvailabilityZone::Name>"
-  BastionAMIOS:
-    AllowedValues:
-      - Amazon-Linux2-HVM
-      - CentOS-7-HVM
-      - Ubuntu-Server-20.04-LTS-HVM
-      - SUSE-SLES-15-HVM
-    Default: Amazon-Linux2-HVM
-    Description: The Linux distribution for the AMI to be used for the bastion instances.
+  QSS3KeyPrefix:
+    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
+    ConstraintDescription: The Quick Start S3 key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/).
+    Default: quickstart-wordpress-serverless/
+    Description: S3 key prefix that is used to simulate a directory for your copy of the 
+      Quick Start assets. Keep the default prefix unless you are customizing 
+      the template. Changing this prefix updates code references to point to 
+      a new Quick Start location. This prefix can include numbers, lowercase 
+      letters, uppercase letters, hyphens (-), and forward slashes (/). End with a forward slash. 
+      See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html 
+      and https://aws-quickstart.github.io/option1.html.
     Type: String
-  BastionHostName:
-    Default: "LinuxBastion"
-    Description: The value used for the name tag of the bastion host
+  ALBAccessCIDR:
     Type: String
-  BastionBanner:
-    Default: ""
-    Description: Banner text to display upon login.
+    Default: 0.0.0.0/0
+    Description: Allowed CIDR block for external web access to the Application Load Balancer
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+  ContainerCpu:
     Type: String
-  BastionTenancy:
-    Description: "VPC tenancy to launch the bastion in. Options: 'dedicated' or 'default'"
-    Type: String
-    Default: default
-    AllowedValues:
-      - dedicated
-      - default
-  BastionInstanceType:
-    Description: Amazon EC2 instance type for the bastion instances.
-    Type: String
-    Default: t2.micro
-    AllowedValues:
-      - t2.nano
-      - t2.micro
-      - t2.small
-      - t2.medium
-      - t2.large
-      - t3.micro
-      - t3.small
-      - t3.medium
-      - t3.large
-      - t3.xlarge
-      - t3.2xlarge
-      - m3.large
-      - m3.xlarge
-      - m3.2xlarge
-      - m4.large
-      - m4.xlarge
-      - m4.2xlarge
-      - m4.4xlarge
-  EnableBanner:
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
+    Default: "256"
+    Description: ""
+    AllowedValues: ["256", "512", "1024", "2048", "4096"]
+  ContainerDesiredCapacity:
+    Type: Number
+    Default: "2"
     Description:
-      To include a banner to be displayed when connecting via SSH to the
-      bastion, choose true.
+      Desired number of WordPress containers. This will set the number of
+      containers when the scaling group is created, then the auto scaler will increase
+      or decrease the current number of containers as the scaling events occur.
+  ContainerImage:
     Type: String
-  EnableTCPForwarding:
-    Type: String
-    Description: To enable TCP forwarding, choose true.
-    Default: "false"
-    AllowedValues:
-      - "true"
-      - "false"
-  EnableX11Forwarding:
-    Type: String
-    Description: To enable X11 forwarding, choose true.
-    Default: "false"
-    AllowedValues:
-      - "true"
-      - "false"
-  KeyPairName:
+    Default: "docker.io/wordpress:latest"
+    Description: ""
+  ContainerMaxSize:
+    Type: Number
+    Default: "12"
     Description:
-      Name of an existing public/private key pair, which allows you to securely connect to your instance
-      after it launches.
-    Type: "AWS::EC2::KeyPair::KeyName"
-  NumBastionHosts:
-    AllowedValues:
-      - "1"
-      - "2"
-      - "3"
-      - "4"
+      Maximum number of WordPress EC2 containers in the Auto Scaling group.
+      It specifies the maximum number of replicas when scaling up.
+  ContainerMemory:
+    Type: String
+    Default: "0.5GB"
+    Description: ""
+  ContainerMinSize:
+    Type: Number
     Default: "1"
-    Description: The number of bastion hosts to create. The maximum number is four.
+    Description:
+      Minimum number of WordPress EC2 instances in the Auto Scaling group.
+      It specifies the minimum number of replicas when scaling down.
+  DBBackupRetentionPeriod:
+    Type: Number
+    Default: "7"
+    Description: The number of days for which automatic DB snapshots are retained
+    ConstraintDescription: Database backup retention period must be between 1 and 35 days
+    MaxValue: "35"
+    MinValue: "1"
+  DBClusterName:
     Type: String
-  PrivateSubnet1CIDR:
+    Default: "myDBCluster"
+    Description: Aurora DB Cluster Name
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MaxLength: "64"
+    MinLength: "5"
+  DBMaxCapacity:
+    Type: Number
+    Default: "16"
+    Description: Aurora serverless DB max capacity
+  DBMinCapacity:
+    Type: Number
+    Default: "2"
+    Description: Aurora serverless DB min capacity
+  DBName:
+    Type: String
+    Default: "myDatabase"
+    Description: Database Name
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    MaxLength: "64"
+    MinLength: "5"
+  DBPreferredBackupWindow:
+    Type: String
+    Default: ""
+    Description: "(Optional) Preferred backup window"
+    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
+    ConstraintDescription: Preferred backup window must be left blank or in the form of HH:MM-HH:MM
+  DBUserName:
+    Type: String
+    Default: admin
+    Description: Database user name
+  DBUserPassword:
+    Type: String
+    Description: Database user password
+    MaxLength: "41"
+    MinLength: "8"
+    NoEcho: "True"
+  EFSProvisionedThroughputInMibps:
+    Type: Number
+    Default: 0
+    Description: ""
+    MinValue: 0
+    MaxValue: 1024
+  EFSFileSystemName:
+    Type: String
+    Default: myFileSystem
+    Description: EFS FileSystem Name
+  EFSPerformanceMode:
+    Type: String
+    Default: generalPurpose
+    Description: EFS FileSystem Performance mode
+    AllowedValues: [generalPurpose, maxIO]
+  EFSThroughputMode:
+    Type: String
+    Default: bursting
+    Description: EFS FileSystem Throughput mode
+    AllowedValues: [bursting, provisioned]
+
+# Submodule parameters
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the subnets in the VPC.
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+  KeyPairName:
+    Description: Name of an existing public/private key pair, which allows you to securely connect to your instance
+      after it launches.
+    Type: 'AWS::EC2::KeyPair::KeyName'
+  PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.0.0/19
-    Description: CIDR block for private subnet 1 located in Availability Zone 1.
+    Description: CIDR block for private subnet 1A located in Availability Zone 1
     Type: String
-  PrivateSubnet2CIDR:
+  PrivateSubnet2ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.32.0/19
-    Description: CIDR block for private subnet 2 located in Availability Zone 2.
+    Description: CIDR block for private subnet 2A located in Availability Zone 2
     Type: String
+  PrivateSubnet3ACIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.64.0/19
+    Description: CIDR block for private subnet 3A located in Availability Zone 3
+    Type: String
+  # PrivateSubnet4ACIDR:
+  #   AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+  #   ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+  #   Default: 10.0.96.0/19
+  #   Description: CIDR block for private subnet 4A located in Availability Zone 4
+  #   Type: String
   PublicSubnet1CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.128.0/20
-    Description: CIDR Block for the public DMZ subnet 1 located in Availability Zone 1.
+    Description:
+      CIDR block for the public DMZ subnet 1 located in Availability Zone
+      1
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.144.0/20
-    Description: CIDR Block for the public DMZ subnet 2 located in Availability Zone 2.
+    Description:
+      CIDR block for the public DMZ subnet 2 located in Availability Zone
+      2
     Type: String
+  PublicSubnet3CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.160.0/20
+    Description:
+      CIDR block for the public DMZ subnet 3 located in Availability Zone
+      3
+    Type: String
+  # PublicSubnet4CIDR:
+  #   AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+  #   ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+  #   Default: 10.0.176.0/20
+  #   Description:
+  #     CIDR block for the public DMZ subnet 4 located in Availability Zone
+  #     4
+  #   Type: String
   VPCTenancy:
     AllowedValues:
       - default
@@ -124,30 +193,24 @@ Parameters:
     Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
-    ConstraintDescription: Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).
+    ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a 
+      hyphen (-).
     Default: aws-quickstart
-    Description:
-      S3 bucket name for the Quick Start assets. Quick Start bucket name can
-      include numbers, lowercase letters, uppercase letters, and hyphens (-). It
-      cannot start or end with a hyphen (-).
-    Type: String
-  QSS3KeyPrefix:
-    Default: quickstart-wordpress-serverless/
-    AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
-    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), dots (.) and forward slash (/). The prefix should end with a forward slash (/).
-    Description:
-      S3 key prefix for the Quick Start assets. Quick Start key prefix can
-      include numbers, lowercase letters, uppercase letters, hyphens (-), dots
-      (.) and forward slash (/) and it should end with a forward slash (/).
+    Description: Name of the S3 bucket for your copy of the Quick Start assets. 
+      Keep the default name unless you are customizing the template. 
+      Changing the name updates code references to point to a new Quick 
+      Start location. This name can include numbers, lowercase letters, 
+      uppercase letters, and hyphens, but do not start or end with a hyphen (-). 
+      See https://aws-quickstart.github.io/option1.html.
     Type: String
   QSS3BucketRegion:
-    Default: "us-east-1"
-    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
-    Type: String
-  RemoteAccessCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: Allowed CIDR block for external SSH access to the bastions
+    Default: 'us-east-1'
+    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is 
+    hosted. Keep the default Region unless you are customizing the template. 
+    Changing this Region updates code references to point to a new Quick Start location. 
+    When using your own bucket, specify the Region. 
+    See https://aws-quickstart.github.io/option1.html.'
     Type: String
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
@@ -155,240 +218,76 @@ Parameters:
     Default: 10.0.0.0/16
     Description: CIDR Block for the VPC.
     Type: String
-  DBClusterName:
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Description: Name of Aurora DB Cluster
-    MaxLength: "64"
-    MinLength: "5"
+  NumberOfAZs:
     Type: String
-  DBBackupRetentionPeriod:
-    ConstraintDescription:
-      Database backup retention period must be between 1 and
-      35 days
-    Default: "7"
-    Description: The number of days for which automatic DB snapshots are retained
-    MaxValue: "35"
-    MinValue: "1"
-    Type: Number
-  DBPreferredBackupWindow:
-    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
-    ConstraintDescription:
-      Preferred backup window must be left blank or in the form
-      of HH:MM-HH:MM
-    Default: ""
-    Description: "(Optional) Preferred backup window"
-    Type: String
-  DBName:
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    Description: Name of Aurora DB for WordPress Stack
-    MaxLength: "64"
-    MinLength: "5"
-    Type: String
-  DBAdminUserPassword:
-    AllowedPattern: (?=\S)[^@/"\r\n\t\f\s]*
-    ConstraintDescription: Min 8 alphanumeric. Cannot contain white space, @, /, "
-    Description: The database admin account password (username is 'admin').
-    MaxLength: "41"
-    MinLength: "8"
-    NoEcho: "True"
-    Type: String
-  DBMaxCapacity:
-    Default: "16"
-    Description: Aurora serverless DB max capacity
-    Type: Number
-  DBMinCapacity:
-    Default: "2"
-    Description: Aurora serverless DB min capacity
-    Type: Number
-  ALBAccessCIDR:
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description:
-      Allowed CIDR block for external web access to the Application Load
-      Balancer
-    Type: String
-  ContainerDesiredCapacity:
-    Default: "2"
-    Description:
-      Desired number of WordPress containers. This will set the number of
-      containers when the scaling group is created, then the autoscaler will increase
-      or decrease the current number of containers as the scaling events occur.
-    Type: Number
-  ContainerMaxSize:
-    Default: "12"
-    Description:
-      Maximum number of WordPress EC2 containers in the Auto Scaling group.
-      It specifies the maximum number of replicas when scaling up.
-    Type: Number
-  ContainerMinSize:
-    Default: "1"
-    Description:
-      Minimum number of WordPress EC2 instances in the Auto Scaling group.
-      It specifies the minimum number of replicas when scaling down.
-    Type: Number
-  ContainerCpu:
-    Type: String
-    Default: "256"
-    AllowedValues:
-      - "256"
-      - "512"
-      - "1024"
-      - "2048"
-      - "4096"
-    # 0.5GB, 1GB, 2GB - Available cpu values: 256 (.25 vCPU)
-    # 1GB, 2GB, 3GB, 4GB - Available cpu values: 512 (.5 vCPU)
-    # 2GB, 3GB, 4GB, 5GB, 6GB, 7GB, 8GB - Available cpu values: 1024 (1 vCPU)
-    # Between 4GB and 16GB in 1GB increments - Available cpu values: 2048 (2 vCPU)
-    # Between 8GB and 30GB in 1GB increments - Available cpu values: 4096 (4 vCPU)
-  ContainerMemory:
-    Type: String
-    Default: "0.5GB"
-  ContainerImage:
-    Type: String
-    Default: "docker.io/wordpress:latest"
-  NumberOfPrivateSubnets:
-    AllowedValues:
-      - "2"
-      - "3"
-      - "4"
-    Default: "2"
-    Description: Number of Private subnets to use in the VPC . This must match your selections in the list of PrivateSubnets parameter.
-    Type: String
-
-Rules:
-  EFSSupportedRegionRule:
-    Assertions:
-      - Assert: !Contains
-          - - af-south-1
-            - ap-northeast-1
-            - ap-northeast-2
-            - ap-south-1
-            - ap-southeast-1
-            - ap-southeast-2
-            - ca-central-1
-            - eu-central-1
-            - eu-west-1
-            - eu-west-2
-            - eu-west-3
-            - us-east-1
-            - us-east-2
-            - us-west-1
-            - us-west-2
-          - !Ref AWS::Region
-        AssertDescription:
-          This Quick Start uses Amazon EFS which is only available
-          in the Asia Pacific (Tokyo), Asia Pacific (Seoul), Asia Pacific (Mumbai),
-          Asia Pacific (Singapore), Asia Pacific (Sydney), Canada (Central), EU (Frankfurt),
-          EU (Ireland), EU (London), EU (Paris), US East (N. Virginia), US East (Ohio),
-          US West (Northern California) and US West (Oregon) regions. Please launch
-          the stack in one of these regions
+    AllowedValues: ['2', '3']
+    Default: '2'
+    Description: Number of Availability Zones to use in the VPC. This must match the value entered for the AvailabilityZones parameter.
 Conditions:
-  UsingDefaultBucket: !Equals
-    - !Ref QSS3BucketName
-    - aws-quickstart
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  3AZDeployment: !Equals [!Ref NumberOfAZs, '3']
 Resources:
+# Create new VPC
   VPCStack:
     Type: "AWS::CloudFormation::Stack"
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
-        - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-          S3Region: !If
-            - UsingDefaultBucket
-            - !Ref "AWS::Region"
-            - !Ref "QSS3BucketRegion"
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        AvailabilityZones: !Join
-          - ","
-          - !Ref AvailabilityZones
-        KeyPairName: !Ref KeyPairName
-        NumberOfAZs: "2"
-        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
-        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
-        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
-        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
-        VPCCIDR: !Ref VPCCIDR
-        VPCTenancy: !Ref VPCTenancy
-
-  # BastionStack:
-  #   Type: "AWS::CloudFormation::Stack"
-  #   Properties:
-  #     TemplateURL: !Sub
-  #       - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
-  #       - S3Bucket: !If
-  #           - UsingDefaultBucket
-  #           - !Sub "aws-quickstart-${AWS::Region}"
-  #           - !Ref "QSS3BucketName"
-  #         S3Region: !If
-  #           - UsingDefaultBucket
-  #           - !Ref "AWS::Region"
-  #           - !Ref "QSS3BucketRegion"
-  #     Parameters:
-  #       BastionAMIOS: !Ref BastionAMIOS
-  #       BastionHostName: !Ref BastionHostName
-  #       BastionBanner: !Ref BastionBanner
-  #       BastionInstanceType: !Ref BastionInstanceType
-  #       BastionTenancy: !Ref BastionTenancy
-  #       EnableBanner: !Ref EnableBanner
-  #       EnableTCPForwarding: !Ref EnableTCPForwarding
-  #       EnableX11Forwarding: !Ref EnableX11Forwarding
-  #       KeyPairName: !Ref KeyPairName
-  #       NumBastionHosts: !Ref NumBastionHosts
-  #       PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
-  #       PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
-  #       QSS3BucketRegion: !Ref QSS3BucketRegion
-  #       QSS3BucketName: !Ref QSS3BucketName
-  #       QSS3KeyPrefix: !Ref QSS3KeyPrefix
-  #       RemoteAccessCIDR: !Ref RemoteAccessCIDR
-  #       VPCID: !GetAtt VPCStack.Outputs.VPCID
-
+        VPCCIDR: !Ref 'VPCCIDR'
+        VPCTenancy: !Ref 'VPCTenancy'
+        KeyPairName: !Ref 'KeyPairName'
+        NumberOfAZs: !Ref 'NumberOfAZs'
+        AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
+        PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1ACIDR'
+        PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2ACIDR'
+        PrivateSubnet3ACIDR: !Ref 'PrivateSubnet3ACIDR'
+        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
+        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
+        PublicSubnet3CIDR: !Ref 'PublicSubnet3CIDR'
+# Deploy a wordpress stack
   WordPressStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
         - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/wordpress.template.yaml
-        - S3Bucket: !If
-            - UsingDefaultBucket
-            - !Sub "aws-quickstart-${AWS::Region}"
-            - !Ref "QSS3BucketName"
-          S3Region: !If
-            - UsingDefaultBucket
-            - !Ref AWS::Region
-            - !Ref QSS3BucketRegion
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
         QSS3BucketRegion: !Ref QSS3BucketRegion
+        ALBAccessCIDR: !Ref ALBAccessCIDR
+        ContainerCpu: !Ref ContainerCpu
+        ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
+        ContainerImage: !Ref ContainerImage
+        ContainerMaxSize: !Ref ContainerMaxSize
+        ContainerMemory: !Ref ContainerMemory
+        ContainerMinSize: !Ref ContainerMinSize
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
-        DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
         DBClusterName: !Ref DBClusterName
-        DBName: !Ref DBName
-        DBAdminUserPassword: !Ref DBAdminUserPassword
         DBMaxCapacity: !Ref DBMaxCapacity
         DBMinCapacity: !Ref DBMinCapacity
+        DBName: !Ref DBName
+        DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
+        DBUserName: !Ref DBUserName
+        DBUserPassword: !Ref DBUserPassword
+        EFSProvisionedThroughputInMibps: !Ref EFSProvisionedThroughputInMibps
+        EFSFileSystemName: !Ref EFSFileSystemName
+        EFSPerformanceMode: !Ref EFSPerformanceMode
+        EFSThroughputMode: !Ref EFSThroughputMode
+        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrivateSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PrivateSubnet3AID, '']
+        PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+        PublicSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PublicSubnet3ID, '']
         VPCID: !GetAtt VPCStack.Outputs.VPCID
-        ALBAccessCIDR: !Ref ALBAccessCIDR
-        # BastionSecurityGroupID: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
-        ContainerDesiredCapacity: !Ref ContainerDesiredCapacity
-        ContainerMaxSize: !Ref ContainerMaxSize
-        ContainerMinSize: !Ref ContainerMinSize
-        ContainerCpu: !Ref ContainerCpu
-        ContainerMemory: !Ref ContainerMemory
-        ContainerImage: !Ref ContainerImage
-        PrivateSubnets: !Join
-          - ","
-          - - !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-            - !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        PublicSubnets: !Join
-          - ","
-          - - !GetAtt VPCStack.Outputs.PublicSubnet1ID
-            - !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        NumberOfPrivateSubnets: !Ref NumberOfPrivateSubnets
+        # BastionSecurityGroupId: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
 
 Outputs:
-  ELBURL:
-    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record
-    Value: !GetAtt WordPressStack.Outputs.ELBURL
+  ApplicationLoadBalancerDNSName:
+    Description: "The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record"
+    Value: !GetAtt WordPressStack.Outputs.ApplicationLoadBalancerDNSName

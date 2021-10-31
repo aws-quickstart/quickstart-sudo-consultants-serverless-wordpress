@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS. (qs-123456)
+Description: Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS.
 Parameters:
   VPCID:
     Description: ID of the VPC (e.g., vpc-0343606e).
@@ -10,16 +10,14 @@ Parameters:
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
     Description: Allowed CIDR block for external web access to the Application Load Balancer
     Type: String
-  BastionSecurityGroupID:
+  BastionSecurityGroupId:
     Description: (Optional) ID of the Bastion Security Group (e.g., sg-1d2c3b4a)
     Type: String
     Default: ""
-
 Conditions:
-  BastionEnableCondition: !Not [!Equals [!Ref BastionSecurityGroupID, ""]]
-
+  BastionEnableCondition: !Not [!Equals [!Ref BastionSecurityGroupId, ""]]
 Resources:
-  AuroraRDSSecurityGroup:
+  DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow access to Aurora Port (AWS Quick Start)
@@ -38,8 +36,8 @@ Resources:
       Description: Allow access from bastion security group
       FromPort: 22
       ToPort: 22
-      SourceSecurityGroupId: !Ref BastionSecurityGroupID
-      GroupId: !GetAtt AuroraRDSSecurityGroup.GroupId
+      SourceSecurityGroupId: !Ref BastionSecurityGroupId
+      GroupId: !GetAtt DBSecurityGroup.GroupId
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -101,7 +99,7 @@ Resources:
       IpProtocol: tcp
       FromPort: 3306
       ToPort: 3306
-      DestinationSecurityGroupId: !GetAtt AuroraRDSSecurityGroup.GroupId
+      DestinationSecurityGroupId: !GetAtt DBSecurityGroup.GroupId
       GroupId: !GetAtt ContainerSecurityGroup.GroupId
   EFSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -135,21 +133,21 @@ Resources:
       GroupId: !GetAtt ContainerSecurityGroup.GroupId
 
 Outputs:
-  AuroraRDSSecurityGroupId:
-    Description: Aurora Security Group
-    Value: !GetAtt AuroraRDSSecurityGroup.GroupId
-  ALBSecurityGroupId:
+  DBSecurityGroupId:
+    Description: Aurora DB Security Group
+    Value: !GetAtt DBSecurityGroup.GroupId
+  LoadBalancerSecurityGroupId:
     Description: ELB Security Group
     Value: !GetAtt ALBSecurityGroup.GroupId
   ContainerSecurityGroupId:
-    Description: Web Server Security Group
+    Description: Container Security Group
     Value: !GetAtt ContainerSecurityGroup.GroupId
-  EFSSecurityGroupId:
+  FileSystemSecurityGroupId:
     Description: EFS Security Group
     Value: !GetAtt EFSSecurityGroup.GroupId
   BastionSecurityGroupId:
     Description: Bastion Security Group
     Value: !If
       - BastionEnableCondition
-      - !Ref BastionSecurityGroupID
+      - !Ref BastionSecurityGroupId
       - ""
