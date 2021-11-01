@@ -6,14 +6,13 @@ project:
   package_lambda: false
   regions:
     - us-west-1
-    - us-west-2
   parameters:
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
 
 tests:
-  # taskcat test run -t newvpcwordpress2 -r us-west-1
-  newvpcwordpress2:
+  # Sample command: taskcat test run -t newvpcwordpress2 -r us-west-1
+  new-vpc-wordpress-2az:
     template: templates/master.template.yaml
     parameters:
       DBUserPassword: $[taskcat_genpass_16A]
@@ -26,3 +25,5 @@ tests:
       NumberOfAZs: '2'
       KeyPairName: wp-key
       RemoteAccessCIDR: 0.0.0.0/0
+    regions:
+    - us-west-1
