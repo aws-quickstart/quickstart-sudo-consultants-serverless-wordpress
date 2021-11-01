@@ -26,29 +26,3 @@ tests:
       NumberOfAZs: '2'
       KeyPairName: wp-key
       RemoteAccessCIDR: 0.0.0.0/0
-
-  newvpcwordpress3:
-    template: templates/master.template.yaml
-    parameters:
-      DBUserPassword: $[taskcat_genpass_16A]
-      AvailabilityZones: $[taskcat_genaz_3]
-      PrivateSubnet1CIDR: 10.0.0.0/19
-      PrivateSubnet2CIDR: 10.0.32.0/19
-      PrivateSubnet3CIDR: 10.0.64.0/19
-      PublicSubnet1CIDR: 10.0.96.0/20
-      PublicSubnet2CIDR: 10.0.128.0/20
-      PublicSubnet3CIDR: 10.0.169.0/20
-      VPCCIDR: 10.0.0.0/16
-      NumberOfAZs: '3'
-      KeyPairName: wp-key
-      RemoteAccessCIDR: 0.0.0.0/0
-
-  wordpressonly2:
-    template: templates/wordpress.template.yaml
-    parameters:
-      DBUserPassword: $[taskcat_genpass_16A]
-      PrivateSubnet1ID: subnet-04c6e1e5abf3a2a6b
-      PrivateSubnet2ID: subnet-0ff62b427056bedf1
-      PublicSubnet1ID: subnet-0a13d65e336c00f85
-      PublicSubnet2ID: subnet-0e47f8f36f161f617
-      VPCID: vpc-05bd0e65148ee71b6
