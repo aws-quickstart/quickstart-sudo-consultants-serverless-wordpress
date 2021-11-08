@@ -2,6 +2,115 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
   This template creates a new VPC and deploys WordPress in a Serverless architecture. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
+Metadata:
+  LICENSE: Apache License Version 2.0
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Quickstart configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
+      - Label:
+          default: Network configuration
+        Parameters:
+          - VPCID
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+          - PrivateSubnet3AID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+      - Label:
+          default: Database configuration
+        Parameters:
+          - DBName
+          - DBClusterName
+          - DBUserName
+          - DBUserPassword
+          - DBMaxCapacity
+          - DBMinCapacity
+          - DBBackupRetentionPeriod
+          - DBPreferredBackupWindow
+      - Label:
+          default: Container configuration
+        Parameters:
+          - ContainerImage
+          - ContainerCpu
+          - ContainerMemory
+          - ContainerMaxSize
+          - ContainerDesiredCapacity
+          - ContainerMinSize
+          - ALBAccessCIDR
+      - Label:
+          default: FileSystem configuration
+        Parameters:
+          - EFSFileSystemName
+          - EFSProvisionedThroughputInMibps
+          - EFSPerformanceMode
+          - EFSThroughputMode
+    ParameterLabels:
+      QSS3BucketName:
+        default: Quickstart S3 bucket name
+      QSS3KeyPrefix:
+        default: Quickstart S3 key prefix
+      QSS3BucketRegion:
+        default: Quickstart S3 bucket region
+      ALBAccessCIDR:
+        default: ALB access CIDR
+      # BastionSecurityGroupId:
+      #   default: Bastion security group Id
+      ContainerCpu:
+        default: Container cpu
+      ContainerDesiredCapacity:
+        default: Container desired capacity
+      ContainerImage:
+        default: Container image
+      ContainerMaxSize:
+        default: Container max size
+      ContainerMemory:
+        default: Container memory
+      ContainerMinSize:
+        default: Container min size
+      DBBackupRetentionPeriod:
+        default: DB backup retention period
+      DBClusterName:
+        default: DB cluster name
+      DBMaxCapacity:
+        default: DB max capacity
+      DBMinCapacity:
+        default: DB min capacity
+      DBName:
+        default: DB name
+      DBPreferredBackupWindow:
+        default: DB preferred backup window
+      DBUserName:
+        default: DB user name
+      DBUserPassword:
+        default: DB user password
+      PrivateSubnet1AID:
+        default: Private subnet 1 Id
+      PrivateSubnet2AID:
+        default: Private subnet 2 Id
+      PrivateSubnet3AID:
+        default: Private subnet 3 Id
+      PublicSubnet1ID:
+        default: Public subnet 1 Id
+      PublicSubnet2ID:
+        default: Public subnet 2 Id
+      PublicSubnet3ID:
+        default: Public subnet 3 Id
+      EFSProvisionedThroughputInMibps:
+        default: EFS provisioned throughput in mibps
+      EFSFileSystemName:
+        default: EFS file system name
+      EFSPerformanceMode:
+        default: EFS performance mode
+      EFSThroughputMode:
+        default: EFS throughput mode
+      VPCID:
+        default: VPC Id
 Parameters:
   QSS3KeyPrefix:
     AllowedPattern: ^([0-9a-zA-Z-.]+/)*$
@@ -119,78 +228,6 @@ Parameters:
     Default: bursting
     Description: EFS FileSystem Throughput mode
     AllowedValues: [bursting, provisioned]
-
-# Submodule parameters
-  AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC.
-    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
-  KeyPairName:
-    Description: Name of an existing public/private key pair, which allows you to securely connect to your instance
-      after it launches.
-    Type: 'AWS::EC2::KeyPair::KeyName'
-  PrivateSubnet1ACIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/19
-    Description: CIDR block for private subnet 1A located in Availability Zone 1
-    Type: String
-  PrivateSubnet2ACIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.32.0/19
-    Description: CIDR block for private subnet 2A located in Availability Zone 2
-    Type: String
-  PrivateSubnet3ACIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.64.0/19
-    Description: CIDR block for private subnet 3A located in Availability Zone 3
-    Type: String
-  # PrivateSubnet4ACIDR:
-  #   AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-  #   ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-  #   Default: 10.0.96.0/19
-  #   Description: CIDR block for private subnet 4A located in Availability Zone 4
-  #   Type: String
-  PublicSubnet1CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.128.0/20
-    Description:
-      CIDR block for the public DMZ subnet 1 located in Availability Zone
-      1
-    Type: String
-  PublicSubnet2CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.144.0/20
-    Description:
-      CIDR block for the public DMZ subnet 2 located in Availability Zone
-      2
-    Type: String
-  PublicSubnet3CIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.160.0/20
-    Description:
-      CIDR block for the public DMZ subnet 3 located in Availability Zone
-      3
-    Type: String
-  # PublicSubnet4CIDR:
-  #   AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-  #   ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-  #   Default: 10.0.176.0/20
-  #   Description:
-  #     CIDR block for the public DMZ subnet 4 located in Availability Zone
-  #     4
-  #   Type: String
-  VPCTenancy:
-    AllowedValues:
-      - default
-      - dedicated
-    Default: default
-    Description: The allowed tenancy of instances launched into the VPC.
-    Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: The Quick Start bucket name can include numbers, lowercase
@@ -212,41 +249,36 @@ Parameters:
     When using your own bucket, specify the Region. 
     See https://aws-quickstart.github.io/option1.html.'
     Type: String
-  VPCCIDR:
-    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
-    Default: 10.0.0.0/16
-    Description: CIDR Block for the VPC.
+  # Existing VPC parameters
+  VPCID:
+    Type: AWS::EC2::VPC::Id
+    Description: "Id for the VPC"
+  PrivateSubnet1AID:
+    Type: AWS::EC2::Subnet::Id
+    Description: "Id of the private subnet 1A located in Availability Zone 1"
+  PrivateSubnet2AID:
+    Type: AWS::EC2::Subnet::Id
+    Description: "Id of the private subnet 2A located in Availability Zone 2"
+  PrivateSubnet3AID:
     Type: String
-  NumberOfAZs:
+    Default: ""
+    Description: "Id of the private subnet 3A located in Availability Zone 3"
+  PublicSubnet1ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: "Id of the public DMZ subnet 1 located in Availability Zone 1"
+  PublicSubnet2ID:
+    Type: AWS::EC2::Subnet::Id
+    Description: "Id of the public DMZ subnet 2 located in Availability Zone 2"
+  PublicSubnet3ID:
     Type: String
-    AllowedValues: ['2', '3']
-    Default: '2'
-    Description: Number of Availability Zones to use in the VPC. This must match the value entered for the AvailabilityZones parameter.
+    Default: ""
+    Description: "Id of the public DMZ subnet 3 located in Availability Zone 3"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  3AZDeployment: !Equals [!Ref NumberOfAZs, '3']
+  3AZDeployment: !And
+    - !Not [!Equals [!Ref PrivateSubnet3AID, ""]]
+    - !Not [!Equals [!Ref PublicSubnet3ID, ""]]
 Resources:
-# Create new VPC
-  VPCStack:
-    Type: "AWS::CloudFormation::Stack"
-    Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-      Parameters:
-        VPCCIDR: !Ref 'VPCCIDR'
-        VPCTenancy: !Ref 'VPCTenancy'
-        KeyPairName: !Ref 'KeyPairName'
-        NumberOfAZs: !Ref 'NumberOfAZs'
-        AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
-        PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1ACIDR'
-        PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2ACIDR'
-        PrivateSubnet3ACIDR: !Ref 'PrivateSubnet3ACIDR'
-        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
-        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
-        PublicSubnet3CIDR: !Ref 'PublicSubnet3CIDR'
 # Deploy a wordpress stack
   WordPressStack:
     Type: AWS::CloudFormation::Stack
@@ -278,15 +310,13 @@ Resources:
         EFSFileSystemName: !Ref EFSFileSystemName
         EFSPerformanceMode: !Ref EFSPerformanceMode
         EFSThroughputMode: !Ref EFSThroughputMode
-        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        PrivateSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PrivateSubnet3AID, '']
-        PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
-        PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        PublicSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PublicSubnet3ID, '']
-        VPCID: !GetAtt VPCStack.Outputs.VPCID
-        # BastionSecurityGroupId: !GetAtt BastionStack.Outputs.BastionSecurityGroupID
-
+        PrivateSubnet1AID: !Ref PrivateSubnet1AID
+        PrivateSubnet2AID: !Ref PrivateSubnet2AID
+        PrivateSubnet3AID: !If [3AZDeployment, !Ref PrivateSubnet3AID, '']
+        PublicSubnet1ID: !Ref PublicSubnet1ID
+        PublicSubnet2ID: !Ref PublicSubnet2ID
+        PublicSubnet3ID: !If [3AZDeployment, !Ref PublicSubnet3ID, '']
+        VPCID: !Ref VPCID
 Outputs:
   ApplicationLoadBalancerDNSName:
     Description: "The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record"
