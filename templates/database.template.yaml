@@ -115,6 +115,8 @@ Resources:
         - [!Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID]
   DBCluster:
     Type: "AWS::RDS::DBCluster"
+    # For Prod change DeletionPolicy to Retain
+    DeletionPolicy: Delete
     Properties:
       StorageEncrypted: true
       BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
