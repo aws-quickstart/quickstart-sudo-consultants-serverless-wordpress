@@ -24,7 +24,6 @@ Metadata:
           - PublicSubnet2CIDR
           - PublicSubnet3CIDR
           - AvailabilityZones
-          - KeyPairName
           - VPCTenancy
       - Label:
           default: Database configuration
@@ -235,10 +234,6 @@ Parameters:
   AvailabilityZones:
     Description: List of Availability Zones to use for the subnets in the VPC.
     Type: 'List<AWS::EC2::AvailabilityZone::Name>'
-  KeyPairName:
-    Description: Name of an existing public/private key pair, which allows you to securely connect to your instance
-      after it launches.
-    Type: 'AWS::EC2::KeyPair::KeyName'
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -349,7 +344,6 @@ Resources:
       Parameters:
         VPCCIDR: !Ref 'VPCCIDR'
         VPCTenancy: !Ref 'VPCTenancy'
-        KeyPairName: !Ref 'KeyPairName'
         NumberOfAZs: !Ref 'NumberOfAZs'
         AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
         PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1ACIDR'

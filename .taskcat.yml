@@ -5,25 +5,52 @@ project:
   owner: saif.ali@sudoconsultants.com
   package_lambda: false
   regions:
+    - us-east-1
     - us-west-1
   parameters:
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-
+    DBUserPassword: $[taskcat_genpass_16A]
 tests:
-  # Sample command: taskcat test run -t newvpcwordpress2 -r us-west-1
+  # Command: taskcat test run -t new-vpc-wordpress-2az
   new-vpc-wordpress-2az:
-    template: templates/master.template.yaml
+    template: templates/main-entrypoint-new-vpc.template.yaml
     parameters:
-      DBUserPassword: $[taskcat_genpass_16A]
       AvailabilityZones: $[taskcat_genaz_2]
       PrivateSubnet1CIDR: 10.0.0.0/19
       PrivateSubnet2CIDR: 10.0.32.0/19
       PublicSubnet1CIDR: 10.0.96.0/20
       PublicSubnet2CIDR: 10.0.128.0/20
       VPCCIDR: 10.0.0.0/16
-      NumberOfAZs: '2'
-      KeyPairName: wp-key
-      RemoteAccessCIDR: 0.0.0.0/0
+      NumberOfAZs: "2"
     regions:
-    - us-west-1
+      - us-west-1
+  # Command: taskcat test run -t new-vpc-wordpress-3az
+  new-vpc-wordpress-3az:
+    template: templates/main-entrypoint-new-vpc.template.yaml
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_3]
+      PrivateSubnet1CIDR: 10.0.0.0/19
+      PrivateSubnet2CIDR: 10.0.32.0/19
+      PrivateSubnet3CIDR: 10.0.32.0/19
+      PublicSubnet1CIDR: 10.0.96.0/20
+      PublicSubnet2CIDR: 10.0.128.0/20
+      PublicSubnet3CIDR: 10.0.128.0/20
+      VPCCIDR: 10.0.0.0/16
+      NumberOfAZs: "3"
+    regions:
+      - us-east-1
+  # Command: taskcat test run -t existing-vpc-wordpress-3az
+  existing-vpc-wordpress-3az:
+    template: templates/main-entrypoint-existing-vpc.template.yaml
+    parameters:
+      AvailabilityZones: $[taskcat_genaz_3]
+      PrivateSubnet1AID: subnet-fcfe00cd
+      PrivateSubnet2AID: subnet-6e963d08
+      PrivateSubnet3AID: subnet-4cc7bc01
+      PublicSubnet1ID: subnet-2539552b
+      PublicSubnet2ID: subnet-611fa940
+      PublicSubnet3ID: subnet-bc4df9e3
+      VPCID: vpc-6be72016
+    regions:
+      - us-east-1
