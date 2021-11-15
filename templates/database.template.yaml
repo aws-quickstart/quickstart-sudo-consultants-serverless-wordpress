@@ -21,6 +21,7 @@ Metadata:
           - DBUserPassword
           - DBMaxCapacity
           - DBMinCapacity
+          - EnableDataAPI
           - DBBackupRetentionPeriod
           - DBPreferredBackupWindow
     ParameterLabels:
@@ -42,6 +43,8 @@ Metadata:
         default: Private subnet 3 ID
       DBSecurityGroupId:
         default: Database security group ID
+      EnableDataAPI:
+        default: Enable Http endpoint
 Parameters:
   PrivateSubnet1ID:
     Type: AWS::EC2::Subnet::Id
@@ -102,6 +105,13 @@ Parameters:
   DBSecurityGroupId:
     Description: Aurora Security Group
     Type: AWS::EC2::SecurityGroup::Id
+  EnableDataAPI:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+    Description: Enable the SQL HTTP endpoint for running SQL queries against this database.
+    Type: String
 Conditions:
   3AZDeployment: !Not [!Equals [!Ref PrivateSubnet3ID, ""]]
 Resources:
@@ -119,6 +129,7 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       StorageEncrypted: true
+      EnableHttpEndpoint: !Ref EnableDataAPI
       BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
       PreferredBackupWindow: !Ref DBPreferredBackupWindow
       DBSubnetGroupName: !Ref DBSubnetGroup
