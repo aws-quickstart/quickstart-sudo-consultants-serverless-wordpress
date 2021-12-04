@@ -1,153 +1,144 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Security Groups template. Create the security groups for RDS, Bastion, ALB, Container and EFS.
+Description: "Creates the security groups for RDS, ALB, Container and EFS."
 Parameters:
   VPCID:
-    Description: ID of the VPC (e.g., vpc-0343606e).
-    Type: AWS::EC2::VPC::Id
+    Description: "ID of the VPC (e.g., vpc-0343606e)."
+    Type: "AWS::EC2::VPC::Id"
   ALBAccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: Allowed CIDR block for external web access to the Application Load Balancer
-    Type: String
-  BastionSecurityGroupId:
-    Description: (Optional) ID of the Bastion Security Group (e.g., sg-1d2c3b4a)
-    Type: String
-    Default: ""
-Conditions:
-  BastionEnableCondition: !Not [!Equals [!Ref BastionSecurityGroupId, ""]]
+    ConstraintDescription: "CIDR block parameter must be in the form x.x.x.x/x"
+    Description: "Allowed CIDR block for external web access to the Application Load Balancer"
+    Type: "String"
+    Default: "0.0.0.0/0"
 Resources:
   DBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: Allow access to Aurora Port (AWS Quick Start)
-      VpcId: !Ref VPCID
+      GroupDescription: "RDS Security Group"
+      VpcId: !Ref "VPCID"
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          Description: Allow access from container security group
-          FromPort: 3306
-          ToPort: 3306
-          SourceSecurityGroupId: !GetAtt ContainerSecurityGroup.GroupId
-  SecurityGroupRuleBastion:
-    Type: AWS::EC2::SecurityGroupIngress
-    Condition: BastionEnableCondition
-    Properties:
-      IpProtocol: tcp
-      Description: Allow access from bastion security group
-      FromPort: 22
-      ToPort: 22
-      SourceSecurityGroupId: !Ref BastionSecurityGroupId
-      GroupId: !GetAtt DBSecurityGroup.GroupId
+        - IpProtocol: "tcp"
+          Description: "Allow access from container security group"
+          FromPort: "3306"
+          ToPort: "3306"
+          SourceSecurityGroupId: !GetAtt "ContainerSecurityGroup.GroupId"
+      Tags:
+        - Key: "Name"
+          Value: !Join ["-", [!Ref "AWS::StackName", "DBSecurityGroup"]]
   ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: ELB Security Group (AWS Quick Start)
-      VpcId: !Ref VPCID
+      GroupDescription: "ELB Security Group"
+      VpcId: !Ref "VPCID"
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          Description: Allow HTTP access
-          FromPort: 80
-          ToPort: 80
-          CidrIp: !Ref ALBAccessCIDR
-        - IpProtocol: tcp
-          Description: Allow HTTPS access
-          FromPort: 443
-          ToPort: 443
-          CidrIp: !Ref ALBAccessCIDR
+        - IpProtocol: "tcp"
+          Description: "Allow HTTP access"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: !Ref "ALBAccessCIDR"
+        - IpProtocol: "tcp"
+          Description: "Allow HTTPS access"
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: !Ref "ALBAccessCIDR"
       SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+        - IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: "0.0.0.0/0"
+      Tags:
+        - Key: "Name"
+          Value: !Join ["-", [!Ref "AWS::StackName", "ALBSecurityGroup"]]
   ContainerSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: App Container Security Group (AWS Quick Start)
-      VpcId: !Ref VPCID
+      GroupDescription: "ECS Security Group"
+      VpcId: !Ref "VPCID"
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          Description: Allow access from EFS security group
-          FromPort: 2049
-          ToPort: 2049
-          SourceSecurityGroupId: !Ref EFSSecurityGroup
-        - IpProtocol: tcp
-          Description: Allow HTTPS access from ALB security group
-          FromPort: 443
-          ToPort: 443
-          SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
-        - IpProtocol: tcp
-          Description: Allow HTTP access from ALB security group
-          FromPort: 80
-          ToPort: 80
-          SourceSecurityGroupId: !GetAtt ALBSecurityGroup.GroupId
+        - IpProtocol: "tcp"
+          Description: "Allow access from EFS security group"
+          FromPort: "2049"
+          ToPort: "2049"
+          SourceSecurityGroupId: !Ref "EFSSecurityGroup"
+        - IpProtocol: "tcp"
+          Description: "Allow HTTPS access from ALB security group"
+          FromPort: "443"
+          ToPort: "443"
+          SourceSecurityGroupId: !GetAtt "ALBSecurityGroup.GroupId"
+        - IpProtocol: "tcp"
+          Description: "Allow HTTP access from ALB security group"
+          FromPort: "80"
+          ToPort: "80"
+          SourceSecurityGroupId: !GetAtt "ALBSecurityGroup.GroupId"
       SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+        - IpProtocol: "tcp"
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: "tcp"
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: "0.0.0.0/0"
+      Tags:
+        - Key: "Name"
+          Value: !Join ["-", [!Ref "AWS::StackName", "ContainerSecurityGroup"]]
   SecurityGroupRuleAppDBEgress:
-    Type: AWS::EC2::SecurityGroupEgress
+    Type: "AWS::EC2::SecurityGroupEgress"
     Properties:
-      IpProtocol: tcp
-      FromPort: 3306
-      ToPort: 3306
-      DestinationSecurityGroupId: !GetAtt DBSecurityGroup.GroupId
-      GroupId: !GetAtt ContainerSecurityGroup.GroupId
+      IpProtocol: "tcp"
+      FromPort: "3306"
+      ToPort: "3306"
+      DestinationSecurityGroupId: !GetAtt "DBSecurityGroup.GroupId"
+      GroupId: !GetAtt "ContainerSecurityGroup.GroupId"
   EFSSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: EFS Security Group
-      VpcId: !Ref VPCID
+      GroupDescription: "EFS Security Group"
+      VpcId: !Ref "VPCID"
+      Tags:
+        - Key: "Name"
+          Value: !Join ["-", [!Ref "AWS::StackName", "EFSSecurityGroup"]]
   SecurityGroupRuleAppEFS:
-    Type: AWS::EC2::SecurityGroupIngress
+    Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-      IpProtocol: tcp
-      Description: Allow access from container security group
-      FromPort: 2049
-      ToPort: 2049
-      SourceSecurityGroupId: !GetAtt ContainerSecurityGroup.GroupId
-      GroupId: !GetAtt EFSSecurityGroup.GroupId
+      IpProtocol: "tcp"
+      Description: "Allow access from container security group"
+      FromPort: "2049"
+      ToPort: "2049"
+      SourceSecurityGroupId: !GetAtt "ContainerSecurityGroup.GroupId"
+      GroupId: !GetAtt "EFSSecurityGroup.GroupId"
   SecurityGroupRuleEFSContainerEgress:
-    Type: AWS::EC2::SecurityGroupEgress
+    Type: "AWS::EC2::SecurityGroupEgress"
     Properties:
-      IpProtocol: tcp
-      FromPort: 2049
-      ToPort: 2049
-      DestinationSecurityGroupId: !GetAtt ContainerSecurityGroup.GroupId
-      GroupId: !GetAtt EFSSecurityGroup.GroupId
+      IpProtocol: "tcp"
+      FromPort: "2049"
+      ToPort: "2049"
+      DestinationSecurityGroupId: !GetAtt "ContainerSecurityGroup.GroupId"
+      GroupId: !GetAtt "EFSSecurityGroup.GroupId"
   SecurityGroupRuleContainerEFSEgress:
-    Type: AWS::EC2::SecurityGroupEgress
+    Type: "AWS::EC2::SecurityGroupEgress"
     Properties:
-      IpProtocol: tcp
-      FromPort: 2049
-      ToPort: 2049
-      DestinationSecurityGroupId: !GetAtt EFSSecurityGroup.GroupId
-      GroupId: !GetAtt ContainerSecurityGroup.GroupId
+      IpProtocol: "tcp"
+      FromPort: "2049"
+      ToPort: "2049"
+      DestinationSecurityGroupId: !GetAtt "EFSSecurityGroup.GroupId"
+      GroupId: !GetAtt "ContainerSecurityGroup.GroupId"
 
 Outputs:
   DBSecurityGroupId:
-    Description: Aurora DB Security Group
-    Value: !GetAtt DBSecurityGroup.GroupId
+    Description: "RDS Security Group"
+    Value: !GetAtt "DBSecurityGroup.GroupId"
   LoadBalancerSecurityGroupId:
-    Description: ELB Security Group
-    Value: !GetAtt ALBSecurityGroup.GroupId
+    Description: "ELB Security Group"
+    Value: !GetAtt "ALBSecurityGroup.GroupId"
   ContainerSecurityGroupId:
-    Description: Container Security Group
-    Value: !GetAtt ContainerSecurityGroup.GroupId
+    Description: "ECS Security Group"
+    Value: !GetAtt "ContainerSecurityGroup.GroupId"
   FileSystemSecurityGroupId:
-    Description: EFS Security Group
-    Value: !GetAtt EFSSecurityGroup.GroupId
-  BastionSecurityGroupId:
-    Description: Bastion Security Group
-    Value: !If
-      - BastionEnableCondition
-      - !Ref BastionSecurityGroupId
-      - ""
+    Description: "EFS Security Group"
+    Value: !GetAtt "EFSSecurityGroup.GroupId"
