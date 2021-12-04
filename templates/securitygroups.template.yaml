@@ -1,18 +1,19 @@
 AWSTemplateFormatVersion: 2010-09-09
+
 Description: 'Creates the security groups for RDS, ALB, Container and EFS.'
+
 Parameters:
   VPCID:
-    Description: 'ID of the VPC (e.g., vpc-0343606e).'
+    Description: 'ID of the VPC (e.g: vpc-0343606e).'
     Type: 'AWS::EC2::VPC::Id'
   ALBAccessCIDR:
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-    Description: >-
-      Allowed CIDR block for external web access to the Application Load
-      Balancer
+    Description: Allowed CIDR block for external web access to the Application Load Balancer.
     Type: String
     Default: 0.0.0.0/0
+
 Resources:
   DBSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -164,24 +165,25 @@ Resources:
       GroupId: !GetAtt 
         - ContainerSecurityGroup
         - GroupId
+
 Outputs:
   DBSecurityGroupId:
-    Description: RDS Security Group
+    Description: The group ID of the database security group.
     Value: !GetAtt 
       - DBSecurityGroup
       - GroupId
   LoadBalancerSecurityGroupId:
-    Description: ELB Security Group
+    Description: The group ID of the load balancer security group.
     Value: !GetAtt 
       - ALBSecurityGroup
       - GroupId
   ContainerSecurityGroupId:
-    Description: ECS Security Group
+    Description: The group ID of the container security group.
     Value: !GetAtt 
       - ContainerSecurityGroup
       - GroupId
   FileSystemSecurityGroupId:
-    Description: EFS Security Group
+    Description: The group ID of the filesystem security group.
     Value: !GetAtt 
       - EFSSecurityGroup
       - GroupId
