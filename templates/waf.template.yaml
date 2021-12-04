@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Create a Web ACL and associate with ALB
+
+Parameters:
+  ActivateWordPressRule:
+    Type: String
+    Description: Activate AWS Managed WordPress WAF Rule, protects against common Wordpress attacks.
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  ActivateSQLInjectionRule:
+    Type: String
+    Description: Activate AWS Managed SQL Injection WAF Rule, protects against common SQL Injection attacks.
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  ResourceArn:
+    Type: String
+    Description: The Amazon Resource Name (ARN) of the resource to associate with the web ACL.
+
+Conditions:
+  WordPressProtectionActivated: !Equals 
+    - !Ref ActivateWordPressRule
+    - 'true'
+  SqlInjectionProtectionActivated: !Equals 
+    - !Ref ActivateSQLInjectionRule
+    - 'true'
+
+Resources:
+  WebACL:
+    Type: 'AWS::WAFv2::WebACL'
+    Properties:
+      Name: wordpressACL
+      Description: wordpress app acl
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: 'true'
+        CloudWatchMetricsEnabled: 'true'
+        MetricName: MetricForWordpressACL
+      Rules:
+        - !If 
+          - SqlInjectionProtectionActivated
+          - Name: AWS-AWSManagedRulesSQLiRuleSet
+            Priority: '10'
+            OverrideAction:
+              None: {}
+            VisibilityConfig:
+              SampledRequestsEnabled: 'true'
+              CloudWatchMetricsEnabled: 'true'
+              MetricName: AWS-AWSManagedRulesSQLiRuleSet
+            Statement:
+              ManagedRuleGroupStatement:
+                VendorName: AWS
+                Name: AWSManagedRulesSQLiRuleSet
+          - !Ref 'AWS::NoValue'
+        - !If 
+          - WordPressProtectionActivated
+          - Name: AWS-AWSManagedRulesWordPressRuleSet
+            Priority: '20'
+            OverrideAction:
+              None: {}
+            VisibilityConfig:
+              SampledRequestsEnabled: 'true'
+              CloudWatchMetricsEnabled: 'true'
+              MetricName: AWS-AWSManagedRulesWordPressRuleSet
+            Statement:
+              ManagedRuleGroupStatement:
+                VendorName: AWS
+                Name: AWSManagedRulesWordPressRuleSet
+          - !Ref 'AWS::NoValue'
+
+  WebACLAssociation:
+    Type: 'AWS::WAFv2::WebACLAssociation'
+    Properties:
+      ResourceArn: !Ref ResourceArn
+      WebACLArn: !Ref WebACL
+      
+Outputs:
+  LogicalID:
+    Description: 'The Ref for the Web ACL, containing the resource name, physical ID, and scope, formatted as follows: name|id|scope.'
+    Value: !Ref WebACLAssociation
