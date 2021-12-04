@@ -124,9 +124,8 @@ Resources:
             !Ref "PrivateSubnet3ID",
           ]
         - [!Ref "PrivateSubnet1ID", !Ref "PrivateSubnet2ID"]
-      Tags: 
-        - 
-          Key: Name
+      Tags:
+        - Key: Name
           Value: !Join ["", [!Ref "DBName", "SubnetGroup"]]
   DBCluster:
     Type: "AWS::RDS::DBCluster"
