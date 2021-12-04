@@ -1,170 +1,178 @@
----
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Creates an Aurora serverless MySQL database cluster. **WARNING** You will be billed for the AWS resources used if you create a stack from this template."
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Creates an Aurora serverless MySQL database cluster. **WARNING** You will be
+  billed for the AWS resources used if you create a stack from this template.
 Metadata:
-  LICENSE: "Apache License Version 2.0"
+  LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: "Network configuration"
+          default: Network configuration
         Parameters:
-          - "PrivateSubnet1ID"
-          - "PrivateSubnet2ID"
-          - "PrivateSubnet3ID"
-          - "DBSecurityGroupId"
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - DBSecurityGroupId
       - Label:
-          default: "Database configuration"
+          default: Database configuration
         Parameters:
-          - "DBName"
-          - "DBUserName"
-          - "DBUserPassword"
-          - "DBMaxCapacity"
-          - "DBMinCapacity"
-          - "EnableDataAPI"
-          - "DBBackupRetentionPeriod"
-          - "DBPreferredBackupWindow"
+          - DBName
+          - DBUserName
+          - DBUserPassword
+          - DBMaxCapacity
+          - DBMinCapacity
+          - EnableDataAPI
+          - DBBackupRetentionPeriod
+          - DBPreferredBackupWindow
     ParameterLabels:
       DBName:
-        default: "Database name"
+        default: Database name
       DBBackupRetentionPeriod:
-        default: "Database backup retention period"
+        default: Database backup retention period
       DBUserName:
-        default: "Database username"
+        default: Database username
       DBUserPassword:
-        default: "Database password"
+        default: Database password
       PrivateSubnet1ID:
-        default: "Private subnet 1 ID"
+        default: Private subnet 1 ID
       PrivateSubnet2ID:
-        default: "Private subnet 2 ID"
+        default: Private subnet 2 ID
       PrivateSubnet3ID:
-        default: "Private subnet 3 ID"
+        default: Private subnet 3 ID
       DBSecurityGroupId:
-        default: "Database security group ID"
+        default: Database security group ID
       EnableDataAPI:
-        default: "Enable Data API"
+        default: Enable Data API
 Parameters:
   PrivateSubnet1ID:
-    Type: "AWS::EC2::Subnet::Id"
-    Description: "Subnet Id for private subnet 1 located in Availability Zone 1"
-    AllowedPattern: "^subnet-[a-zA-Z0-9]*$"
-    ConstraintDescription: "Invalid subnet id"
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 1 located in Availability Zone 1
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet2ID:
-    Type: "AWS::EC2::Subnet::Id"
-    Description: "Subnet Id for private subnet 2 located in Availability Zone 2"
-    AllowedPattern: "^subnet-[a-zA-Z0-9]*$"
-    ConstraintDescription: "Invalid subnet id"
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 2 located in Availability Zone 2
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet3ID:
-    Type: "String"
-    Description: "Subnet Id for private subnet 3 located in Availability Zone 3"
-    Default: ""
+    Type: String
+    Description: Subnet Id for private subnet 3 located in Availability Zone 3
+    Default: ''
   DBBackupRetentionPeriod:
-    Type: "Number"
-    Description: "The number of days for which automatic DB snapshots are retained"
-    Default: "7"
-    ConstraintDescription: "Database backup retention period must be between 1 and 35 days"
-    MaxValue: "35"
-    MinValue: "1"
+    Type: Number
+    Description: The number of days for which automatic DB snapshots are retained
+    Default: '7'
+    ConstraintDescription: Database backup retention period must be between 1 and 35 days
+    MaxValue: '35'
+    MinValue: '1'
   DBPreferredBackupWindow:
-    Type: "String"
-    Description: "(Optional) Preferred backup window"
-    Default: ""
-    AllowedPattern: "^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$"
-    ConstraintDescription: Preferred backup window must be left blank or in the form of HH:MM-HH:MM
+    Type: String
+    Description: (Optional) Preferred backup window
+    Default: ''
+    AllowedPattern: '^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$'
+    ConstraintDescription: 'Preferred backup window must be left blank or in the form of HH:MM-HH:MM'
   DBName:
-    Type: "String"
-    Description: "Database name"
-    Default: "wordpressDB"
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    MaxLength: "64"
-    MinLength: "5"
+    Type: String
+    Description: Database name
+    Default: wordpressDB
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    MaxLength: '64'
+    MinLength: '5'
   DBUserName:
-    Type: "String"
-    Description: "Database user name"
-    Default: "admin"
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    MaxLength: "64"
-    MinLength: "5"
+    Type: String
+    Description: Database user name
+    Default: admin
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    MaxLength: '64'
+    MinLength: '5'
   DBUserPassword:
-    Type: "String"
-    Description: "Database user password"
-    NoEcho: "True"
-    ConstraintDescription: "Requires minimum 8 alphanumeric characters"
-    MaxLength: "41"
-    MinLength: "8"
+    Type: String
+    Description: Database user password
+    NoEcho: 'True'
+    ConstraintDescription: Requires minimum 8 alphanumeric characters
+    MaxLength: '41'
+    MinLength: '8'
   DBMaxCapacity:
-    Type: "Number"
-    Description: "Aurora serverless DB max capacity"
-    Default: "16"
+    Type: Number
+    Description: Aurora serverless DB max capacity
+    Default: '16'
   DBMinCapacity:
-    Type: "Number"
-    Description: "Aurora serverless DB min capacity"
-    Default: "2"
+    Type: Number
+    Description: Aurora serverless DB min capacity
+    Default: '2'
   DBSecurityGroupId:
-    Type: "AWS::EC2::SecurityGroup::Id"
-    Description: "Security Group Id of an existing security group that allows inbound traffic to the database"
+    Type: 'AWS::EC2::SecurityGroup::Id'
+    Description: >-
+      Security Group Id of an existing security group that allows inbound
+      traffic to the database
   EnableDataAPI:
-    Type: "String"
-    Description: "Enable SQL HTTP endpoint for running SQL queries against this database from the AWS Console"
-    Default: "true"
+    Type: String
+    Description: >-
+      Enable SQL HTTP endpoint for running SQL queries against this database
+      from the AWS Console
+    Default: 'true'
     AllowedValues:
-      - "true"
-      - "false"
+      - 'true'
+      - 'false'
 Conditions:
-  3AZDeployment: !Not [!Equals [!Ref "PrivateSubnet3ID", ""]]
+  3AZDeployment: !Not 
+    - !Equals 
+      - !Ref PrivateSubnet3ID
+      - ''
 Resources:
   DBSubnetGroup:
-    Type: "AWS::RDS::DBSubnetGroup"
+    Type: 'AWS::RDS::DBSubnetGroup'
     Properties:
-      DBSubnetGroupDescription: "Subnets available for the cluster"
-      SubnetIds: !If
+      DBSubnetGroupDescription: Subnets available for the cluster
+      SubnetIds: !If 
         - 3AZDeployment
-        - [
-            !Ref "PrivateSubnet1ID",
-            !Ref "PrivateSubnet2ID",
-            !Ref "PrivateSubnet3ID",
-          ]
-        - [!Ref "PrivateSubnet1ID", !Ref "PrivateSubnet2ID"]
+        - - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
+          - !Ref PrivateSubnet3ID
+        - - !Ref PrivateSubnet1ID
+          - !Ref PrivateSubnet2ID
       Tags:
-        - Key: "Name"
-          Value: !Join ["", [!Ref "DBName", "SubnetGroup"]]
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref DBName
+              - SubnetGroup
   DBCluster:
-    Type: "AWS::RDS::DBCluster"
-    DeletionPolicy: "Delete"
-    # DeletionPolicy: "Retain"
+    Type: 'AWS::RDS::DBCluster'
+    DeletionPolicy: Delete
     Properties:
-      Engine: "aurora-mysql"
-      EngineVersion: "5.7"
-      EngineMode: "serverless"
-      StorageEncrypted: "true"
-      DatabaseName: !Ref "DBName"
-      DBClusterIdentifier: !Join ["", [!Ref "DBName", "Cluster"]]
-      DBSubnetGroupName: !Ref "DBSubnetGroup"
-      MasterUsername: !Ref "DBUserName"
-      VpcSecurityGroupIds: [!Ref "DBSecurityGroupId"]
-      MasterUserPassword: !Ref "DBUserPassword"
-      EnableHttpEndpoint: !Ref "EnableDataAPI"
-      BackupRetentionPeriod: !Ref "DBBackupRetentionPeriod"
-      PreferredBackupWindow: !Ref "DBPreferredBackupWindow"
+      Engine: aurora-mysql
+      EngineVersion: '5.7'
+      EngineMode: serverless
+      StorageEncrypted: 'true'
+      DatabaseName: !Ref DBName
+      DBClusterIdentifier: !Join 
+        - ''
+        - - !Ref DBName
+          - Cluster
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MasterUsername: !Ref DBUserName
+      VpcSecurityGroupIds:
+        - !Ref DBSecurityGroupId
+      MasterUserPassword: !Ref DBUserPassword
+      EnableHttpEndpoint: !Ref EnableDataAPI
+      BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
+      PreferredBackupWindow: !Ref DBPreferredBackupWindow
       ScalingConfiguration:
-        AutoPause: "true"
+        AutoPause: 'true'
         SecondsUntilAutoPause: 300
-        MaxCapacity: !Ref "DBMaxCapacity"
-        MinCapacity: !Ref "DBMinCapacity"
-
+        MaxCapacity: !Ref DBMaxCapacity
+        MinCapacity: !Ref DBMinCapacity
 Outputs:
   DBEndpoint:
-    Description: "Database connection endpoint"
-    Value:
-      !Join [
-        "",
-        [
-          !GetAtt "DBCluster.Endpoint.Address",
-          ":",
-          !GetAtt "DBCluster.Endpoint.Port",
-          "/",
-          !Ref "DBName",
-        ],
-      ]
+    Description: Database connection endpoint
+    Value: !Join 
+      - ''
+      - - !GetAtt DBCluster.Endpoint.Address
+        - ':'
+        - !GetAtt DBCluster.Endpoint.Port
+        - /
+        - !Ref DBName
   DBName:
-    Description: "Database name"
-    Value: !Ref "DBName"
+    Description: Database name
+    Value: !Ref DBName
