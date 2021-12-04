@@ -1,129 +1,157 @@
----
-AWSTemplateFormatVersion: "2010-09-09"
-Description: "Creates an EFS file system. **WARNING** You will be billed for the AWS resources used if you create a stack from this template."
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Creates an EFS file system. **WARNING** You will be billed for the AWS
+  resources used if you create a stack from this template.
 Metadata:
-  LICENSE: "Apache License Version 2.0"
+  LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: "Network configuration"
+          default: Network configuration
         Parameters:
-          - "PrivateSubnet1ID"
-          - "PrivateSubnet2ID"
-          - "PrivateSubnet3ID"
-          - "FileSystemSecurityGroupId"
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - FileSystemSecurityGroupId
       - Label:
-          default: "FileSystem configuration"
+          default: FileSystem configuration
         Parameters:
-          - "EFSFileSystemName"
-          - "EFSProvisionedThroughputInMibps"
-          - "EFSPerformanceMode"
-          - "EFSThroughputMode"
+          - EFSFileSystemName
+          - EFSProvisionedThroughputInMibps
+          - EFSPerformanceMode
+          - EFSThroughputMode
     ParameterLabels:
       EFSFileSystemName:
-        default: "EFS FileSystem Name"
+        default: EFS FileSystem Name
       EFSProvisionedThroughputInMibps:
-        default: "EFS Provisioned Throughput In Mibps"
+        default: EFS Provisioned Throughput In Mibps
       EFSPerformanceMode:
-        default: "EFS FileSystem Performance mode"
+        default: EFS FileSystem Performance mode
       EFSThroughputMode:
-        default: "EFS FileSystem Throughput mode"
+        default: EFS FileSystem Throughput mode
       PrivateSubnet1ID:
-        default: "Private subnet 1 ID"
+        default: Private subnet 1 ID
       PrivateSubnet2ID:
-        default: "Private subnet 2 ID"
+        default: Private subnet 2 ID
       PrivateSubnet3ID:
-        default: "Private subnet 3 ID"
+        default: Private subnet 3 ID
       FileSystemSecurityGroupId:
-        default: "FileSystem security group ID"
+        default: FileSystem security group ID
 Parameters:
   PrivateSubnet1ID:
-    Type: "AWS::EC2::Subnet::Id"
-    Description: "Subnet Id for private subnet 1 located in Availability Zone 1"
-    AllowedPattern: "^subnet-[a-zA-Z0-9]*$"
-    ConstraintDescription: "Invalid subnet id"
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 1 located in Availability Zone 1
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet2ID:
-    Type: "AWS::EC2::Subnet::Id"
-    Description: "Subnet Id for private subnet 2 located in Availability Zone 2"
-    AllowedPattern: "^subnet-[a-zA-Z0-9]*$"
-    ConstraintDescription: "Invalid subnet id"
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 2 located in Availability Zone 2
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet3ID:
-    Type: "String"
-    Description: "Subnet Id for private subnet 3 located in Availability Zone 3"
-    Default: ""
+    Type: String
+    Description: Subnet Id for private subnet 3 located in Availability Zone 3
+    Default: ''
   FileSystemSecurityGroupId:
-    Type: "AWS::EC2::SecurityGroup::Id"
-    Description: "Security Group Id of an existing security group that allows inbound traffic to the file system"
+    Type: 'AWS::EC2::SecurityGroup::Id'
+    Description: >-
+      Security Group Id of an existing security group that allows inbound
+      traffic to the file system
   EFSProvisionedThroughputInMibps:
-    Type: "Number"
+    Type: Number
     Default: 0
-    Description: "EFS provisioned throughput capacity in Mibps"
+    Description: EFS provisioned throughput capacity in Mibps
     MinValue: 0
     MaxValue: 1024
   EFSFileSystemName:
-    Type: "String"
-    Default: "wordpressEFS"
-    Description: "EFS FileSystem Name"
+    Type: String
+    Default: wordpressEFS
+    Description: EFS FileSystem Name
   EFSPerformanceMode:
-    Type: "String"
-    Default: "generalPurpose"
-    Description: "EFS FileSystem Performance mode"
-    AllowedValues: ["generalPurpose", "maxIO"]
+    Type: String
+    Default: generalPurpose
+    Description: EFS FileSystem Performance mode
+    AllowedValues:
+      - generalPurpose
+      - maxIO
   EFSThroughputMode:
-    Type: "String"
-    Default: "bursting"
-    Description: "EFS FileSystem Throughput mode"
-    AllowedValues: ["bursting", "provisioned"]
+    Type: String
+    Default: bursting
+    Description: EFS FileSystem Throughput mode
+    AllowedValues:
+      - bursting
+      - provisioned
 Rules:
   ProvisionedThroughput:
-    RuleCondition: !Equals [!Ref "EFSThroughputMode", "provisioned"]
+    RuleCondition: !Equals 
+      - !Ref EFSThroughputMode
+      - provisioned
     Assertions:
-      - Assert: !Not [!Equals ["0", !Ref "EFSProvisionedThroughputInMibps"]]
-        AssertDescription: "EfsProvisionedThroughputInMibps must be greater than 0 when ThroughputMode is provisioned"
+      - Assert: !Not 
+          - !Equals 
+            - '0'
+            - !Ref EFSProvisionedThroughputInMibps
+        AssertDescription: >-
+          EfsProvisionedThroughputInMibps must be greater than 0 when
+          ThroughputMode is provisioned
   BurstingThroughput:
-    RuleCondition: !Equals [!Ref "EFSThroughputMode", "bursting"]
+    RuleCondition: !Equals 
+      - !Ref EFSThroughputMode
+      - bursting
     Assertions:
-      - Assert: !Equals ["0", !Ref "EFSProvisionedThroughputInMibps"]
-        AssertDescription: "EfsProvisionedThroughputInMibps must be 0 when ThroughputMode is bursting"
+      - Assert: !Equals 
+          - '0'
+          - !Ref EFSProvisionedThroughputInMibps
+        AssertDescription: >-
+          EfsProvisionedThroughputInMibps must be 0 when ThroughputMode is
+          bursting
 Conditions:
-  IsProvisioned: !Equals [!Ref "EFSThroughputMode", "provisioned"]
-  3AZDeployment: !Not [!Equals [!Ref PrivateSubnet3ID, ""]]
+  IsProvisioned: !Equals 
+    - !Ref EFSThroughputMode
+    - provisioned
+  3AZDeployment: !Not 
+    - !Equals 
+      - !Ref PrivateSubnet3ID
+      - ''
 Resources:
   EFSFileSystem:
-    Type: "AWS::EFS::FileSystem"
+    Type: 'AWS::EFS::FileSystem'
     Properties:
-      Encrypted: "true"
-      PerformanceMode: !Ref "EFSPerformanceMode"
-      ProvisionedThroughputInMibps:
-        !If [
-          "IsProvisioned",
-          !Ref "EFSProvisionedThroughputInMibps",
-          !Ref "AWS::NoValue",
-        ]
-      ThroughputMode: !Ref "EFSThroughputMode"
+      Encrypted: 'true'
+      PerformanceMode: !Ref EFSPerformanceMode
+      ProvisionedThroughputInMibps: !If 
+        - IsProvisioned
+        - !Ref EFSProvisionedThroughputInMibps
+        - !Ref 'AWS::NoValue'
+      ThroughputMode: !Ref EFSThroughputMode
       FileSystemTags:
-        - Key: "Name"
-          Value: !Ref "EFSFileSystemName"
+        - Key: Name
+          Value: !Ref EFSFileSystemName
   MountTargetPrivateSubnet1:
-    Type: "AWS::EFS::MountTarget"
+    Type: 'AWS::EFS::MountTarget'
     Properties:
-      FileSystemId: !Ref "EFSFileSystem"
-      SecurityGroups: [!Ref "FileSystemSecurityGroupId"]
-      SubnetId: !Ref "PrivateSubnet1ID"
+      FileSystemId: !Ref EFSFileSystem
+      SecurityGroups:
+        - !Ref FileSystemSecurityGroupId
+      SubnetId: !Ref PrivateSubnet1ID
   MountTargetPrivateSubnet2:
-    Type: "AWS::EFS::MountTarget"
+    Type: 'AWS::EFS::MountTarget'
     Properties:
-      FileSystemId: !Ref "EFSFileSystem"
-      SecurityGroups: [!Ref "FileSystemSecurityGroupId"]
-      SubnetId: !Ref "PrivateSubnet2ID"
+      FileSystemId: !Ref EFSFileSystem
+      SecurityGroups:
+        - !Ref FileSystemSecurityGroupId
+      SubnetId: !Ref PrivateSubnet2ID
   MountTargetPrivateSubnet3:
-    Condition: "3AZDeployment"
-    Type: "AWS::EFS::MountTarget"
+    Condition: 3AZDeployment
+    Type: 'AWS::EFS::MountTarget'
     Properties:
-      FileSystemId: !Ref "EFSFileSystem"
-      SecurityGroups: [!Ref "FileSystemSecurityGroupId"]
-      SubnetId: !Ref "PrivateSubnet3ID"
+      FileSystemId: !Ref EFSFileSystem
+      SecurityGroups:
+        - !Ref FileSystemSecurityGroupId
+      SubnetId: !Ref PrivateSubnet3ID
 Outputs:
   FileSystemId:
-    Description: "FileSystem Id"
-    Value: !GetAtt "EFSFileSystem.FileSystemId"
+    Description: FileSystem Id
+    Value: !GetAtt 
+      - EFSFileSystem
+      - FileSystemId
