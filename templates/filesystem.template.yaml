@@ -1,7 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
+
 Description: >-
-  Creates an EFS file system. **WARNING** You will be billed for the AWS
+  Creates an EFS file system and mount points. **WARNING** You will be billed for the AWS
   resources used if you create a stack from this template.
+
 Metadata:
   LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
@@ -37,50 +39,50 @@ Metadata:
         default: Private subnet 3 ID
       FileSystemSecurityGroupId:
         default: FileSystem security group ID
+
 Parameters:
   PrivateSubnet1ID:
     Type: 'AWS::EC2::Subnet::Id'
-    Description: Subnet Id for private subnet 1 located in Availability Zone 1
+    Description: Subnet Id for private subnet 1 located in Availability Zone 1.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
   PrivateSubnet2ID:
     Type: 'AWS::EC2::Subnet::Id'
-    Description: Subnet Id for private subnet 2 located in Availability Zone 2
+    Description: Subnet Id for private subnet 2 located in Availability Zone 2.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
   PrivateSubnet3ID:
     Type: String
-    Description: Subnet Id for private subnet 3 located in Availability Zone 3
+    Description: Subnet Id for private subnet 3 located in Availability Zone 3.
     Default: ''
   FileSystemSecurityGroupId:
     Type: 'AWS::EC2::SecurityGroup::Id'
-    Description: >-
-      Security Group Id of an existing security group that allows inbound
-      traffic to the file system
+    Description: The group ID of the specified security group, such as sg-94b3a1f6.
+  EFSFileSystemName:
+    Type: String
+    Default: myFileSystem
+    Description: The Name of the EFS file system.
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
-    Description: EFS provisioned throughput capacity in Mibps
+    Description: The throughput, measured in MiB/s, that you want to provision for a file system that you're creating. Valid values are 1-1024. Required if ThroughputMode is set to provisioned.
     MinValue: 0
     MaxValue: 1024
-  EFSFileSystemName:
-    Type: String
-    Default: wordpressEFS
-    Description: EFS FileSystem Name
   EFSPerformanceMode:
     Type: String
     Default: generalPurpose
-    Description: EFS FileSystem Performance mode
+    Description: The performance mode of the file system.
     AllowedValues:
       - generalPurpose
       - maxIO
   EFSThroughputMode:
     Type: String
     Default: bursting
-    Description: EFS FileSystem Throughput mode
+    Description: Specifies the throughput mode for the file system, either bursting or provisioned.
     AllowedValues:
       - bursting
       - provisioned
+
 Rules:
   ProvisionedThroughput:
     RuleCondition: !Equals 
@@ -105,6 +107,7 @@ Rules:
         AssertDescription: >-
           EfsProvisionedThroughputInMibps must be 0 when ThroughputMode is
           bursting
+
 Conditions:
   IsProvisioned: !Equals 
     - !Ref EFSThroughputMode
@@ -113,6 +116,7 @@ Conditions:
     - !Equals 
       - !Ref PrivateSubnet3ID
       - ''
+
 Resources:
   EFSFileSystem:
     Type: 'AWS::EFS::FileSystem'
@@ -149,9 +153,10 @@ Resources:
       SecurityGroups:
         - !Ref FileSystemSecurityGroupId
       SubnetId: !Ref PrivateSubnet3ID
+
 Outputs:
   FileSystemId:
-    Description: FileSystem Id
+    Description: The ID of your EFS file system.
     Value: !GetAtt 
       - EFSFileSystem
       - FileSystemId
