@@ -7,7 +7,6 @@ project:
   parameters:
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-    DBUserPassword: $[taskcat_genpass_16A]
 tests:
   # Command: taskcat test run -t new-vpc-wordpress-2az -n
   new-vpc-wordpress-2az:
@@ -20,32 +19,32 @@ tests:
       PublicSubnet2CIDR: 10.0.128.0/20
       VPCCIDR: 10.0.0.0/16
       NumberOfAZs: '2'
-      DomainName: 'mywpsite.dev.sudoconsultants.com'
+      DomainName: 'wps.dev.sudoconsultants.com'
       UseSSL: 'true'
       HostedZoneID: 'Z0046578CIP4Q0VUT1L6'
       ActivateWordPressRule: 'true'
       ActivateSQLInjectionRule: 'true'
       DBUsername: 'admin'
-      DBPassword: '1234567890'
+      DBPassword: $[taskcat_genpass_16A]
     regions:
       - us-west-1
   # Command: taskcat test run -t new-vpc-wordpress-3az
-  new-vpc-wordpress-3az:
-    template: templates/main-entrypoint-new-vpc.template.yaml
-    parameters:
-      AvailabilityZones: $[taskcat_genaz_3]
-      PrivateSubnet1CIDR: 10.0.0.0/19
-      PrivateSubnet2CIDR: 10.0.32.0/19
-      PrivateSubnet3CIDR: 10.0.64.0/19
-      PublicSubnet1CIDR: 10.0.96.0/20
-      PublicSubnet2CIDR: 10.0.128.0/20
-      PublicSubnet3CIDR: 10.0.160.0/20
-      VPCCIDR: 10.0.0.0/16
-      NumberOfAZs: '3'
-      DBUsername: 'admin'
-      DBPassword: '1234567890'
-    regions:
-      - ca-central-1
+  # new-vpc-wordpress-3az:
+  #   template: templates/main-entrypoint-new-vpc.template.yaml
+  #   parameters:
+  #     AvailabilityZones: $[taskcat_genaz_3]
+  #     PrivateSubnet1CIDR: 10.0.0.0/19
+  #     PrivateSubnet2CIDR: 10.0.32.0/19
+  #     PrivateSubnet3CIDR: 10.0.64.0/19
+  #     PublicSubnet1CIDR: 10.0.96.0/20
+  #     PublicSubnet2CIDR: 10.0.128.0/20
+  #     PublicSubnet3CIDR: 10.0.160.0/20
+  #     VPCCIDR: 10.0.0.0/16
+  #     NumberOfAZs: '3'
+  #     DBUsername: 'admin'
+  #     DBPassword: $[taskcat_genpass_16A]
+  #   regions:
+  #     - ca-central-1
   # Command: taskcat test run -t existing-vpc-wordpress-3az
   # existing-vpc-wordpress-3az:
   #   template: templates/main-entrypoint-existing-vpc.template.yaml
