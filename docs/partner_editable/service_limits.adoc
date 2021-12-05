@@ -11,9 +11,11 @@
 |DB Cluster |<1>
 |DB SubnetGroup |<1>
 |Security groups |<5>
-|Elastic IP addresses |<1>
+|Elastic IP addresses |<2-3>
 |SecretsManager Secret |<1>
 |Application Load Balancers |<1>
 |Auto Scaling groups |<1>
 |IAM Role |<2>
+|Route53 DNS Record |<1>
+|ACM Certificate |<1>
 |===

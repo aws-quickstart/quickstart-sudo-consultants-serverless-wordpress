@@ -15,17 +15,24 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Quickstart configuration
+          default: Basic configuration
         Parameters:
-          - QSS3BucketName
-          - QSS3KeyPrefix
-          - QSS3BucketRegion
-      - Label:
-          default: Network configuration
-        Parameters:
-          - VPCCIDR
           - NumberOfAZs
           - AvailabilityZones
+          - DBName
+          - DBUsername
+          - DBPassword
+      - Label:
+          default: DNS and SSL configuration
+        Parameters:
+          - UseSSL
+          - DomainName
+          - HostedZoneID
+          - CertificateArn
+      - Label:
+          default: VPC configuration
+        Parameters:
+          - VPCCIDR
           - PrivateSubnet1ACIDR
           - PrivateSubnet2ACIDR
           - PrivateSubnet3ACIDR
@@ -34,29 +41,19 @@ Metadata:
           - PublicSubnet3CIDR
           - VPCTenancy
       - Label:
-          default: Web Application Firewall Configuration
+          default: WAF configuration
         Parameters:
         - ActivateSQLInjectionRule
         - ActivateWordPressRule
       - Label:
-          default: DNS and SSL Configuration
+          default: RDS configuration
         Parameters:
-        - DomainName
-        - HostedZoneID
-        - UseSSL
-        - CertificateArn
-      - Label:
-          default: Database configuration
-        Parameters:
-          - DBName
-          - DBUsername
-          - DBPassword
           - DBMaxCapacity
           - DBMinCapacity
           - DBBackupRetentionPeriod
           - DBPreferredBackupWindow
       - Label:
-          default: Container configuration
+          default: ECS configuration
         Parameters:
           - ContainerImage
           - ContainerMemory
@@ -66,12 +63,18 @@ Metadata:
           - ContainerDesiredCount
           - ALBAccessCIDR
       - Label:
-          default: File System configuration
+          default: EFS configuration
         Parameters:
           - EFSFileSystemName
           - EFSProvisionedThroughputInMibps
           - EFSPerformanceMode
           - EFSThroughputMode
+      - Label:
+          default: Quickstart configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
     ParameterLabels:
       QSS3BucketName:
         default: Quickstart S3 bucket name
@@ -84,13 +87,13 @@ Metadata:
       UseSSL:
         default: Use SSL
       CertificateArn:
-        default: SSL certificate ARN
+        default: SSL certificate Arn
       HostedZoneID:
         default: Route 53 Hosted Zone ID
       ALBAccessCIDR:
         default: ALB access CIDR
       ContainerCpu:
-        default: Container cpu
+        default: Container CPU
       ContainerDesiredCount:
         default: Container desired count
       ContainerImage:
@@ -102,19 +105,19 @@ Metadata:
       ContainerMinCount:
         default: Container min count
       DBBackupRetentionPeriod:
-        default: DB backup retention period
+        default: Database backup retention period
       DBMaxCapacity:
-        default: DB max capacity
+        default: Database max capacity
       DBMinCapacity:
-        default: DB min capacity
+        default: Database min capacity
       DBName:
-        default: DB name
+        default: Database name
       DBPreferredBackupWindow:
-        default: DB preferred backup window
+        default: Database preferred backup window
       DBUsername:
-        default: DB username
+        default: Database username
       DBPassword:
-        default: DB password
+        default: Database password
       PrivateSubnet1ACIDR:
         default: Private subnet 1 CIDR
       PrivateSubnet2ACIDR:
@@ -272,7 +275,7 @@ Parameters:
     # Between 8192 (8 GB) and 30720 (30 GB) in increments of 1024 (1 GB) - Available cpu values: 4096 (4 vCPU)
   ContainerDesiredCount:
     Type: Number
-    Default: '2'
+    Default: '1'
     Description: Desired number of WordPress containers.
   ContainerImage:
     Type: String
@@ -280,7 +283,7 @@ Parameters:
     Description: The image used to start a container. By default uses Wordpress official docker image.
   ContainerMaxCount:
     Type: Number
-    Default: '2'
+    Default: '3'
     Description: Maximum number of WordPress containers in the Auto Scaling group.
   ContainerMinCount:
     Type: Number
@@ -336,9 +339,6 @@ Parameters:
       - 'true'
       - 'false'
   # VPC Submodule parameters
-  AvailabilityZones:
-    Description: List of Availability Zones to use for the subnets in the VPC.
-    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
@@ -409,6 +409,9 @@ Parameters:
     AllowedValues: ['2', '3']
     Default: '2'
     Description: Number of Availability Zones to use in the VPC. This must match the value entered for the AvailabilityZones parameter.
+  AvailabilityZones:
+    Description: List of Availability Zones to use for the subnets in the VPC.
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
 
 Rules:
   ProvisionedThroughput:
@@ -490,8 +493,8 @@ Rules:
 
 
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   3AZDeployment: !Equals [!Ref NumberOfAZs, '3']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   UseSSL: !Equals [!Ref UseSSL, 'true']
   GenerateSSLCertificate: !And
     - !Equals [!Ref CertificateArn, '']
@@ -508,48 +511,66 @@ Conditions:
         - ''
 
 Resources:
-  # Create new VPC
   VPCStack:
-    Type: "AWS::CloudFormation::Stack"
+    Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      TemplateURL: !Sub 
+        - >-
+          https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
+        - S3Region: !If 
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref QSS3BucketRegion
+          S3Bucket: !If 
+            - UsingDefaultBucket
+            - !Sub '${QSS3BucketName}-${AWS::Region}'
+            - !Ref QSS3BucketName
       Parameters:
-        VPCCIDR: !Ref 'VPCCIDR'
-        VPCTenancy: !Ref 'VPCTenancy'
-        NumberOfAZs: !Ref 'NumberOfAZs'
-        AvailabilityZones: !Join [ ',', !Ref 'AvailabilityZones' ]
-        PrivateSubnet1ACIDR: !Ref 'PrivateSubnet1ACIDR'
-        PrivateSubnet2ACIDR: !Ref 'PrivateSubnet2ACIDR'
-        PrivateSubnet3ACIDR: !Ref 'PrivateSubnet3ACIDR'
-        PublicSubnet1CIDR: !Ref 'PublicSubnet1CIDR'
-        PublicSubnet2CIDR: !Ref 'PublicSubnet2CIDR'
-        PublicSubnet3CIDR: !Ref 'PublicSubnet3CIDR'
-  # Configure ACM
+        VPCCIDR: !Ref VPCCIDR
+        VPCTenancy: !Ref VPCTenancy
+        NumberOfAZs: !Ref NumberOfAZs
+        AvailabilityZones: !Join [ ',', !Ref AvailabilityZones ]
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1ACIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2ACIDR
+        PrivateSubnet3ACIDR: !Ref PrivateSubnet3ACIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        PublicSubnet3CIDR: !Ref PublicSubnet3CIDR
   ConfigureSSLStack:
     Condition: GenerateSSLCertificate
-    Type: AWS::CloudFormation::Stack
+    Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      TemplateURL: !Sub 
+        - >-
+          https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml
+        - S3Region: !If 
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref QSS3BucketRegion
+          S3Bucket: !If 
+            - UsingDefaultBucket
+            - !Sub '${QSS3BucketName}-${AWS::Region}'
+            - !Ref QSS3BucketName
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
-        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/'
         DomainName: !Ref DomainName
         HostedZoneID: !Ref HostedZoneID
-  # Deploy WordPress
   WordPressStack:
-    Type: AWS::CloudFormation::Stack
+    Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/wordpress.template.yaml
-        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      TemplateURL: !Sub 
+        - >-
+          https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/wordpress.template.yaml
+        - S3Region: !If 
+            - UsingDefaultBucket
+            - !Ref 'AWS::Region'
+            - !Ref QSS3BucketRegion
+          S3Bucket: !If 
+            - UsingDefaultBucket
+            - !Sub '${QSS3BucketName}-${AWS::Region}'
+            - !Ref QSS3BucketName
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
@@ -574,23 +595,29 @@ Resources:
         EFSThroughputMode: !Ref EFSThroughputMode
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
         PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        PrivateSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PrivateSubnet3AID, '']
+        PrivateSubnet3ID: !If 
+          - 3AZDeployment
+          - !GetAtt VPCStack.Outputs.PrivateSubnet3AID
+          - ''
         PublicSubnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
         PublicSubnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
-        PublicSubnet3ID: !If [3AZDeployment, !GetAtt VPCStack.Outputs.PublicSubnet3ID, '']
+        PublicSubnet3ID: !If 
+          - 3AZDeployment
+          - !GetAtt VPCStack.Outputs.PublicSubnet3ID
+          - ''
         VPCID: !GetAtt VPCStack.Outputs.VPCID
         DomainName: !Ref DomainName
-        CertificateArn: !If
+        CertificateArn: !If 
           - UseSSL
-          - !If
+          - !If 
             - GenerateSSLCertificate
-            - !GetAtt ConfigureSSLStack.Outputs.ACMCertificate
+            - !GetAtt 
+                ConfigureSSLStack.Outputs.ACMCertificate
             - !Ref CertificateArn
           - !Ref 'AWS::NoValue'
         HostedZoneID: !Ref HostedZoneID
         ActivateWordPressRule: !Ref ActivateWordPressRule
         ActivateSQLInjectionRule: !Ref ActivateSQLInjectionRule
-
 Outputs:
   ApplicationURL:
     Condition: AddDNSRecord

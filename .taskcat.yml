@@ -18,13 +18,13 @@ tests:
   new-vpc-wordpress-2az:
     template: templates/main-entrypoint-new-vpc.template.yaml
     parameters:
+      NumberOfAZs: "2"
       AvailabilityZones: $[taskcat_genaz_2]
       PrivateSubnet1CIDR: 10.0.0.0/19
       PrivateSubnet2CIDR: 10.0.32.0/19
       PublicSubnet1CIDR: 10.0.96.0/20
       PublicSubnet2CIDR: 10.0.128.0/20
       VPCCIDR: 10.0.0.0/16
-      NumberOfAZs: "2"
       UseSSL: "true"
       DomainName: "wps.dev.sudoconsultants.com"
       HostedZoneID: "Z0046578CIP4Q0VUT1L6"
@@ -34,15 +34,15 @@ tests:
   # new-vpc-wordpress-3az:
   #   template: templates/main-entrypoint-new-vpc.template.yaml
   #   parameters:
+  #     NumberOfAZs: '3'
   #     AvailabilityZones: $[taskcat_genaz_3]
+  #     VPCCIDR: 10.0.0.0/16
   #     PrivateSubnet1CIDR: 10.0.0.0/19
   #     PrivateSubnet2CIDR: 10.0.32.0/19
   #     PrivateSubnet3CIDR: 10.0.64.0/19
   #     PublicSubnet1CIDR: 10.0.96.0/20
   #     PublicSubnet2CIDR: 10.0.128.0/20
   #     PublicSubnet3CIDR: 10.0.160.0/20
-  #     VPCCIDR: 10.0.0.0/16
-  #     NumberOfAZs: '3'
   #   regions:
   #     - ca-central-1
   # Command: taskcat test run -t existing-vpc-wordpress-3az
