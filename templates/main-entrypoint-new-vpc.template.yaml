@@ -6,6 +6,12 @@ Description:
 
 Metadata:
   LICENSE: Apache License Version 2.0
+  cfn-lint:
+    config:
+      ignore_checks:
+        # Check for QSID
+        - E9008
+
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:

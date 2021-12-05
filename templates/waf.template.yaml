@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: Create a Web ACL and associate with ALB
 
+Metadata:
+  LICENSE: Apache License Version 2.0
+  cfn-lint:
+    config:
+      ignore_checks:
+        # Check for QSID
+        - E9008
+
 Parameters:
   ActivateWordPressRule:
     Type: String

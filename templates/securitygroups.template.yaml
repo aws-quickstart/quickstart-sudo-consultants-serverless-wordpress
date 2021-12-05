@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: 2010-09-09
 
 Description: 'Creates the security groups for RDS, ALB, Container and EFS.'
 
+Metadata:
+  LICENSE: Apache License Version 2.0
+  cfn-lint:
+    config:
+      ignore_checks:
+        # Check for QSID
+        - E9008
+
 Parameters:
   VPCID:
     Description: 'ID of the VPC (e.g: vpc-0343606e).'

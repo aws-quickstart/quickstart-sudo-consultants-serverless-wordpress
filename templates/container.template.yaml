@@ -5,6 +5,14 @@ Description: >-
   other resources. **WARNING** You will be billed for the AWS resources used if
   you create a stack from this template.
 
+Metadata:
+  LICENSE: Apache License Version 2.0
+  cfn-lint:
+    config:
+      ignore_checks:
+        # Check for QSID
+        - E9008
+
 Parameters:
   DomainName:
     Description: >-
