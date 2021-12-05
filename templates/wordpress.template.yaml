@@ -15,28 +15,6 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
-          default: Quickstart configuration
-        Parameters:
-          - QSS3BucketName
-          - QSS3KeyPrefix
-          - QSS3BucketRegion
-      - Label:
-          default: DNS and SSL Configuration
-        Parameters:
-          - DomainName
-          - CertificateArn
-          - HostedZoneID
-      - Label:
-          default: Network configuration
-        Parameters:
-          - VPCID
-          - PrivateSubnet1ID
-          - PrivateSubnet2ID
-          - PrivateSubnet3ID
-          - PublicSubnet1ID
-          - PublicSubnet2ID
-          - PublicSubnet3ID
-      - Label:
           default: Database configuration
         Parameters:
           - DBName
@@ -60,14 +38,36 @@ Metadata:
           default: FileSystem configuration
         Parameters:
           - EFSFileSystemName
-          - EFSProvisionedThroughputInMibps
           - EFSPerformanceMode
           - EFSThroughputMode
+          - EFSProvisionedThroughputInMibps
+      - Label:
+          default: DNS and SSL Configuration
+        Parameters:
+          - DomainName
+          - HostedZoneID
+          - CertificateArn
       - Label:
           default: Web Application Firewall Configuration
         Parameters:
         - ActivateWordPressRule
         - ActivateSQLInjectionRule
+      - Label:
+          default: Network configuration
+        Parameters:
+          - VPCID
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+      - Label:
+          default: Quickstart configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
     ParameterLabels:
       QSS3BucketName:
         default: Quickstart S3 bucket name

@@ -15,28 +15,28 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: FileSystem configuration
+        Parameters:
+          - EFSFileSystemName
+          - EFSPerformanceMode
+          - EFSThroughputMode
+          - EFSProvisionedThroughputInMibps
+      - Label:
           default: Network configuration
         Parameters:
           - PrivateSubnet1ID
           - PrivateSubnet2ID
           - PrivateSubnet3ID
           - FileSystemSecurityGroupId
-      - Label:
-          default: FileSystem configuration
-        Parameters:
-          - EFSFileSystemName
-          - EFSProvisionedThroughputInMibps
-          - EFSPerformanceMode
-          - EFSThroughputMode
     ParameterLabels:
       EFSFileSystemName:
         default: EFS FileSystem Name
-      EFSProvisionedThroughputInMibps:
-        default: EFS Provisioned Throughput In Mibps
       EFSPerformanceMode:
         default: EFS FileSystem Performance mode
       EFSThroughputMode:
         default: EFS FileSystem Throughput mode
+      EFSProvisionedThroughputInMibps:
+        default: EFS Provisioned Throughput In Mibps
       PrivateSubnet1ID:
         default: Private subnet 1 ID
       PrivateSubnet2ID:
@@ -64,6 +64,8 @@ Parameters:
   FileSystemSecurityGroupId:
     Type: 'AWS::EC2::SecurityGroup::Id'
     Description: The group ID of the specified security group, such as sg-94b3a1f6.
+    AllowedPattern: '^sg-[a-zA-Z0-9]*$'
+    ConstraintDescription: Please select FileSystemSecurityGroupId security group.
   EFSFileSystemName:
     Type: String
     Default: myFileSystem

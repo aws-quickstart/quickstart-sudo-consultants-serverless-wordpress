@@ -70,9 +70,13 @@ Parameters:
   ContainerSecurityGroupId:
     Type: 'AWS::EC2::SecurityGroup::Id'
     Description: Container security group Id
+    AllowedPattern: '^sg-[a-zA-Z0-9]*$'
+    ConstraintDescription: Please select ContainerSecurityGroupId security group.
   LoadBalancerSecurityGroupId:
     Type: 'AWS::EC2::SecurityGroup::Id'
     Description: Application load balancer security group Id
+    AllowedPattern: '^sg-[a-zA-Z0-9]*$'
+    ConstraintDescription: Please select LoadBalancerSecurityGroupId security group.
   DBEndpoint:
     Type: String
     Description: The connection endpoint of the database.

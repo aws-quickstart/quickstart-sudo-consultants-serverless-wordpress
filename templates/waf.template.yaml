@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Create a Web ACL and associate with ALB
+Description: Create a Web ACL and associate with ALB. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
 
 Metadata:
   LICENSE: Apache License Version 2.0
@@ -28,7 +28,8 @@ Parameters:
   ResourceArn:
     Type: String
     Description: The Amazon Resource Name (ARN) of the resource to associate with the web ACL.
-
+    MinLength: 20
+    MaxLength: 2048
 Conditions:
   WordPressProtectionActivated: !Equals 
     - !Ref ActivateWordPressRule

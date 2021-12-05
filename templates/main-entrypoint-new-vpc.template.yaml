@@ -471,24 +471,22 @@ Rules:
             - ['8GB', '12GB', '16GB', '30GB']
             - !Ref ContainerMemory
       AssertDescription: Please choose a compatible CPU and memory configuration
-  
-  # Not working
+  # Checked after pressing Create stack
   CertificateArnOrDomainNameIsPresentIfUseSSL:
+    RuleCondition: !Equals 
+      - !Ref UseSSL
+      - 'true'
     Assertions:
-    - Assert: !Or
-        - !Equals [!Ref UseSSL, 'false']
-        - !And
-          - !Equals [!Ref UseSSL, 'true']
-          - !Or
-            - !Not [!Equals [!Ref CertificateArn, '']]
-            - !Not [!Equals [!Ref DomainName, '']]
-      AssertDescription: Please specify a 'Certificate ARN' or 'Domain Name' if you specify 'Use SSL'
+      - Assert: !Or
+          - !Not [!Equals [!Ref CertificateArn, '']]
+          - !Not [!Equals [!Ref DomainName, '']]
+        AssertDescription: Please specify a 'Certificate ARN' or 'Domain Name' if you specify 'Use SSL'
   DomainNameIsPresentIfHostedZoneIDRule:
     Assertions:
-    - Assert: !Or
-        - !Equals [!Ref HostedZoneID, '']
-        - !Not [!Equals [!Ref DomainName, '']]
-      AssertDescription: Please specify a 'Domain Name' if you specify 'Route 53 HostedZone ID'
+      - Assert: !Or
+          - !Equals [!Ref HostedZoneID, '']
+          - !Not [!Equals [!Ref DomainName, '']]
+        AssertDescription: Please specify a 'Domain Name' if you specify 'Route 53 HostedZone ID'
 
 
 Conditions:
