@@ -1,116 +1,267 @@
----
-AWSTemplateFormatVersion: "2010-09-09"
-Description:
-  Creates an ECS Cluster, Application load balancer and related resources. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >-
+  Creates a Wordpress container using ECS, ELB Application load balancer and
+  other resources. **WARNING** You will be billed for the AWS resources used if
+  you create a stack from this template.
+
 Parameters:
+  DomainName:
+    Description: >-
+      (Optional) Domain name for the web site. It must be an existing, publicly
+      resolvable domain.
+    Type: String
+    Default: ''
+    ConstraintDescription: Must be a valid domain name.
+  CertificateArn:
+    Description: (Optional) The ARN of the SSL certificate to use for the load balancer.
+    Type: String
+    Default: ''
+  HostedZoneID:
+    Description: >-
+      (Optional) Route 53 Hosted Zone ID of the domain name. If left blank route
+      53 will not be configured and DNS must be setup manually. If you specify
+      this, you must also specify a Domain name
+    Type: String
+    Default: ''
+    MaxLength: '32'
+  VPCID:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: 'ID of the VPC (e.g., vpc-0343606e).'
   PublicSubnet1ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for public subnet 1 located in Availability Zone 1
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PublicSubnet2ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for public subnet 2 located in Availability Zone 2
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PublicSubnet3ID:
     Type: String
-    Default: ""
+    Description: Subnet Id for public subnet 3 located in Availability Zone 3
+    Default: ''
   PrivateSubnet1ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 1 located in Availability Zone 1
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet2ID:
-    Type: AWS::EC2::Subnet::Id
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 2 located in Availability Zone 2
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
   PrivateSubnet3ID:
     Type: String
-    Default: ""
+    Description: Subnet Id for private subnet 3 located in Availability Zone 3
+    Default: ''
   FileSystemId:
     Type: String
+    Description: EFS file system Id
   ContainerSecurityGroupId:
-    Type: AWS::EC2::SecurityGroup::Id
+    Type: 'AWS::EC2::SecurityGroup::Id'
+    Description: Container security group Id
   LoadBalancerSecurityGroupId:
-    Type: AWS::EC2::SecurityGroup::Id
+    Type: 'AWS::EC2::SecurityGroup::Id'
+    Description: Application load balancer security group Id
   DBEndpoint:
     Type: String
-  DBUserName:
-    Type: String
-  DBUserPassword:
-    Type: String
+    Description: The connection endpoint of the database.
   DBName:
     Type: String
-  ContainerMinSize:
-    Type: Number
-  ContainerMaxSize:
-    Type: Number
-  ContainerDesiredCapacity:
-    Type: Number
-  VPCID:
-    Type: AWS::EC2::VPC::Id
+    Default: myDatabase
+    Description: The name of your database. If you don't provide a name, then Amazon RDS won't create a database in this DB cluster.
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    MaxLength: '64'
+    MinLength: '5'
+  DBUsername:
+    NoEcho: 'true'
+    Description: Username for MySQL database access
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+    NoEcho: 'true'
+    Description: Password MySQL database access
+    Type: String
+    MinLength: '8'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]*'
+    ConstraintDescription: must contain only alphanumeric characters.
   ContainerCpu:
     Type: String
+    Default: '256'
+    Description: The number of cpu units used by the task.
+    AllowedValues:
+      - '256'
+      - '512'
+      - '1024'
+      - '2048'
+      - '4096'
   ContainerMemory:
     Type: String
+    Default: 0.5GB
+    Description: The amount (in GiB) of memory used by the task.
+    AllowedValues:
+      - '0.5GB'
+      - '1GB'
+      - '2GB'
+      - '3GB'
+      - '4GB'
+      - '5GB'
+      - '6GB'
+      - '7GB'
+      - '8GB'
+      - '12GB'
+      - '16GB'
+      - '30GB'
+  ContainerDesiredCount:
+    Type: Number
+    Default: '2'
+    Description: Desired number of WordPress containers.
   ContainerImage:
     Type: String
+    Default: 'docker.io/wordpress:latest'
+    Description: The image used to start a container. By default uses Wordpress official docker image.
+  ContainerMaxCount:
+    Type: Number
+    Default: '2'
+    Description: Maximum number of WordPress containers in the Auto Scaling group.
+  ContainerMinCount:
+    Type: Number
+    Default: '1'
+    Description: Minimum number of WordPress containers in the Auto Scaling group.
+
 Conditions:
-  3AZDeployment: !And
-    - !Not [!Equals [!Ref PrivateSubnet3ID, ""]]
-    - !Not [!Equals [!Ref PublicSubnet3ID, ""]]
+  3AZDeployment: !And 
+    - !Not 
+      - !Equals 
+        - !Ref PrivateSubnet3ID
+        - ''
+    - !Not 
+      - !Equals 
+        - !Ref PublicSubnet3ID
+        - ''
+  UseSSL: !Not 
+    - !Equals 
+      - !Ref CertificateArn
+      - ''
+  AddDNSRecord: !And 
+    - !Not 
+      - !Equals 
+        - !Ref DomainName
+        - ''
+    - !Not 
+      - !Equals 
+        - !Ref HostedZoneID
+        - ''
+
+Rules:
+  CorrectCpuMemConfigRule:
+    Assertions:
+    - Assert: !Or
+        - !And
+          - !Equals
+            - '256'
+            - !Ref ContainerCpu
+          - !Contains
+            - ['0.5GB', '1GB', '2GB']
+            - !Ref ContainerMemory
+        - !And
+          - !Equals
+            - '512'
+            - !Ref ContainerCpu
+          - !Contains
+            - ['1GB', '2GB', '3GB', '4GB']
+            - !Ref ContainerMemory
+        - !And
+          - !Equals
+            - '1024'
+            - !Ref ContainerCpu
+          - !Contains
+            - ['2GB','3GB', '4GB', '5GB', '6GB', '7GB', '8GB']
+            - !Ref ContainerMemory
+        - !And
+          - !Equals
+            - '2048'
+            - !Ref ContainerCpu
+          - !Contains
+            - ['4GB', '5GB', '6GB', '7GB', '8GB', '12GB', '16GB']
+            - !Ref ContainerMemory
+        - !And
+          - !Equals
+            - '4096'
+            - !Ref ContainerCpu
+          - !Contains
+            - ['8GB', '12GB', '16GB', '30GB']
+            - !Ref ContainerMemory
+
 Resources:
   DBPasswordSecret:
-    Type: "AWS::SecretsManager::Secret"
+    Type: 'AWS::SecretsManager::Secret'
     Properties:
       Name: WORDPRESS_DB_PASSWORD
-      SecretString: !Ref DBUserPassword
+      SecretString: !Ref DBPassword
   WordpressAccessPoint:
-    Type: AWS::EFS::AccessPoint
+    Type: 'AWS::EFS::AccessPoint'
     Properties:
       FileSystemId: !Ref FileSystemId
       RootDirectory:
         CreationInfo:
-          OwnerGid: "708798"
-          OwnerUid: "7987987"
-          Permissions: "0755"
-        Path: "/wp-content"
+          OwnerGid: '708798'
+          OwnerUid: '7987987'
+          Permissions: '0755'
+        Path: /wp-content
   Cluster:
-    Type: "AWS::ECS::Cluster"
+    Type: 'AWS::ECS::Cluster'
   ContainerExecutionRole:
-    Type: "AWS::IAM::Role"
+    Type: 'AWS::IAM::Role'
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
+            Action: 'sts:AssumeRole'
       ManagedPolicyArns:
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+        - !Sub >-
+          arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
         - PolicyName: AccessDBAdminUserPasswordSecret
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
-                  - secretsmanager:GetSecretValue
+                  - 'secretsmanager:GetSecretValue'
                 Resource: !Ref DBPasswordSecret
   TaskRole:
-    Type: "AWS::IAM::Role"
+    Type: 'AWS::IAM::Role'
     Properties:
-      Path: "/"
+      Path: /
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
+            Action: 'sts:AssumeRole'
       Policies:
         - PolicyName: AccessDBAdminUserPasswordSecret
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
-                  - secretsmanager:GetSecretValue
+                  - 'secretsmanager:GetSecretValue'
                 Resource: !Ref DBPasswordSecret
   TaskDefinition:
-    Type: "AWS::ECS::TaskDefinition"
+    Type: 'AWS::ECS::TaskDefinition'
     Properties:
       NetworkMode: awsvpc
       RequiresCompatibilities:
@@ -128,19 +279,22 @@ Resources:
             FilesystemId: !Ref FileSystemId
             TransitEncryption: ENABLED
       ContainerDefinitions:
-        - Name: !Join ["-", [!Ref "AWS::StackName", "Container"]]
+        - Name: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - Container
           Image: !Ref ContainerImage
           PortMappings:
             - ContainerPort: 80
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-region: !Ref "AWS::Region"
+              awslogs-region: !Ref 'AWS::Region'
               awslogs-group: !Ref TaskLogGroup
-              awslogs-stream-prefix: !Ref "AWS::StackName"
+              awslogs-stream-prefix: !Ref 'AWS::StackName'
           MountPoints:
-            - SourceVolume: "efs-wp-content"
-              ContainerPath: "/var/www/html/wp-content"
+            - SourceVolume: 'efs-wp-content'
+              ContainerPath: '/var/www/html/wp-content'
               ReadOnly: false
           Secrets:
             - Name: WORDPRESS_DB_PASSWORD
@@ -151,136 +305,216 @@ Resources:
             - Name: WORDPRESS_DB_NAME
               Value: !Ref DBName
             - Name: WORDPRESS_DB_USER
-              Value: !Ref DBUserName
+              Value: !Ref DBUsername
             - Name: WORDPRESS_CONFIG_EXTRA
-              Value: !Sub define('WP_HOME','http://${ApplicationLoadBalancer.DNSName}');define('WP_SITEURL','http://${ApplicationLoadBalancer.DNSName}');define('CONCATENATE_SCRIPTS', false);define('WPINV_USE_PHP_SESSIONS', false);define('FS_METHOD','direct');
+              Value: !Sub 
+                - >-
+                  define('WP_HOME','${SCHEME}${DOMAIN}');
+                  define('WP_SITEURL','${SCHEME}${DOMAIN}');
+                  define('CONCATENATE_SCRIPTS',false);
+                  define('WPINV_USE_PHP_SESSIONS',false);
+                  define('FS_METHOD','direct');
+                - SCHEME: !If 
+                    - UseSSL
+                    - 'https://'
+                    - 'http://'
+                  DOMAIN: !If 
+                    - AddDNSRecord
+                    - !Ref DomainName
+                    - !GetAtt ApplicationLoadBalancer.DNSName
   Service:
-    Type: "AWS::ECS::Service"
+    Type: 'AWS::ECS::Service'
     DependsOn:
       - ALBListenerHTTP
     Properties:
-      ServiceName: !Join ["-", [!Ref AWS::StackName, "Service"]]
+      ServiceName: !Join 
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - Service
       Cluster: !Ref Cluster
       TaskDefinition: !Ref TaskDefinition
       DeploymentConfiguration:
         MinimumHealthyPercent: 100
         MaximumPercent: 200
-      DesiredCount: !Ref ContainerDesiredCapacity
+      DesiredCount: !Ref ContainerDesiredCount
       HealthCheckGracePeriodSeconds: 200
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
-          Subnets: !If
+          Subnets: !If 
             - 3AZDeployment
-            - [
-                !Ref PrivateSubnet1ID,
-                !Ref PrivateSubnet2ID,
-                !Ref PrivateSubnet3ID,
-              ]
-            - [!Ref PrivateSubnet1ID, !Ref PrivateSubnet2ID]
-          SecurityGroups: [!Ref ContainerSecurityGroupId]
+            - - !Ref PrivateSubnet1ID
+              - !Ref PrivateSubnet2ID
+              - !Ref PrivateSubnet3ID
+            - - !Ref PrivateSubnet1ID
+              - !Ref PrivateSubnet2ID
+          SecurityGroups:
+            - !Ref ContainerSecurityGroupId
       LoadBalancers:
-        - ContainerName: !Join ["-", [!Ref AWS::StackName, "Container"]]
+        - ContainerName: !Join 
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - Container
           ContainerPort: 80
           TargetGroupArn: !Ref ALBTargetGroup
   ApplicationLoadBalancer:
-    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Subnets: !If
+      Subnets: !If 
         - 3AZDeployment
-        - [!Ref PublicSubnet1ID, !Ref PublicSubnet2ID, !Ref PublicSubnet3ID]
-        - [!Ref PublicSubnet1ID, !Ref PublicSubnet2ID]
-      SecurityGroups: [!Ref LoadBalancerSecurityGroupId]
+        - - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+          - !Ref PublicSubnet3ID
+        - - !Ref PublicSubnet1ID
+          - !Ref PublicSubnet2ID
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroupId
       LoadBalancerAttributes:
         - Key: idle_timeout.timeout_seconds
-          Value: "60"
+          Value: '60'
       Scheme: internet-facing
-      Tags:
-        - Key: Name
-          Value: WordpressALB
   ALBTargetGroup:
-    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Properties:
       VpcId: !Ref VPCID
       HealthCheckIntervalSeconds: 30
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      HealthCheckPort: "80"
+      HealthCheckPort: '80'
       HealthCheckProtocol: HTTP
       Port: 80
       Matcher:
-        HttpCode: "200,301"
+        HttpCode: '200,301'
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       TargetType: ip
       TargetGroupAttributes:
         - Key: stickiness.enabled
-          Value: "true"
+          Value: 'true'
         - Key: stickiness.type
           Value: lb_cookie
         - Key: stickiness.lb_cookie.duration_seconds
-          Value: "30"
+          Value: '30'
         - Key: deregistration_delay.timeout_seconds
-          Value: "60"
+          Value: '60'
   ALBListenerHTTP:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
+      DefaultActions:
+        - !If 
+          - UseSSL
+          - Type: redirect
+            RedirectConfig:
+              Host: '#{host}'
+              Path: '/#{path}'
+              Port: '443'
+              Protocol: HTTPS
+              StatusCode: HTTP_301
+          - Type: forward
+            TargetGroupArn: !Ref ALBTargetGroup
       LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+  ALBListenerHTTPS:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Condition: UseSSL
+    Properties:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref ALBTargetGroup
-      Port: 80
-      Protocol: HTTP
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
+  Route53RecordSet:
+    Condition: AddDNSRecord
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      Type: A
+      Name: !Ref DomainName
+      AliasTarget:
+        HostedZoneId: !GetAtt ApplicationLoadBalancer.CanonicalHostedZoneID
+        DNSName: !GetAtt ApplicationLoadBalancer.DNSName
+      HostedZoneId: !Ref HostedZoneID
   AutoScalingRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
+            Action: 'sts:AssumeRole'
       ManagedPolicyArns:
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
+        - !Sub >-
+          arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
   TaskLogGroup:
-    Type: "AWS::Logs::LogGroup"
+    Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Join ["", [/ecs/, !Ref "AWS::StackName"]]
+      LogGroupName: !Join 
+        - ''
+        - - /ecs/
+          - !Ref 'AWS::StackName'
   AutoScalingTarget:
-    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+    Type: 'AWS::ApplicationAutoScaling::ScalableTarget'
     Properties:
-      MinCapacity: !Ref ContainerMinSize
-      MaxCapacity: !Ref ContainerMaxSize
-      ResourceId: !Join ["/", [service, !Ref Cluster, !GetAtt Service.Name]]
-      ScalableDimension: ecs:service:DesiredCount
+      MaxCapacity: !Ref ContainerMaxCount
+      MinCapacity: !Ref ContainerMinCount
+      ResourceId: !Join 
+        - /
+        - - service
+          - !Ref Cluster
+          - !GetAtt Service.Name
+      ScalableDimension: 'ecs:service:DesiredCount'
       ServiceNamespace: ecs
       RoleARN: !GetAtt AutoScalingRole.Arn
   AutoScalingPolicy:
-    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+    Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
     Properties:
-      PolicyName: !Join ["", [!Ref "AWS::StackName", AutoScalingPolicy]]
+      PolicyName: !Join 
+        - ''
+        - - !Ref 'AWS::StackName'
+          - AutoScalingPolicy
       PolicyType: TargetTrackingScaling
       ScalingTargetId: !Ref AutoScalingTarget
       TargetTrackingScalingPolicyConfiguration:
         PredefinedMetricSpecification:
-          PredefinedMetricType: "ECSServiceAverageCPUUtilization"
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
         ScaleInCooldown: 10
         ScaleOutCooldown: 10
         TargetValue: 75
+
 Outputs:
+  ApplicationURL:
+    Condition: AddDNSRecord
+    Description: The URL of the Application.
+    Value: !Join 
+      - ''
+      - - !If 
+          - UseSSL
+          - 'https://'
+          - 'http://'
+        - !Ref DomainName
   ApplicationLoadBalancerDNSName:
-    Description: "The URL of the ELB. Point your domain to it by using a CNAME/ALIAS DNS record"
-    Value: !GetAtt ApplicationLoadBalancer.DNSName
-  ApplicationLoadBalancerName:
-    Description: "Application load balancer name"
-    Value: !GetAtt ApplicationLoadBalancer.LoadBalancerName
+    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS record.
+    Value: !Join 
+      - ''
+      - - !If 
+          - UseSSL
+          - 'https://'
+          - 'http://'
+        - !GetAtt ApplicationLoadBalancer.DNSName
+  ApplicationLoadBalancerArn:
+    Description: The Amazon Resource Name (ARN) of the application load balancer.
+    Value: !Ref ApplicationLoadBalancer
   DBPasswordSecret:
-    Description: "The database password secret ARN"
+    Description: The Amazon Resource Name (ARN) of the DBPassword SSM secret.
     Value: !Ref DBPasswordSecret
   Cluster:
-    Description: "Name of the ECS Cluster"
+    Description: The name of your ECS cluster.
     Value: !Ref Cluster
   TaskDefinition:
-    Description: "ECS cluster task definition ARN"
+    Description: The Amazon Resource Name (ARN) of the ECS task definition.
     Value: !Ref TaskDefinition

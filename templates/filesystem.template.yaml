@@ -94,8 +94,7 @@ Rules:
             - '0'
             - !Ref EFSProvisionedThroughputInMibps
         AssertDescription: >-
-          EfsProvisionedThroughputInMibps must be greater than 0 when
-          ThroughputMode is provisioned
+          EfsProvisionedThroughputInMibps must be greater than 0 when ThroughputMode is provisioned
   BurstingThroughput:
     RuleCondition: !Equals 
       - !Ref EFSThroughputMode
@@ -105,8 +104,7 @@ Rules:
           - '0'
           - !Ref EFSProvisionedThroughputInMibps
         AssertDescription: >-
-          EfsProvisionedThroughputInMibps must be 0 when ThroughputMode is
-          bursting
+          EfsProvisionedThroughputInMibps must be 0 when ThroughputMode is bursting
 
 Conditions:
   IsProvisioned: !Equals 

@@ -78,9 +78,9 @@ Resources:
     Type: 'AWS::WAFv2::WebACLAssociation'
     Properties:
       ResourceArn: !Ref ResourceArn
-      WebACLArn: !Ref WebACL
-      
+      WebACLArn: !GetAtt WebACL.Arn
+
 Outputs:
-  LogicalID:
+  WebACLAssociation:
     Description: 'The Ref for the Web ACL, containing the resource name, physical ID, and scope, formatted as follows: name|id|scope.'
     Value: !Ref WebACLAssociation
