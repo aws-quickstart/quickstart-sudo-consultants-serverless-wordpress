@@ -1,12 +1,18 @@
 general:
   s3_regional_buckets: true
 project:
+  shorten_stack_name: true
   name: quickstart-wordpress-serverless
   owner: saif.ali@sudoconsultants.com
   package_lambda: false
+  regions:
+    - us-west-1
+    # - ca-central-1
   parameters:
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
+    DBUsername: "admin"
+    DBPassword: $[taskcat_genpass_16A]
 tests:
   # Command: taskcat test run -t new-vpc-wordpress-2az -n
   new-vpc-wordpress-2az:
@@ -18,14 +24,10 @@ tests:
       PublicSubnet1CIDR: 10.0.96.0/20
       PublicSubnet2CIDR: 10.0.128.0/20
       VPCCIDR: 10.0.0.0/16
-      NumberOfAZs: '2'
-      DomainName: 'wps.dev.sudoconsultants.com'
-      UseSSL: 'true'
-      HostedZoneID: 'Z0046578CIP4Q0VUT1L6'
-      ActivateWordPressRule: 'true'
-      ActivateSQLInjectionRule: 'true'
-      DBUsername: 'admin'
-      DBPassword: $[taskcat_genpass_16A]
+      NumberOfAZs: "2"
+      UseSSL: "true"
+      DomainName: "wps.dev.sudoconsultants.com"
+      HostedZoneID: "Z0046578CIP4Q0VUT1L6"
     regions:
       - us-west-1
   # Command: taskcat test run -t new-vpc-wordpress-3az
@@ -41,8 +43,6 @@ tests:
   #     PublicSubnet3CIDR: 10.0.160.0/20
   #     VPCCIDR: 10.0.0.0/16
   #     NumberOfAZs: '3'
-  #     DBUsername: 'admin'
-  #     DBPassword: $[taskcat_genpass_16A]
   #   regions:
   #     - ca-central-1
   # Command: taskcat test run -t existing-vpc-wordpress-3az
