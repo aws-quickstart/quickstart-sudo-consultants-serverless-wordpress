@@ -23,8 +23,8 @@ tests:
       DomainName: 'mywpsite.dev.sudoconsultants.com'
       UseSSL: 'true'
       HostedZoneID: 'Z0046578CIP4Q0VUT1L6'
-      ActivateWordPressRule: 'false'
-      ActivateSQLInjectionRule: 'false'
+      ActivateWordPressRule: 'true'
+      ActivateSQLInjectionRule: 'true'
       DBUsername: 'admin'
       DBPassword: '1234567890'
     regions:
@@ -42,8 +42,6 @@ tests:
       PublicSubnet3CIDR: 10.0.160.0/20
       VPCCIDR: 10.0.0.0/16
       NumberOfAZs: '3'
-      ActivateWordPressRule: 'false'
-      ActivateSQLInjectionRule: 'false'
       DBUsername: 'admin'
       DBPassword: '1234567890'
     regions:
