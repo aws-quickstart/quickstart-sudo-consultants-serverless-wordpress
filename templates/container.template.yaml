@@ -215,8 +215,10 @@ Resources:
   DBPasswordSecret:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: WORDPRESS_DB_PASSWORD
       SecretString: !Ref DBPassword
+      Tags:
+        - Key: Name
+          Value: WORDPRESS_DB_PASSWORD
   WordpressAccessPoint:
     Type: 'AWS::EFS::AccessPoint'
     Properties:
@@ -244,7 +246,7 @@ Resources:
         - !Sub >-
           arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
       Policies:
-        - PolicyName: AccessDBAdminUserPasswordSecret
+        - PolicyName: AccessDBAdminUserPasswordSecret # inline policy name
           PolicyDocument:
             Version: 2012-10-17
             Statement:

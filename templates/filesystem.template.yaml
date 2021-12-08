@@ -17,7 +17,6 @@ Metadata:
       - Label:
           default: FileSystem configuration
         Parameters:
-          - EFSFileSystemName
           - EFSPerformanceMode
           - EFSThroughputMode
           - EFSProvisionedThroughputInMibps
@@ -29,8 +28,6 @@ Metadata:
           - PrivateSubnet3ID
           - FileSystemSecurityGroupId
     ParameterLabels:
-      EFSFileSystemName:
-        default: EFS FileSystem Name
       EFSPerformanceMode:
         default: EFS FileSystem Performance mode
       EFSThroughputMode:
@@ -66,10 +63,6 @@ Parameters:
     Description: The group ID of the specified security group, such as sg-94b3a1f6.
     AllowedPattern: '^sg-[a-zA-Z0-9]*$'
     ConstraintDescription: Please select FileSystemSecurityGroupId security group.
-  EFSFileSystemName:
-    Type: String
-    Default: myFileSystem
-    Description: The Name of the EFS file system.
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
@@ -136,7 +129,7 @@ Resources:
       ThroughputMode: !Ref EFSThroughputMode
       FileSystemTags:
         - Key: Name
-          Value: !Ref EFSFileSystemName
+          Value: !Sub '${AWS::StackName}-EFS'
   MountTargetPrivateSubnet1:
     Type: 'AWS::EFS::MountTarget'
     Properties:

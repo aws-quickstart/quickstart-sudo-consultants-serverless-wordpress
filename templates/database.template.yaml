@@ -70,8 +70,7 @@ Parameters:
     Default: ''
   DBName:
     Type: String
-    Default: myDatabase
-    Description: The name of your database. If you don't provide a name, then Amazon RDS won't create a database in this DB cluster.
+    Description: The name of your database. Must be unique. If you don't provide a name, then Amazon RDS won't create a database in this DB cluster.
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     MaxLength: '64'
     MinLength: '5'
@@ -161,7 +160,7 @@ Resources:
       EngineVersion: '5.7'
       EngineMode: serverless
       StorageEncrypted: 'true'
-      DatabaseName: !Ref DBName
+      DatabaseName: !Ref DBName # should be unique
       DBClusterIdentifier: !Join 
         - ''
         - - !Ref DBName

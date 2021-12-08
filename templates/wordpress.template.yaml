@@ -37,7 +37,6 @@ Metadata:
       - Label:
           default: FileSystem configuration
         Parameters:
-          - EFSFileSystemName
           - EFSPerformanceMode
           - EFSThroughputMode
           - EFSProvisionedThroughputInMibps
@@ -117,8 +116,6 @@ Metadata:
         default: Public subnet 3 Id
       EFSProvisionedThroughputInMibps:
         default: EFS provisioned throughput in mibps
-      EFSFileSystemName:
-        default: EFS file system name
       EFSPerformanceMode:
         default: EFS performance mode
       EFSThroughputMode:
@@ -159,10 +156,6 @@ Parameters:
     Description: >-
       The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted.
       When using your own bucket, you must specify this value.
-  EFSFileSystemName:
-    Type: String
-    Default: wordpressEFS
-    Description: The Name of the EFS file system.
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
@@ -311,9 +304,8 @@ Parameters:
       - 'false'
   ALBAccessCIDR:
     Type: String
-    Default: 0.0.0.0/0
     Description: >-
-      Allowed CIDR block for external web access to the Application Load Balancer
+      Allowed CIDR block for external web access to the Application Load Balancer (x.x.x.x/x)
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -410,7 +402,6 @@ Resources:
         EFSPerformanceMode: !Ref EFSPerformanceMode
         EFSProvisionedThroughputInMibps: !Ref EFSProvisionedThroughputInMibps
         EFSThroughputMode: !Ref EFSThroughputMode
-        EFSFileSystemName: !Ref EFSFileSystemName
         FileSystemSecurityGroupId: !GetAtt SecurityGroupsStack.Outputs.FileSystemSecurityGroupId
   DatabaseStack:
     Type: 'AWS::CloudFormation::Stack'

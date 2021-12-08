@@ -30,7 +30,7 @@ Metadata:
           - HostedZoneID
           - CertificateArn
       - Label:
-          default: VPC configuration
+          default: Network configuration
         Parameters:
           - VPCCIDR
           - PrivateSubnet1ACIDR
@@ -41,19 +41,19 @@ Metadata:
           - PublicSubnet3CIDR
           - VPCTenancy
       - Label:
-          default: WAF configuration
+          default: AWS WAF configuration
         Parameters:
         - ActivateSQLInjectionRule
         - ActivateWordPressRule
       - Label:
-          default: RDS configuration
+          default: Database configuration
         Parameters:
           - DBMaxCapacity
           - DBMinCapacity
           - DBBackupRetentionPeriod
           - DBPreferredBackupWindow
       - Label:
-          default: ECS configuration
+          default: AWS ECS configuration
         Parameters:
           - ContainerImage
           - ContainerMemory
@@ -63,25 +63,24 @@ Metadata:
           - ContainerDesiredCount
           - ALBAccessCIDR
       - Label:
-          default: EFS configuration
+          default: AWS EFS configuration
         Parameters:
-          - EFSFileSystemName
-          - EFSProvisionedThroughputInMibps
           - EFSPerformanceMode
           - EFSThroughputMode
+          - EFSProvisionedThroughputInMibps
       - Label:
-          default: Quickstart configuration
+          default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
           - QSS3KeyPrefix
           - QSS3BucketRegion
     ParameterLabels:
       QSS3BucketName:
-        default: Quickstart S3 bucket name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quickstart S3 key prefix
+        default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quickstart S3 bucket region
+        default: Quick Start S3 bucket region
       DomainName:
         default: Domain Name
       UseSSL:
@@ -136,8 +135,6 @@ Metadata:
         default: VPC Tenancy
       EFSProvisionedThroughputInMibps:
         default: EFS provisioned throughput in mibps
-      EFSFileSystemName:
-        default: EFS file system name
       EFSPerformanceMode:
         default: EFS performance mode
       EFSThroughputMode:
@@ -172,10 +169,6 @@ Parameters:
     Description: >-
       The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted.
       When using your own bucket, you must specify this value.
-  EFSFileSystemName:
-    Type: String
-    Default: wordpressEFS
-    Description: The Name of the EFS file system.
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
@@ -198,7 +191,7 @@ Parameters:
       - provisioned
   DBName:
     Type: String
-    Default: wordpressDB
+    # Default: wordpressDB
     Description: The name of your database. If you don't provide a name, then Amazon RDS won't create a database in this DB cluster.
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
     MaxLength: '64'
@@ -326,11 +319,10 @@ Parameters:
     Type: String
     Default: 0.0.0.0/0
     Description: >-
-      Allowed CIDR block for external web access to the Application Load Balancer
+      Allowed CIDR block for external web access to the Application Load Balancer (x.x.x.x/x)
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
-  
   UseSSL:
     Type: String
     Description: Use SSL to keep sensitive information sent across the Internet encrypted.
@@ -474,8 +466,7 @@ Rules:
             - ['8GB', '12GB', '16GB', '30GB']
             - !Ref ContainerMemory
       AssertDescription: Please choose a compatible CPU and memory configuration
-  # Checked after pressing Create stack
-  CertificateArnOrDomainNameIsPresentIfUseSSL:
+  CertificateArnOrDomainNameIsPresentIfUseSSL: # Checked post 'Create stack'
     RuleCondition: !Equals 
       - !Ref UseSSL
       - 'true'
@@ -484,13 +475,12 @@ Rules:
           - !Not [!Equals [!Ref CertificateArn, '']]
           - !Not [!Equals [!Ref DomainName, '']]
         AssertDescription: Please specify a 'Certificate ARN' or 'Domain Name' if you specify 'Use SSL'
-  DomainNameIsPresentIfHostedZoneIDRule:
+  DomainNameIsPresentIfHostedZoneIDRule: # Checked post 'Create stack'
     Assertions:
       - Assert: !Or
           - !Equals [!Ref HostedZoneID, '']
           - !Not [!Equals [!Ref DomainName, '']]
         AssertDescription: Please specify a 'Domain Name' if you specify 'Route 53 HostedZone ID'
-
 
 Conditions:
   3AZDeployment: !Equals [!Ref NumberOfAZs, '3']
@@ -516,7 +506,7 @@ Resources:
     Properties:
       TemplateURL: !Sub 
         - >-
-          https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
+          https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml
         - S3Region: !If 
             - UsingDefaultBucket
             - !Ref 'AWS::Region'
@@ -590,7 +580,6 @@ Resources:
         DBUsername: !Ref DBUsername
         DBPassword: !Ref DBPassword
         EFSProvisionedThroughputInMibps: !Ref EFSProvisionedThroughputInMibps
-        EFSFileSystemName: !Ref EFSFileSystemName
         EFSPerformanceMode: !Ref EFSPerformanceMode
         EFSThroughputMode: !Ref EFSThroughputMode
         PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID

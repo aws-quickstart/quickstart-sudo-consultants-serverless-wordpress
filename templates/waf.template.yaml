@@ -42,7 +42,9 @@ Resources:
   WebACL:
     Type: 'AWS::WAFv2::WebACL'
     Properties:
-      Name: wordpressACL
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-ACL'
       Description: wordpress app acl
       Scope: REGIONAL
       DefaultAction:
