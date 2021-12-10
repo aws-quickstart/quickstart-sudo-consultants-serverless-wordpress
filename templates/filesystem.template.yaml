@@ -23,9 +23,9 @@ Metadata:
       - Label:
           default: Network configuration
         Parameters:
-          - PrivateSubnet1ID
-          - PrivateSubnet2ID
-          - PrivateSubnet3ID
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+          - PrivateSubnet3AID
           - FileSystemSecurityGroupId
     ParameterLabels:
       EFSPerformanceMode:
@@ -34,27 +34,27 @@ Metadata:
         default: EFS FileSystem Throughput mode
       EFSProvisionedThroughputInMibps:
         default: EFS Provisioned Throughput In Mibps
-      PrivateSubnet1ID:
+      PrivateSubnet1AID:
         default: Private subnet 1 ID
-      PrivateSubnet2ID:
+      PrivateSubnet2AID:
         default: Private subnet 2 ID
-      PrivateSubnet3ID:
+      PrivateSubnet3AID:
         default: Private subnet 3 ID
       FileSystemSecurityGroupId:
         default: FileSystem security group ID
 
 Parameters:
-  PrivateSubnet1ID:
+  PrivateSubnet1AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 1 located in Availability Zone 1.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet2ID:
+  PrivateSubnet2AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 2 located in Availability Zone 2.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet3ID:
+  PrivateSubnet3AID:
     Type: String
     Description: Subnet Id for private subnet 3 located in Availability Zone 3.
     Default: ''
@@ -113,7 +113,7 @@ Conditions:
     - provisioned
   3AZDeployment: !Not 
     - !Equals 
-      - !Ref PrivateSubnet3ID
+      - !Ref PrivateSubnet3AID
       - ''
 
 Resources:
@@ -136,14 +136,14 @@ Resources:
       FileSystemId: !Ref EFSFileSystem
       SecurityGroups:
         - !Ref FileSystemSecurityGroupId
-      SubnetId: !Ref PrivateSubnet1ID
+      SubnetId: !Ref PrivateSubnet1AID
   MountTargetPrivateSubnet2:
     Type: 'AWS::EFS::MountTarget'
     Properties:
       FileSystemId: !Ref EFSFileSystem
       SecurityGroups:
         - !Ref FileSystemSecurityGroupId
-      SubnetId: !Ref PrivateSubnet2ID
+      SubnetId: !Ref PrivateSubnet2AID
   MountTargetPrivateSubnet3:
     Condition: 3AZDeployment
     Type: 'AWS::EFS::MountTarget'
@@ -151,7 +151,7 @@ Resources:
       FileSystemId: !Ref EFSFileSystem
       SecurityGroups:
         - !Ref FileSystemSecurityGroupId
-      SubnetId: !Ref PrivateSubnet3ID
+      SubnetId: !Ref PrivateSubnet3AID
 
 Outputs:
   FileSystemId:

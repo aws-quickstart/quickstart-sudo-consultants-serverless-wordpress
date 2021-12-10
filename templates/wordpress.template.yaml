@@ -55,9 +55,9 @@ Metadata:
           default: Network configuration
         Parameters:
           - VPCID
-          - PrivateSubnet1ID
-          - PrivateSubnet2ID
-          - PrivateSubnet3ID
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+          - PrivateSubnet3AID
           - PublicSubnet1ID
           - PublicSubnet2ID
           - PublicSubnet3ID
@@ -327,17 +327,17 @@ Parameters:
     Type: String
     Description: Subnet Id for public subnet 3 located in Availability Zone 3
     Default: ''
-  PrivateSubnet1ID:
+  PrivateSubnet1AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 1 located in Availability Zone 1
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet2ID:
+  PrivateSubnet2AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 2 located in Availability Zone 2
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet3ID:
+  PrivateSubnet3AID:
     Type: String
     Description: Subnet Id for private subnet 3 located in Availability Zone 3
     Default: ''
@@ -396,9 +396,9 @@ Resources:
             - !Sub '${QSS3BucketName}-${AWS::Region}'
             - !Ref QSS3BucketName
       Parameters:
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        PrivateSubnet1AID: !Ref PrivateSubnet1AID
+        PrivateSubnet2AID: !Ref PrivateSubnet2AID
+        PrivateSubnet3AID: !Ref PrivateSubnet3AID
         EFSPerformanceMode: !Ref EFSPerformanceMode
         EFSProvisionedThroughputInMibps: !Ref EFSProvisionedThroughputInMibps
         EFSThroughputMode: !Ref EFSThroughputMode
@@ -418,9 +418,9 @@ Resources:
             - !Sub '${QSS3BucketName}-${AWS::Region}'
             - !Ref QSS3BucketName
       Parameters:
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        PrivateSubnet1AID: !Ref PrivateSubnet1AID
+        PrivateSubnet2AID: !Ref PrivateSubnet2AID
+        PrivateSubnet3AID: !Ref PrivateSubnet3AID
         DBBackupRetentionPeriod: !Ref DBBackupRetentionPeriod
         DBPreferredBackupWindow: !Ref DBPreferredBackupWindow
         DBName: !Ref DBName
@@ -447,9 +447,9 @@ Resources:
         PublicSubnet1ID: !Ref PublicSubnet1ID
         PublicSubnet2ID: !Ref PublicSubnet2ID
         PublicSubnet3ID: !Ref PublicSubnet3ID
-        PrivateSubnet1ID: !Ref PrivateSubnet1ID
-        PrivateSubnet2ID: !Ref PrivateSubnet2ID
-        PrivateSubnet3ID: !Ref PrivateSubnet3ID
+        PrivateSubnet1AID: !Ref PrivateSubnet1AID
+        PrivateSubnet2AID: !Ref PrivateSubnet2AID
+        PrivateSubnet3AID: !Ref PrivateSubnet3AID
         DBUsername: !Ref DBUsername
         DBPassword: !Ref DBPassword
         DBName: !Ref DBName

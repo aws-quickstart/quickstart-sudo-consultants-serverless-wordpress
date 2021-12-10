@@ -50,17 +50,17 @@ Parameters:
     Type: String
     Description: Subnet Id for public subnet 3 located in Availability Zone 3
     Default: ''
-  PrivateSubnet1ID:
+  PrivateSubnet1AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 1 located in Availability Zone 1
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet2ID:
+  PrivateSubnet2AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 2 located in Availability Zone 2
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet3ID:
+  PrivateSubnet3AID:
     Type: String
     Description: Subnet Id for private subnet 3 located in Availability Zone 3
     Default: ''
@@ -151,7 +151,7 @@ Conditions:
   3AZDeployment: !And 
     - !Not 
       - !Equals 
-        - !Ref PrivateSubnet3ID
+        - !Ref PrivateSubnet3AID
         - ''
     - !Not 
       - !Equals 
@@ -358,11 +358,11 @@ Resources:
           AssignPublicIp: DISABLED
           Subnets: !If 
             - 3AZDeployment
-            - - !Ref PrivateSubnet1ID
-              - !Ref PrivateSubnet2ID
-              - !Ref PrivateSubnet3ID
-            - - !Ref PrivateSubnet1ID
-              - !Ref PrivateSubnet2ID
+            - - !Ref PrivateSubnet1AID
+              - !Ref PrivateSubnet2AID
+              - !Ref PrivateSubnet3AID
+            - - !Ref PrivateSubnet1AID
+              - !Ref PrivateSubnet2AID
           SecurityGroups:
             - !Ref ContainerSecurityGroupId
       LoadBalancers:

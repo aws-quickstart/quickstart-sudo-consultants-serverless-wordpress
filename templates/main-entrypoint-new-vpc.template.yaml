@@ -594,9 +594,9 @@ Resources:
             - !Ref CertificateArn
           - !Ref 'AWS::NoValue'
         HostedZoneID: !Ref HostedZoneID
-        PrivateSubnet1ID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
-        PrivateSubnet2ID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
-        PrivateSubnet3ID: !If 
+        PrivateSubnet1AID: !GetAtt VPCStack.Outputs.PrivateSubnet1AID
+        PrivateSubnet2AID: !GetAtt VPCStack.Outputs.PrivateSubnet2AID
+        PrivateSubnet3AID: !If 
           - 3AZDeployment
           - !GetAtt VPCStack.Outputs.PrivateSubnet3AID
           - ''

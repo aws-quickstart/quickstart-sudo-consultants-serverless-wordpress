@@ -29,9 +29,9 @@ Metadata:
       - Label:
           default: Network configuration
         Parameters:
-          - PrivateSubnet1ID
-          - PrivateSubnet2ID
-          - PrivateSubnet3ID
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+          - PrivateSubnet3AID
           - DBSecurityGroupId
     ParameterLabels:
       DBName:
@@ -44,27 +44,27 @@ Metadata:
         default: Password
       EnableDataAPI:
         default: Enable Data API
-      PrivateSubnet1ID:
+      PrivateSubnet1AID:
         default: Private subnet 1 ID
-      PrivateSubnet2ID:
+      PrivateSubnet2AID:
         default: Private subnet 2 ID
-      PrivateSubnet3ID:
+      PrivateSubnet3AID:
         default: Private subnet 3 ID
       DBSecurityGroupId:
         default: Database security group ID
 
 Parameters:
-  PrivateSubnet1ID:
+  PrivateSubnet1AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 1 located in Availability Zone 1.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet2ID:
+  PrivateSubnet2AID:
     Type: 'AWS::EC2::Subnet::Id'
     Description: Subnet Id for private subnet 2 located in Availability Zone 2.
     AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
     ConstraintDescription: Invalid subnet id
-  PrivateSubnet3ID:
+  PrivateSubnet3AID:
     Type: String
     Description: Subnet Id for private subnet 3 located in Availability Zone 3.
     Default: ''
@@ -131,7 +131,7 @@ Parameters:
 Conditions:
   3AZDeployment: !Not 
     - !Equals 
-      - !Ref PrivateSubnet3ID
+      - !Ref PrivateSubnet3AID
       - ''
 
 Resources:
@@ -141,11 +141,11 @@ Resources:
       DBSubnetGroupDescription: Subnets available for the cluster
       SubnetIds: !If 
         - 3AZDeployment
-        - - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
-          - !Ref PrivateSubnet3ID
-        - - !Ref PrivateSubnet1ID
-          - !Ref PrivateSubnet2ID
+        - - !Ref PrivateSubnet1AID
+          - !Ref PrivateSubnet2AID
+          - !Ref PrivateSubnet3AID
+        - - !Ref PrivateSubnet1AID
+          - !Ref PrivateSubnet2AID
       Tags:
         - Key: Name
           Value: !Join 
