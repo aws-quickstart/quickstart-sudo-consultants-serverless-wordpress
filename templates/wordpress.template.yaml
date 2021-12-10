@@ -102,11 +102,11 @@ Metadata:
         default: DB username
       DBPassword:
         default: DB password
-      PrivateSubnet1ID:
+      PrivateSubnet1AID:
         default: Private subnet 1 Id
-      PrivateSubnet2ID:
+      PrivateSubnet2AID:
         default: Private subnet 2 Id
-      PrivateSubnet3ID:
+      PrivateSubnet3AID:
         default: Private subnet 3 Id
       PublicSubnet1ID:
         default: Public subnet 1 Id
