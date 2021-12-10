@@ -399,7 +399,8 @@ Resources:
       HealthCheckProtocol: HTTP
       Port: 80
       Matcher:
-        HttpCode: '200,301'
+        # Adding 301, 302 to ignore 'Moved Permanently' and 'Found' http errors; caused by wordpress setup page.
+        HttpCode: '200,301,302'
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       TargetType: ip
