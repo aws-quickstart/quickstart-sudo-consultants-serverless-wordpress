@@ -1,0 +1,26 @@
+Deploying this Quick Start for a new virtual private cloud (VPC) with
+*default parameters* builds the following _{partner-product-name}_ environment in the
+AWS Cloud.
+
+// Replace this example diagram with your own. Send us your source PowerPoint file. Be sure to follow our guidelines here : http://(we should include these points on our contributors giude)
+image::architecture_diagram.png[image,width=761,height=781]
+
+Figure 1: Quick Start architecture for _{partner-product-name}_ on AWS
+
+As shown in Figure 1, the Quick Start sets up the following:
+
+* A highly available architecture that spans two/three Availability Zones.*
+* A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.*
+* An Amazon Route 53 record entry for provided Hosted zone Id. (optional)
+* An Amazon ACM public certificate for HTTPs connection. (optional)
+* An AWS Web Application Firewall using AWS Managed WAF rules for protection against SQLInjection and common Wordpress exploits.
+* An internet gateway to let traffic in the VPC.
+* An ELB Application load balancer targeted to the ECS Cluster Auto scaling group.
+* An RDS Aurora Serverless database connected to the Containers.
+* An EFS File System for storing Wordpress files, themes and plugins.
+* An AWS Secrets Manager secret to store the RDS Aurora database password.
+* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets. 
+* In the private subnets, ECS Fargate containers running Wordpress, which communicate with the Aurora serverless database and the Elastic Filesystem.
+
+
++++*+++ The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.

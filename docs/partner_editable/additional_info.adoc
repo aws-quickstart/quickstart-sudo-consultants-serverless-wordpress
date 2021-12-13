@@ -1,0 +1,33 @@
+
+== Best practices for using {partner-product-name} on AWS
+// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+
+_Add any best practices for using the software._ TODO
+
+== Security
+// Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
+
+The AWS Cloud provides a scalable, highly reliable platform that helps customers deploy applications and data quickly and securely. When you build systems on the AWS infrastructure, security responsibilities are shared between you and AWS. This shared model can reduce your operational burden as AWS operates, manages, and controls the components from the host operating system and virtualization layer down to the physical security of the facilities in which the services operate. In turn, you assume responsibility and management of the guest operating system, other associated applications, as well as the configuration of the AWS-provided security group firewall. 
+
+{partner-product-name} includes these security features:
+
+* AWS Web Application Firewall is deployed to prevent SQL injection and common Wordpress exploits.
+* Network and access ports: For security reasons, All security groups are port hardened, all unnecessary ports are closed by default.
+* Create database backups periodically.
+
+For more information about WordPress security, 
+see the WordPress documentation on the https://codex.wordpress.org/Hardening_WordPress[WordPress.org] website.
+
+
+== Other useful information
+//Provide any other information of interest to users, especially focusing on areas where AWS or cloud usage differs from on-premises usage.
+Before you deploy this Quick Start, we recommend that you become familiar with the
+following AWS services. (If you are new to AWS, see https://aws.amazon.com/getting-started/[Getting Started with AWS].)
+
+* https://docs.aws.amazon.com/cloudformation/[AWS CloudFormation]
+* https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html[Amazon Aurora]
+* https://docs.aws.amazon.com/ecs/?id=docs_gateway[Amazon ECS]
+* https://docs.aws.amazon.com/efs/[Amazon EFS]
+* https://docs.aws.amazon.com/vpc/[Amazon VPC]
+* https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html[Amazon EC2 Auto Scaling]
+* https://docs.aws.amazon.com/elasticloadbalancing/[Elastic Load Balancing]

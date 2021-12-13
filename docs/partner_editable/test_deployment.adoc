@@ -1,0 +1,20 @@
+// Add steps as necessary for accessing the software, post-configuration, and testing. Don’t include full usage instructions for your software, but add links to your product documentation for that information.
+When you see that the deployment has completed successfully, you can test it by 
+accessing the WordPress user interface and logging in to the dashboard.
+
+Access the WordPress user interface
+1. Open the AWS CloudFormation console, and select the Wordpress serverless stack.
+2. In the stack details pane, choose the Outputs tab.
+3. Choose the link in the Value column for ApplicationURL.
+image::output_ApplicationURL.png[image]
+
+This will display your WordPress setup page.
+image::setup_page.png[image]
+
+To log in to the WordPress dashboard to manage your blog posts, follow these steps:
+1. Open the WordPress dashboard by adding /wp-admin to the URL you used to access WordPress.
+2. Log in with the user name and password you specified during the setup process.
+image::admin_login_page.png[image]
+This will display the WordPress dashboard, which allows you to manage posts, pages, and
+comments; customize your blog with themes and plugins; import and export content;
+manage navigation menus; add or delete new user accounts; and much more.
