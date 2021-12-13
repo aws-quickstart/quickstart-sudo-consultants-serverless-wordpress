@@ -2,7 +2,11 @@
 == Best practices for using {partner-product-name} on AWS
 // Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
 
-_Add any best practices for using the software._ TODO
+To keep your WordPress deployment up-to-date and secure, see the following
+documentation on the Bitnami website:
+
+* https://docs.bitnami.com/aws-templates/apps/wordpress/troubleshooting/enforce-security/[How to enforce WordPress security]
+
 
 == Security
 // Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
