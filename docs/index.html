@@ -846,6 +846,7 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_security">Security</a></li>
 <li><a href="#_other_useful_information">Other useful information</a></li>
 <li><a href="#_faq">FAQ</a></li>
+<li><a href="#_troubleshooting">Troubleshooting</a></li>
 <li><a href="#_customer_responsibility">Customer responsibility</a></li>
 <li><a href="#_send_us_feedback">Send us feedback</a></li>
 <li><a href="#_quick_start_reference_deployments">Quick Start reference deployments</a></li>
@@ -875,7 +876,7 @@ p.footer-text a{color:#d7d8d8}
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph text-center">
-<p><strong>October 2020</strong><br>
+<p><strong>December 2021</strong><br>
 <em>Saif Ali, SUDO &amp; Hameedullah Khan, SUDO</em><br>
 <em>Dattaprasad Sadwelkar, AWS &amp; Sriram Mohan, AWS</em></p>
 </div></div></td>
@@ -913,17 +914,72 @@ report bugs, or submit feature ideas for this Quick Start.
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>This Quick Start deployment guide provides instructions for deploying Wordpress Serverless Amazon Web Services (AWS) Cloud.
-The Quick Start also provides <a href="http://aws.amazon.com/cloudformation/" target="_blank" rel="noopener">AWS CloudFormation</a> templates that automate the deployment.</p>
-</div>
-<div class="paragraph">
-<p>The guide is for IT infrastructure architects, DevOps engineers, and administrators who want to deploy Linux bastion hosts to manage their AWS Cloud deployments remotely.</p>
+<p>This Quick Start deployment guide provides instructions for deploying Wordpress Serverless Amazon Web Services (AWS) Cloud.</p>
 </div>
 <div class="paragraph">
 <p><a href="http://aws.amazon.com/quickstart/" target="_blank" rel="noopener">Quick Starts</a> are automated reference deployments for AWS Cloud infrastructure
 components and key enterprise workloads on the AWS Cloud. Each Quick Start launches,
 configures, and runs AWS compute, network, storage, and other services, using AWS best
 practices for security and availability.</p>
+</div>
+<div class="paragraph">
+<p>This Quick Start is for users who want to deploy a highly available and scalable Wordpress website.</p>
+</div>
+<div class="paragraph">
+<p>When you see that the deployment has completed successfully, you can test it by
+accessing the WordPress user interface and logging in to the dashboard.</p>
+</div>
+<div class="paragraph">
+<p>Access the WordPress user interface:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the AWS CloudFormation console, and select the Wordpress serverless stack.</p>
+</li>
+<li>
+<p>In the stack details pane, choose the Outputs tab.</p>
+</li>
+<li>
+<p>Choose the link in the Value column for ApplicationURL.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/output_ApplicationURL.png" alt="Output Application URL">
+</div>
+</div>
+<div class="paragraph">
+<p>This will display your WordPress setup page.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/setup_page.png" alt="Wordpress Setup page">
+</div>
+</div>
+<div class="paragraph">
+<p>To log in to the WordPress dashboard to manage your blog posts, follow these steps:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Open the WordPress dashboard by adding /wp-admin to the URL you used to access WordPress.</p>
+</li>
+<li>
+<p>Log in with the user name and password you specified during the setup process.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/admin_login_page.png" alt="Wordpress Login page">
+</div>
+</div>
+<div class="paragraph">
+<p>This will display the WordPress dashboard, which allows you to manage posts, pages, and
+comments; customize your blog with themes and plugins; import and export content;
+manage navigation menus; add or delete new user accounts; and much more.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1036,16 +1092,14 @@ After you deploy the Quick Start, create <a href="https://docs.aws.amazon.com/aw
 <strong>default parameters</strong> builds the following <em>Wordpress Serverless</em> environment in the
 AWS Cloud.</p>
 </div>
-<div class="imageblock">
+<div id="architecture1" class="imageblock">
 <div class="content">
-<img src="images/architecture_diagram.png" alt="image" width="761" height="781">
+<img src="images/architecture_diagram.png" alt="Architecture">
 </div>
-</div>
-<div class="paragraph">
-<p>Figure 1: Quick Start architecture for <em>Wordpress Serverless</em> on AWS</p>
+<div class="title">Figure 1. Quick Start architecture for <em>Wordpress Serverless</em> on AWS</div>
 </div>
 <div class="paragraph">
-<p>As shown in Figure 1, the Quick Start sets up the following:</p>
+<p>As shown in <a href="#architecture1">Figure 1</a>, the Quick Start sets up the following:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1079,16 +1133,32 @@ AWS Cloud.</p>
 <li>
 <p>An AWS Secrets Manager secret to store the RDS Aurora database password.</p>
 </li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In the public subnets:</p>
+</div>
+<div class="ulist">
+<ul>
 <li>
-<p>In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.</p>
-</li>
-<li>
-<p>In the private subnets, ECS Fargate containers running Wordpress, which communicate with the Aurora serverless database and the Elastic Filesystem.</p>
+<p>managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
-<p>* The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.</p>
+<p>In the private subnets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ECS Fargate containers running Wordpress, which communicate with the Aurora serverless database and the Elastic Filesystem.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>*The template that deploys the Quick Start into an existing VPC skips
+the components marked by asterisks and prompts you for your existing VPC
+configuration.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1162,71 +1232,71 @@ These sites provide materials for learning how to design, deploy, and operate yo
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">VPCs</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EFS FileSystem</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EFS MountTargets</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;2-4&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2-3</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">EFS AccessPoint</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ECS Cluster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ECS TaskDefinition</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ECS Service</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DB Cluster</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DB SubnetGroup</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Security groups</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;5&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Elastic IP addresses</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;2-3&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2-3</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">SecretsManager Secret</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Application Load Balancers</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Auto Scaling groups</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">IAM Role</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;2&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Route53 DNS Record</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">ACM Certificate</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt;1&gt;</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
 </tr>
 </tbody>
 </table>
@@ -1279,7 +1349,7 @@ Certain Regions are available on an opt-in basis. For more information, see <a h
 <div class="ulist">
 <ul>
 <li>
-<p><strong>Deploy Wordpress Serverless into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups and other infrastructure components. It then deploys Wordpress Serverless into this new VPC.</p>
+<p><strong>Deploy Wordpress Serverless into a new VPC (end-to-end deployment)</strong>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Wordpress Serverless into this new VPC.</p>
 </li>
 <li>
 <p><strong>Deploy Wordpress Serverless into an existing VPC</strong>. This option provisions Wordpress Serverless in your existing AWS infrastructure.</p>
@@ -1287,7 +1357,7 @@ Certain Regions are available on an opt-in basis. For more information, see <a h
 </ul>
 </div>
 <div class="paragraph">
-<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks and Wordpress Serverless settings, as discussed later in this guide.</p>
+<p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Wordpress Serverless settings, as discussed later in this guide.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1362,7 +1432,7 @@ When deploying this Quick Start into an existing VPC, ensure that your VPC has t
 </table>
 </div>
 <div class="paragraph">
-<p>Each deployment takes about 30 minutes to 1 hour to complete.</p>
+<p>Each deployment takes about 30 minutes / 1 hour to complete.</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -1378,11 +1448,11 @@ When deploying this Quick Start into an existing VPC, ensure that your VPC has t
 </colgroup>
 <tbody>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[Deploy {partner-product-short-name} into a new VPC on AWS^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[Deploy Wordpress into a new VPC on AWS^]</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[View template^]</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[Deploy {partner-product-short-name} into an existing VPC on AWS^]</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[Deploy Wordpress into an existing VPC on AWS^]</p></td>
 <td class="tableblock halign-center valign-top"><p class="tableblock">&lt;Add link here&gt;[View template^]</p></td>
 </tr>
 </tbody>
@@ -1390,7 +1460,7 @@ When deploying this Quick Start into an existing VPC, ensure that your VPC has t
 <div class="olist arabic">
 <ol class="arabic" start="2">
 <li>
-<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This Region is where the network infrastructure for {partner-product-short-name} is built. The template is launched in the us-east-1 Region by default. For other choices, see <a href="#_supported_regions">Supported Regions</a> earlier in this guide.</p>
+<p>Check the AWS Region that’s displayed in the upper-right corner of the navigation bar, and change it if necessary. This Region is where the network infrastructure for Wordpress is built. The template is launched in the us-east-1 Region by default. For other choices, see <a href="#_supported_regions">Supported Regions</a> earlier in this guide.</p>
 </li>
 </ol>
 </div>
@@ -1403,6 +1473,51 @@ When deploying this Quick Start into an existing VPC, ensure that your VPC has t
 <p>On the <strong>Specify stack details</strong> page, change the stack name if needed. Review the parameters for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. For details on each parameter, see the <a href="#_parameter_reference">Parameter reference</a> section of this guide. When you finish reviewing and customizing the parameters, choose <strong>Next</strong>.</p>
 </li>
 </ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/basic_config.png" alt="Basic Config" width="100%">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="4">
+<li>
+<p>On the Review page, review and confirm the template settings. Under Capabilities,
+select the two check boxes to acknowledge that the template will create IAM resources
+and that it might require the capability to auto-expand macros.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/capability_options.png" alt="Capability Options" width="100%">
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="5">
+<li>
+<p>Choose Create to deploy the stack.</p>
+</li>
+</ol>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="6">
+<li>
+<p>Monitor the status of the stack. When the status is CREATE_COMPLETE, the WordPress cluster is ready.</p>
+</li>
+</ol>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="7">
+<li>
+<p>Use the URLs displayed in the Outputs tab for the stack to view the resources that were created.</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/output_ApplicationURL.png" alt="Output Application URL" width="100%">
+</div>
 </div>
 </div>
 <div class="paragraph">
@@ -1422,7 +1537,7 @@ Unresolved directive in boilerplate/deployment_steps.adoc - include::../generate
 . On the <strong>Configure stack options</strong> page, you can <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-resource-tags.html" target="_blank" rel="noopener">specify tags</a> (key-value pairs) for resources in your stack and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-add-tags.html" target="_blank" rel="noopener">set advanced options</a>. When you finish, choose <strong>Next</strong>.
 . On the <strong>Review</strong> page, review and confirm the template settings. Under <strong>Capabilities</strong>, select the two check boxes to acknowledge that the template creates IAM resources and might require the ability to automatically expand macros.
 . Choose <strong>Create stack</strong> to deploy the stack.
-. Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Wordpress Serverless deployment is ready.
+. Monitor the status of the stack. When the status is <strong>CREATE_COMPLETE</strong>, the Wordpress deployment is ready.
 . To view the created resources, see the values displayed in the <strong>Outputs</strong> tab for the stack.</p>
 </div>
 <div class="paragraph">
@@ -1516,8 +1631,12 @@ following AWS services. (If you are new to AWS, see <a href="https://aws.amazon.
 <p><strong>A.</strong> When deploying using new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. If you receive the error The maximum number of addresses has been reached, verify how many Elastic IP address you&#8217;re using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.</p>
 </div>
 <div class="paragraph">
-<p><strong>Q.</strong> I encountered a <strong>Heads Up!</strong> popup when I visit the site url.
-image::wp_no_setup_error.png[image]</p>
+<p><strong>Q.</strong> I encountered a <strong>Heads Up!</strong> popup when I visit the site url.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/wp_no_setup_error.png" alt="Wordpress Error">
+</div>
 </div>
 <div class="paragraph">
 <p><strong>A.</strong> This bug is reported when you deploy the CloudFormation stack correctly, however, you did not setup your Wordpress site. To resolve this error, You need to re-deploy the stack or empty the database from the query editor in AWS RDS console, check troubleshooting guide.</p>
@@ -1539,6 +1658,48 @@ image::wp_no_setup_error.png[image]</p>
 </div>
 <div class="paragraph">
 <p><strong>A.</strong> We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the <a href="http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html">AWS documentation</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_troubleshooting">Troubleshooting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To access the WordPress database, follow these steps:</p>
+</div>
+<div class="paragraph">
+<p>Open AWS console for Amazon RDS, select Query editor.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/query_console.png" alt="Query Console">
+</div>
+</div>
+<div class="paragraph">
+<p>Provide with the database name, username and password you specified during the setup process.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/query_console_settings.png" alt="Query Console settings">
+</div>
+</div>
+<div class="paragraph">
+<p>You can now run your SQL queries.</p>
+</div>
+<div class="paragraph">
+<p>To do a fresh start; empty your WordPress database, follow these steps:</p>
+</div>
+<div class="paragraph">
+<p>Open Query editor. Follow steps 'To access the WordPress database'.
+Run DROP sql query against your wordpress database, and recreate a new database with the same name.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/query_console_drop.png" alt="Query Console drop">
+</div>
+</div>
+<div class="paragraph">
+<p>You can now visit your Wordpress site url and will be directed to Wordpress setup page.</p>
 </div>
 </div>
 </div>

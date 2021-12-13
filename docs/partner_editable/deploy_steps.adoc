@@ -28,13 +28,15 @@ Each deployment takes about {deployment_time} to complete.
 [start=3]
 . On the *Create stack* page, keep the default setting for the template URL, and then choose *Next*.
 . On the *Specify stack details* page, change the stack name if needed. Review the parameters for the template. Provide values for the parameters that require input. For all other parameters, review the default settings and customize them as necessary. For details on each parameter, see the link:#_parameter_reference[Parameter reference] section of this guide. When you finish reviewing and customizing the parameters, choose *Next*.
-image::basic_config.png[image]
+
+image::basic_config.png[Basic Config, width=100%]
 
 [start=4]
 . On the Review page, review and confirm the template settings. Under Capabilities,
 select the two check boxes to acknowledge that the template will create IAM resources
 and that it might require the capability to auto-expand macros.
-image::capability_options.png[image]
+
+image::capability_options.png[Capability Options, width=100%]
 
 [start=5]
 . Choose Create to deploy the stack.
@@ -44,4 +46,5 @@ image::capability_options.png[image]
 
 [start=7]
 . Use the URLs displayed in the Outputs tab for the stack to view the resources that were created.
-image::output_ApplicationURL.png[image]
+
+image::output_ApplicationURL.png[Output Application URL, width=100%]
