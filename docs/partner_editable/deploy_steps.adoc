@@ -15,11 +15,11 @@ Each deployment takes about {deployment_time} to complete.
 
 [cols="3,1"]
 |===
-^|<Add link here>[Deploy {partner-product-short-name} into a new VPC on AWS^]
-^|<Add link here>[View template^]
+^|http://qs_launch_link[Deploy {partner-product-short-name} into a new VPC on AWS^]
+^|http://qs_launch_link[View template^]
 
-^|<Add link here>[Deploy {partner-product-short-name} into an existing VPC on AWS^]
-^|<Add link here>[View template^]
+^|http://qs_launch_link[Deploy {partner-product-short-name} into an existing VPC on AWS^]
+^|http://qs_launch_link[View template^]
 |===
 
 [start=2]
