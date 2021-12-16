@@ -41,7 +41,7 @@ tests:
     parameters:
       NumberOfAZs: "2"
       AvailabilityZones: $[taskcat_genaz_2]
-      UseSSL: true
+      UseSSL: 'true'
       DomainName: override
       HostedZoneID: override
     regions:
