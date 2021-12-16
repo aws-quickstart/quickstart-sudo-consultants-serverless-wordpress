@@ -36,27 +36,27 @@ project:
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
 tests:
-  # new-vpc-wordpress-2az-ssl:
-  #   template: templates/main-entrypoint-new-vpc.template.yaml
-  #   parameters:
-  #     NumberOfAZs: "2"
-  #     AvailabilityZones: $[taskcat_genaz_2]
-  #     UseSSL: true
-  #     DomainName: override
-  #     HostedZoneID: override
-  #   regions:
-  #     - ca-central-1
+  new-vpc-wordpress-2az-ssl:
+    template: templates/main-entrypoint-new-vpc.template.yaml
+    parameters:
+      NumberOfAZs: "2"
+      AvailabilityZones: $[taskcat_genaz_2]
+      UseSSL: true
+      DomainName: override
+      HostedZoneID: override
+    regions:
+      - ca-central-1
   new-vpc-wordpress-2az:
     template: templates/main-entrypoint-new-vpc.template.yaml
     parameters:
       NumberOfAZs: "2"
       AvailabilityZones: $[taskcat_genaz_2]
-  # new-vpc-wordpress-3az:
-  #   template: templates/main-entrypoint-new-vpc.template.yaml
-  #   parameters:
-  #     NumberOfAZs: "3"
-  #     AvailabilityZones: $[taskcat_genaz_3]
-  #   regions:
-  #     - us-east-2
-  #     - us-west-1
-  #     - us-west-2
+  new-vpc-wordpress-3az:
+    template: templates/main-entrypoint-new-vpc.template.yaml
+    parameters:
+      NumberOfAZs: "3"
+      AvailabilityZones: $[taskcat_genaz_3]
+    regions:
+      - us-east-2
+      - us-west-1
+      - us-west-2
