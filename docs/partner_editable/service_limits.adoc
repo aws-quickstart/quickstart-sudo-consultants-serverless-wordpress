@@ -1,0 +1,21 @@
+// Replace the <n> in each row to specify the number of resources used in this deployment. Remove the rows for resources that aren’t used.
+|===
+|Resource |This deployment uses
+|VPCs |1
+|EFS FileSystem |1
+|EFS MountTargets |2-3
+|EFS AccessPoint |1
+|ECS Cluster |1
+|ECS TaskDefinition |1
+|ECS Service |1
+|DB Cluster |1
+|DB SubnetGroup |1
+|Security groups |5
+|Elastic IP addresses |2-3
+|SecretsManager Secret |1
+|Application Load Balancers |1
+|Auto Scaling groups |1
+|IAM Role |2
+|Route53 DNS Record |1
+|ACM Certificate |1
+|===
