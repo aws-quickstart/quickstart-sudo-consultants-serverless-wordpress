@@ -43,7 +43,7 @@ tests:
       AvailabilityZones: $[taskcat_genaz_2]
       UseSSL: 'true'
       DomainName: override
-      HostedZoneID: override
+      #HostedZoneID: override
     regions:
       - ca-central-1
   new-vpc-wordpress-2az:
