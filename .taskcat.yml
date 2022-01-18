@@ -41,9 +41,9 @@ tests:
     parameters:
       NumberOfAZs: "2"
       AvailabilityZones: $[taskcat_genaz_2]
-      UseSSL: 'true'
+      UseSSL: 'false'
       DomainName: override
-      #HostedZoneID: override
+      HostedZoneID: override
     regions:
       - ca-central-1
   new-vpc-wordpress-2az:
