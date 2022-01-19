@@ -8,3 +8,4 @@
 :partner-product-short-name: Wordpress
 :partner-contributors: Saif Ali, SUDO & Hameedullah Khan, SUDO
 :quickstart-contributors: Dattaprasad Sadwelkar, AWS & Sriram Mohan, AWS
+:no_parameters:
