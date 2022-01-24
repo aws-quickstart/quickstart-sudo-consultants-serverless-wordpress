@@ -9,5 +9,4 @@ WordPress provides a development framework, extensive feature set, flexibility, 
 multilingual publishing ability, multi-author support, and thriving community. For more
 information about these features, see the WordPress website.
 
-WordPress Serverless by SUDO enables you to deploy a containerized WordPress application and serverless database.
-The Quick Start uses AWS Relational Database Service (Amazon RDS) with Amazon Aurora serverless to set up a relational database and AWS Elastic Container Service (Amazon ECS) with Amazon Fargate in the AWS Cloud thus helping you reduce costs, simplify configuration tasks, and scale with ease.
+WordPress Serverless by SUDO enables you to deploy a containerized WordPress application and serverless database. The Quick Start uses AWS Relational Database Service (Amazon RDS) with Amazon Aurora serverless to set up a relational database and AWS Elastic Container Service (Amazon ECS) with Amazon Fargate in the AWS Cloud thus helping you reduce costs, simplify configuration tasks, and scale with ease.
