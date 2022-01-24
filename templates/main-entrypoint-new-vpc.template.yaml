@@ -5,6 +5,10 @@ Description:
   This template creates a new VPC and deploys WordPress serverless application. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
 
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Parameters for deploying into a new VPC"
+    Order: 1
+
   LICENSE: Apache License Version 2.0
   cfn-lint:
     config:
