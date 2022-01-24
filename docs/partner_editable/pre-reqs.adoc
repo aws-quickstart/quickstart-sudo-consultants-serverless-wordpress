@@ -4,6 +4,7 @@
 
 1. If you don’t already have an AWS account, create one at https://aws.amazon.com by following the on-screen instructions.
 2. Use the region selector in the navigation bar to choose the AWS Region where you want to deploy on AWS.
+3. To create a Route 53 DNS entry, you need to provide the Hosted Zone ID of an existing Hosted Zone, if not provided the deployment will skip creation of DNS entry.
 
 *Important:* This Quick Start includes Amazon EFS, which isn’t available in all AWS Regions. For a list of supported regions, see AWS Regions and Endpoints https://docs.aws.amazon.com/general/latest/gr/elasticfilesystem.html[AWS EFS Regions and Endpoints^].
 
