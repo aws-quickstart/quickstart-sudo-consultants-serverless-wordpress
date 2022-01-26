@@ -2,11 +2,6 @@
 // Briefly describe the software. Use consistent and clear branding. 
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
-WordPress is a web publishing platform for building blogs and websites. It can be
-customized via a wide selection of themes, extensions, and plugins.
+WordPress is a web publishing platform for building blogs and websites. It can be customized via a wide selection of themes, extensions, and plugins. WordPress provides a development framework, extensive feature set, flexibility, rapid and multilingual publishing ability, multi-author support, and thriving community. For more information, see https://wordpress.com/.
 
-WordPress provides a development framework, extensive feature set, flexibility, rapid and
-multilingual publishing ability, multi-author support, and thriving community. For more
-information about these features, see the WordPress website.
-
-WordPress Serverless by SUDO enables you to deploy a containerized WordPress application and serverless database. The Quick Start uses AWS Relational Database Service (Amazon RDS) with Amazon Aurora serverless to set up a relational database and AWS Elastic Container Service (Amazon ECS) with Amazon Fargate in the AWS Cloud thus helping you reduce costs, simplify configuration tasks, and scale with ease.
+WordPress Serverless by Sudo helps you deploy a containerized WordPress application and serverless database. The Quick Start uses AWS Relational Database Service (Amazon RDS) with Amazon Aurora serverless to set up a relational database and AWS Elastic Container Service (Amazon ECS) with Amazon Fargate in the AWS Cloud. By deploying WordPress Serverless by Sudo on AWS, you can reduce costs, simplify configuration tasks, and scale with ease.

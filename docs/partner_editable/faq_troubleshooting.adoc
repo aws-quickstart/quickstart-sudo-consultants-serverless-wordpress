@@ -6,11 +6,9 @@
 
 *A.* When deploying using new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. If you receive the error The maximum number of addresses has been reached, verify how many Elastic IP address you're using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.
 
-*Q.* I encountered a *Heads Up!* popup when I visit the site url.
-
+*Q.* I encountered a *Heads Up!* popup when I visit the site URL.
 
 image::wp_no_setup_error.png[Wordpress Error]
-
 
 *A.* This bug is reported when you deploy the CloudFormation stack correctly, however, you did not setup your Wordpress site. To resolve this error, You need to re-deploy the stack or empty the database from the query editor in AWS RDS console, check troubleshooting guide.
 
@@ -29,23 +27,17 @@ For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/la
 
 == Troubleshooting
 
-To access the WordPress database, follow these steps:
+* To access the WordPress database:
 
-Open AWS console for Amazon RDS, select Query editor.
+. Open the https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#[Amazon RDS console].
+. In the navigation pane, choose *Query Editor*.
+. On the *Connect to database* dialog box, enter the database username, database password, and database name you specified during the setup process.
+. Choose *Connect to database*. You can now run your SQL queries using the editor.
 
-image::query_console.png[Query Console]
+* To do a fresh start: 
 
-Provide with the database name, username and password you specified during the setup process.
+In the Query Editor, run the following to empty and recreate your database with the same name. Substitute `database_name` with your information.
 
-image::query_console_settings.png[Query Console settings]
+`DROP DATABASE <database_name>; CREATE DATABASE <database_name>;`
 
-You can now run your SQL queries.
-
-To do a fresh start; empty your WordPress database, follow these steps:
-
-Open Query editor. Follow steps 'To access the WordPress database'.
-Run DROP sql query against your wordpress database, and recreate a new database with the same name.
-
-image::query_console_drop.png[Query Console drop]
-
-You can now visit your Wordpress site url and will be directed to Wordpress setup page.
+You can now visit your Wordpress site URL to setup your Wordpress site.
