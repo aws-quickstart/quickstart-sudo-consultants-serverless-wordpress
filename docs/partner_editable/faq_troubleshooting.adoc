@@ -2,15 +2,19 @@
 
 == FAQ
 
-*Q.* I encountered a *The maximum number of Elastic IP addresses has been reached* error when I deployed the AWS CloudFormation templates.
+*Q.* I encounter the following error when I deploy the AWS CloudFormation templates.
 
-*A.* When deploying using new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. If you receive the error The maximum number of addresses has been reached, verify how many Elastic IP address you're using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.
+`The maximum number of Elastic IP addresses has been reached.`
 
-*Q.* I encountered a *Heads Up!* popup when I visit the site URL.
+*A.* When you deploy the Quick Start into a new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. Verify how many Elastic IP address you're using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.
+
+*Q.* I encounter a `Heads Up!` warning when I visit the WordPress site URL.
 
 image::wp_no_setup_error.png[Wordpress Error]
 
-*A.* This bug is reported when you deploy the CloudFormation stack correctly, however, you did not setup your Wordpress site. To resolve this error, You need to re-deploy the stack or empty the database from the query editor in AWS RDS console, check troubleshooting guide.
+*A.* You deployed the CloudFormation stack correctly, but did not setup your Wordpress site. Redeploy the stack or empty and recreate the database using the Query Editor in the Amazon RDS console.
+
+// move troubleshooting instructions here
 
 *Q.* I encountered a *CREATE_FAILED* error when I launched the Quick Start.
 
@@ -35,9 +39,9 @@ For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/la
 . Choose *Connect to database*. You can now run your SQL queries using the editor.
 
 * To do a fresh start: 
-
-In the Query Editor, run the following to empty and recreate your database with the same name. Substitute `database_name` with your information.
-
++
+In the Query Editor, run the following query to empty and recreate your database with the same name. Substitute `database_name` with your information.
++
 `DROP DATABASE <database_name>; CREATE DATABASE <database_name>;`
-
++
 You can now visit your Wordpress site URL to setup your Wordpress site.
