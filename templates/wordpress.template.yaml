@@ -10,7 +10,7 @@ Metadata:
     config:
       ignore_checks:
         # Check for QSID
-        - E9008
+        - E965
 
   AWS::CloudFormation::Interface:
     ParameterGroups:
