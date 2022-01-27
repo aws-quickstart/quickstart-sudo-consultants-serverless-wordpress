@@ -8,7 +8,7 @@ Metadata:
     config:
       ignore_checks:
         # Check for Quick Start ID
-        - E965
+        - E9008
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
