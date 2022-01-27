@@ -7,8 +7,8 @@ Metadata:
   cfn-lint:
     config:
       ignore_checks:
-        # Check for QSID
-        - E9008
+        # Check for Quick Start ID
+        - E965
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
