@@ -12,24 +12,21 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 
 * A highly available architecture that spans two/three Availability Zones.*
 * A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.*
+* In the public subnets:
+** Elastic IP addresses ...
+** Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*
+* In the private subnets:
+** WordPress running on Amazon Elastic Container Service (Amazon ECS) clusters on AWS Fargate, in an Amazon Elastic Compute Cloud (Amazon EC2) Auto Scaling group.
 * An Amazon Route 53 record entry for provided Hosted zone Id. (optional)
-* An Amazon ACM public certificate for HTTPs connection. (optional)
+* An Amazon Certificate Manager (ACM) public certificate for HTTPs connection. (optional)
 * An AWS Web Application Firewall using AWS Managed WAF rules for protection against SQLInjection and common Wordpress exploits.
-* An internet gateway to let traffic in the VPC.
-* An ELB Application load balancer targeted to the ECS Cluster Auto scaling group.
-* An RDS Aurora Serverless database connected to the Containers.
-* An EFS File System for storing Wordpress files, themes and plugins.
-* An AWS Secrets Manager secret to store the RDS Aurora database password.
+* An internet gateway to manage traffic into the VPC.
+* An Application Load Balancer to distribute traffic among AWS Fargate instances in the Auto Scaling group.
+* Amazon Aurora serverless database, managed by Amazon Relational Database Service (Amazon RDS), connected to containers on AWS Fargate.
+* An Amazon EFS file system, to which containers on AWS Fargate are mounted, for storing Wordpress files, themes, and plugins.
+* AWS Secrets Manager secret to store the RDS Aurora database password.
 
-In the public subnets:
+[.small]#* The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.
 
-* managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*
+Amazon ECS on AWS Fargate to run WordPress tasks.
 
-In the private subnets:
-
-* ECS Fargate containers running Wordpress, which communicate with the Aurora serverless database and the Elastic Filesystem.
-
-
-*The template that deploys the Quick Start into an existing VPC skips
-the components marked by asterisks and prompts you for your existing VPC
-configuration.
