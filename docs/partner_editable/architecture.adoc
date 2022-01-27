@@ -6,7 +6,7 @@ AWS Cloud.
 :xrefstyle: short
 [#architecture1]
 .Quick Start architecture for _{partner-product-name}_ on AWS
-image::architecture_diagram.png[Architecture]
+image::../images/architecture_diagram_sudo_serverless_wordpress.png[Architecture]
 
 As shown in <<architecture1>>, the Quick Start sets up the following:
 
