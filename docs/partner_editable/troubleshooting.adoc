@@ -1,0 +1,14 @@
+// _Steps for troubleshooting the deployment go here._
+
+To access the WordPress database, follow these steps:
+1. Open AWS console for Amazon RDS, select Query editor.
+image::query_console.png[image]
+2. Provide with the database name, username and password you specified during the setup process.
+image::query_console_settings.png[image]
+3. You can now run your SQL queries.
+
+To do a fresh start; empty your WordPress database, follow these steps:
+1. Open Query editor. Follow steps 'To access the WordPress database'.
+2. Run DROP sql query against your wordpress database, and recreate a new database with the same name.
+image::query_console_drop.png[image]
+3. You can now visit your Wordpress site url and will be directed to Wordpress setup page.

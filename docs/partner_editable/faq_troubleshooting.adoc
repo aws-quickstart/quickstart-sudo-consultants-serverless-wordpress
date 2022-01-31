@@ -1,0 +1,51 @@
+// Add any tips or answers to anticipated questions. This could include the following troubleshooting information. If you don’t have any other Q&A to add, change “FAQ” to “Troubleshooting.”
+
+== FAQ
+
+*Q.* I encountered a *The maximum number of Elastic IP addresses has been reached* error when I deployed the AWS CloudFormation templates.
+
+*A.* When deploying using new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. If you receive the error The maximum number of addresses has been reached, verify how many Elastic IP address you're using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.
+
+*Q.* I encountered a *Heads Up!* popup when I visit the site url.
+
+
+image::wp_no_setup_error.png[Wordpress Error]
+
+
+*A.* This bug is reported when you deploy the CloudFormation stack correctly, however, you did not setup your Wordpress site. To resolve this error, You need to re-deploy the stack or empty the database from the query editor in AWS RDS console, check troubleshooting guide.
+
+*Q.* I encountered a *CREATE_FAILED* error when I launched the Quick Start.
+
+*A.* If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with *Rollback on failure* set to *No*. (This setting is under *Advanced* in the AWS CloudFormation console, *Options* page.) With this setting, the stack’s state is retained so you can troubleshoot the issue.
+
+*Important:* When you set *Rollback on failure* to *No*, you continue to incur AWS charges for this stack. Please make sure to delete the stack when you finish troubleshooting.
+
+For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html[Troubleshooting AWS CloudFormation] on the AWS website.
+
+*Q.* I encountered a size limitation error when I deployed the AWS CloudFormation templates.
+
+*A.* We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html[AWS documentation].
+
+
+== Troubleshooting
+
+To access the WordPress database, follow these steps:
+
+Open AWS console for Amazon RDS, select Query editor.
+
+image::query_console.png[Query Console]
+
+Provide with the database name, username and password you specified during the setup process.
+
+image::query_console_settings.png[Query Console settings]
+
+You can now run your SQL queries.
+
+To do a fresh start; empty your WordPress database, follow these steps:
+
+Open Query editor. Follow steps 'To access the WordPress database'.
+Run DROP sql query against your wordpress database, and recreate a new database with the same name.
+
+image::query_console_drop.png[Query Console drop]
+
+You can now visit your Wordpress site url and will be directed to Wordpress setup page.

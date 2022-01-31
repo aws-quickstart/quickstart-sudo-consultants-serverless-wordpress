@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >-
+  Creates an Aurora serverless MySQL database cluster. **WARNING** You will be
+  billed for the AWS resources used if you create a stack from this template.
+
+Metadata:
+  LICENSE: Apache License Version 2.0
+  cfn-lint:
+    config:
+      ignore_checks:
+        # Check for QSID
+        - E9008
+        # Check for RDS Storage encryption enabled
+        - ERDSStorageEncryptionEnabled
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Database configuration
+        Parameters:
+          - DBName
+          - DBUsername
+          - DBPassword
+          - DBMaxCapacity
+          - DBMinCapacity
+          - EnableDataAPI
+          - DBBackupRetentionPeriod
+          - DBPreferredBackupWindow
+      - Label:
+          default: Network configuration
+        Parameters:
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+          - PrivateSubnet3AID
+          - DBSecurityGroupId
+    ParameterLabels:
+      DBName:
+        default: Database name
+      DBBackupRetentionPeriod:
+        default: Database backup retention period
+      DBUsername:
+        default: Username
+      DBPassword:
+        default: Password
+      EnableDataAPI:
+        default: Enable Data API
+      PrivateSubnet1AID:
+        default: Private subnet 1 ID
+      PrivateSubnet2AID:
+        default: Private subnet 2 ID
+      PrivateSubnet3AID:
+        default: Private subnet 3 ID
+      DBSecurityGroupId:
+        default: Database security group ID
+
+Parameters:
+  PrivateSubnet1AID:
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 1 located in Availability Zone 1.
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
+  PrivateSubnet2AID:
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: Subnet Id for private subnet 2 located in Availability Zone 2.
+    AllowedPattern: '^subnet-[a-zA-Z0-9]*$'
+    ConstraintDescription: Invalid subnet id
+  PrivateSubnet3AID:
+    Type: String
+    Description: Subnet Id for private subnet 3 located in Availability Zone 3.
+    Default: ''
+  DBName:
+    Type: String
+    Description: The name of your database. Must be unique. If you don't provide a name, then Amazon RDS won't create a database in this DB cluster.
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    MaxLength: '64'
+    MinLength: '5'
+  DBUsername:
+    NoEcho: 'true'
+    Description: Username for MySQL database access.
+    Type: String
+    MinLength: '1'
+    MaxLength: '16'
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  DBPassword:
+    NoEcho: 'true'
+    Description: Password MySQL database access.
+    Type: String
+    MinLength: '8'
+    MaxLength: '41'
+    AllowedPattern: '[a-zA-Z0-9]*'
+    ConstraintDescription: must contain only alphanumeric characters.
+  DBBackupRetentionPeriod:
+    Type: Number
+    Default: '1'
+    Description: The number of days for which automated backups are retained.
+    ConstraintDescription: Database backup retention period must be between 1 and 35 days.
+    MaxValue: '35'
+    MinValue: '1'
+  DBMaxCapacity:
+    Type: Number
+    Default: '2'
+    Description: The maximum capacity for an Aurora DB cluster in serverless DB engine mode.
+    AllowedValues: ['1', '2', '4', '8', '16', '32', '64', '128', '256']
+  DBMinCapacity:
+    Type: Number
+    Default: '1'
+    Description: The minimum capacity for an Aurora DB cluster in serverless DB engine mode.
+    AllowedValues: ['1', '2', '4', '8', '16', '32', '64', '128', '256']
+  DBPreferredBackupWindow:
+    Type: String
+    Default: ''
+    Description: (Optional) The daily time range during which automated backups are created.
+    AllowedPattern: '^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$'
+    ConstraintDescription: 'Preferred backup window must be left blank or in the form of HH:MM-HH:MM'
+  DBSecurityGroupId:
+    Type: 'AWS::EC2::SecurityGroup::Id'
+    Description: The group ID of the database security group, such as sg-94b3a1f6.
+    AllowedPattern: '^sg-[a-zA-Z0-9]*$'
+    ConstraintDescription: Please select DBSecurityGroupId security group.
+  EnableDataAPI:
+    Type: String
+    Description: >-
+      When enabled, the HTTP endpoint provides a connectionless web service API for running SQL queries on the Aurora Serverless DB cluster. 
+      You can also query your database from inside the RDS console with the query editor.
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+
+Conditions:
+  3AZDeployment: !Not 
+    - !Equals 
+      - !Ref PrivateSubnet3AID
+      - ''
+
+Resources:
+  DBSubnetGroup:
+    Type: 'AWS::RDS::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: Subnets available for the cluster
+      SubnetIds: !If 
+        - 3AZDeployment
+        - - !Ref PrivateSubnet1AID
+          - !Ref PrivateSubnet2AID
+          - !Ref PrivateSubnet3AID
+        - - !Ref PrivateSubnet1AID
+          - !Ref PrivateSubnet2AID
+      Tags:
+        - Key: Name
+          Value: !Join 
+            - ''
+            - - !Ref DBName
+              - SubnetGroup
+  DBCluster:
+    Type: 'AWS::RDS::DBCluster'
+    DeletionPolicy: Delete
+    Properties:
+      Engine: aurora-mysql
+      EngineVersion: '5.7'
+      EngineMode: serverless
+      StorageEncrypted: 'true'
+      DatabaseName: !Ref DBName # should be unique
+      DBClusterIdentifier: !Join 
+        - ''
+        - - !Ref DBName
+          - Cluster
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MasterUsername: !Ref DBUsername
+      VpcSecurityGroupIds:
+        - !Ref DBSecurityGroupId
+      MasterUserPassword: !Ref DBPassword
+      EnableHttpEndpoint: !Ref EnableDataAPI
+      BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
+      PreferredBackupWindow: !Ref DBPreferredBackupWindow
+      ScalingConfiguration:
+        AutoPause: 'true'
+        SecondsUntilAutoPause: 300
+        MaxCapacity: !Ref DBMaxCapacity
+        MinCapacity: !Ref DBMinCapacity
+
+Outputs:
+  DBEndpoint:
+    Description: The connection endpoint of your database.
+    Value: !Join 
+      - ''
+      - - !GetAtt DBCluster.Endpoint.Address
+        - ':'
+        - !GetAtt DBCluster.Endpoint.Port
+        - /
+        - !Ref DBName
+  DBName:
+    Description: The name of your database.
+    Value: !Ref DBName
