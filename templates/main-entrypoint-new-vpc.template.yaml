@@ -90,7 +90,7 @@ Metadata:
       UseSSL:
         default: Use SSL
       CertificateArn:
-        default: SSL certificate Arn
+        default: SSL certificate ARN
       HostedZoneID:
         default: Route 53 Hosted Zone ID
       ALBAccessCIDR:
@@ -242,7 +242,7 @@ Parameters:
   ContainerCpu:
     Type: String
     Default: '256'
-    Description: The number of cpu units used by the task.
+    Description: The number of CPU units used by the task.
     AllowedValues:
       - '256'
       - '512'
@@ -252,7 +252,7 @@ Parameters:
   ContainerMemory:
     Type: String
     Default: 0.5GB
-    Description: The amount (in GiB) of memory used by the task.
+    Description: The amount (in GB) of memory used by the task.
     AllowedValues:
       - '0.5GB'
       - '1GB'
