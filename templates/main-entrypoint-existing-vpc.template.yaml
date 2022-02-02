@@ -1,14 +1,10 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
 Description:
-  This template uses and existing VPC to deploy WordPress in a Serverless architecture. **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
+  This template uses and existing VPC to deploy WordPress in a Serverless architecture. **WARNING** You will be billed for the AWS resources used if you create a stack from this template. (qs-1sn331dqf)
+
 Metadata:
   LICENSE: Apache License Version 2.0
-  cfn-lint:
-    config:
-      ignore_checks:
-        # Check for Quick Start ID
-        - E9008
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
