@@ -176,7 +176,7 @@ Parameters:
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
-    Description: The throughput, measured in MiB/s, that you want to provision for a file system that you're creating. Valid values are 1-1024. Required if ThroughputMode is set to provisioned.
+    Description: The throughput, measured in MiB/s, that you want to provision for a file system that you're creating. Valid values are 1-1024. Required if `ThroughputMode` is set to `provisioned`.
     MinValue: 0
     MaxValue: 1024
   EFSPerformanceMode:
@@ -189,7 +189,7 @@ Parameters:
   EFSThroughputMode:
     Type: String
     Default: bursting
-    Description: Specifies the throughput mode for the file system, either bursting or provisioned.
+    Description: Specifies the throughput mode for the file system, either `bursting` or `provisioned`.
     AllowedValues:
       - bursting
       - provisioned
@@ -207,7 +207,7 @@ Parameters:
     MinLength: '1'
     MaxLength: '16'
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
   DBPassword:
     NoEcho: 'true'
     Description: Password for MySQL database access
@@ -215,7 +215,7 @@ Parameters:
     MinLength: '8'
     MaxLength: '41'
     AllowedPattern: '[a-zA-Z0-9]*'
-    ConstraintDescription: must contain only alphanumeric characters.
+    ConstraintDescription: Must contain only alphanumeric characters.
   DBBackupRetentionPeriod:
     Type: Number
     Default: '1'
@@ -252,7 +252,7 @@ Parameters:
   ContainerMemory:
     Type: String
     Default: 0.5GB
-    Description: The amount (in GB) of memory used by the task.
+    Description: The amount of memory used by the task (in GB).
     AllowedValues:
       - '0.5GB'
       - '1GB'
@@ -277,7 +277,7 @@ Parameters:
   ContainerImage:
     Type: String
     Default: 'docker.io/wordpress:latest'
-    Description: The image used to start a container. By default uses Wordpress official docker image.
+    Description: The image used to start a container. The default is the Wordpress official docker image.
   ContainerMaxCount:
     Type: Number
     Default: '3'
@@ -288,8 +288,7 @@ Parameters:
     Description: Minimum number of WordPress containers in the Auto Scaling group.
   DomainName:
     Description: >-
-      (Optional) Domain name for the web site. It must be an existing, publicly
-      resolvable domain.
+      (Optional) Domain name for the web site. It must be an existing, publicly resolvable domain.
     Type: String
     Default: ''
     ConstraintDescription: Must be a valid domain name.
@@ -299,22 +298,20 @@ Parameters:
     Default: ''
   HostedZoneID:
     Description: >-
-      (Optional) Route 53 Hosted Zone ID of the domain name. If left blank route
-      53 will not be configured and DNS must be setup manually. If you specify
-      this, you must also specify a Domain name.
+      (Optional) Route 53 hosted zone ID of the domain name. You must also provide a value for the `DomainName` parameter. Leave blank to setup DNS manually without configuring Route 53.
     Type: String
     Default: ''
     MaxLength: '32'
   ActivateWordPressRule:
     Type: String
-    Description: Activate AWS Managed WordPress WAF Rule, protects against common Wordpress attacks.
+    Description: Activate AWS WAF rule that protects against common Wordpress attacks.
     Default: 'true'
     AllowedValues:
       - 'true'
       - 'false'
   ActivateSQLInjectionRule:
     Type: String
-    Description: Activate AWS Managed SQL Injection WAF Rule, protects against common SQL Injection attacks.
+    Description: Activate AWS WAF rule that protects against common SQL injection attacks.
     Default: 'true'
     AllowedValues:
       - 'true'
@@ -323,13 +320,13 @@ Parameters:
     Type: String
     Default: 0.0.0.0/0
     Description: >-
-      Allowed CIDR block for external web access to the Application Load Balancer (x.x.x.x/x)
+      Allowed CIDR block for external web access to the Application Load Balancer, in the form `x.x.x.x/x`.
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
   UseSSL:
     Type: String
-    Description: Use SSL to keep sensitive information sent across the Internet encrypted.
+    Description: Use Secure Sockets Layer (SSL) to encrypt sensitive information sent across the internet.
     Default: 'false'
     AllowedValues:
       - 'true'
@@ -337,21 +334,21 @@ Parameters:
   # New VPC Submodule parameters
   PrivateSubnet1ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in the form `x.x.x.x/16-28`.
     Default: 10.0.0.0/19
-    Description: CIDR block for private subnet 1A located in Availability Zone 1
+    Description: CIDR block for private subnet 1A, located in Availability Zone 1.
     Type: String
   PrivateSubnet2ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    ConstraintDescription: CIDR block parameter must be in the form `x.x.x.x/16-28`.
     Default: 10.0.32.0/19
-    Description: CIDR block for private subnet 2A located in Availability Zone 2
+    Description: CIDR block for private subnet 2A, located in Availability Zone 2.
     Type: String
   PrivateSubnet3ACIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.64.0/19
-    Description: CIDR block for private subnet 3A located in Availability Zone 3
+    Description: CIDR block for private subnet 3A, located in Availability Zone 3.
     Type: String
   # PrivateSubnet4ACIDR:
   #   AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$

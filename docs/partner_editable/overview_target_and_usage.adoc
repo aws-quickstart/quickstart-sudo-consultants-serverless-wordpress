@@ -6,4 +6,4 @@ This Quick Start deployment guide provides instructions for deploying {partner-p
 
 http://aws.amazon.com/quickstart/[Quick Starts^] are automated reference deployments for AWS Cloud infrastructure components and key enterprise workloads on the AWS Cloud. Each Quick Start launches, configures, and runs AWS compute, network, storage, and other services, using AWS best practices for security and availability.
 
-This Quick Start is for users who want to deploy a highly available and scalable Wordpress website.
+This Quick Start is for users who want to deploy a highly available and scalable WordPress website.
