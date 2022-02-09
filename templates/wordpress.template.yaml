@@ -141,7 +141,7 @@ Parameters:
       and hyphens (-). It cannot start or end with a hyphen (-).
   QSS3KeyPrefix:
     Type: String
-    Default: quickstart-wordpress-serverless/
+    Default: quickstart-sudo-consultants-serverless-wordpress/
     Description: >-
       Alphanumeric String which identifies the S3 key prefix used to simulate a
       folder for your copy of the Quick Start assets if you decided to customize

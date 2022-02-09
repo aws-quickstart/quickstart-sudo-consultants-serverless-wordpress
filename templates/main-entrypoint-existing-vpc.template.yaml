@@ -152,7 +152,7 @@ Parameters:
       The Quick Start S3 key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slashes (/). The prefix should
       end with a forward slash (/).
-    Default: quickstart-wordpress-serverless/
+    Default: quickstart-sudo-consultants-serverless-wordpress/
     Description:
       S3 key prefix that is used to simulate a folder for your copy of the 
       Quick Start assets. Keep the default prefix unless you are customizing 
