@@ -2,11 +2,6 @@
 == Best practices for using {partner-product-name} on AWS
 // Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
 
-To keep your WordPress deployment up-to-date and secure, see the following
-documentation on the Bitnami website:
-
-* https://docs.bitnami.com/aws-templates/apps/wordpress/troubleshooting/enforce-security/[How to enforce WordPress security]
-
 
 == Security
 // Provide post-deployment best practices for using the technology on AWS, including considerations such as migrating data, backups, ensuring high performance, high availability, etc. Link to software documentation for detailed information.
@@ -15,13 +10,12 @@ The AWS Cloud provides a scalable, highly reliable platform that helps customers
 
 {partner-product-name} includes these security features:
 
-* AWS Web Application Firewall is deployed to prevent SQL injection and common Wordpress exploits.
-* Network and access ports: For security reasons, All security groups are port hardened, all unnecessary ports are closed by default.
-* Create database backups periodically.
+* https://aws.amazon.com/waf/[AWS WAF] to prevent SQL injection and common WordPress exploits.
+* Port-hardened security groups and unnecessary ports closed by default.
+* Periodic database backups.
+* A VPC configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
 
-For more information about WordPress security, 
-see the WordPress documentation on the https://codex.wordpress.org/Hardening_WordPress[WordPress.org] website.
-
+For more information, see https://wordpress.org/support/article/hardening-wordpress/[Hardening WordPress].
 
 == Other useful information
 //Provide any other information of interest to users, especially focusing on areas where AWS or cloud usage differs from on-premises usage.

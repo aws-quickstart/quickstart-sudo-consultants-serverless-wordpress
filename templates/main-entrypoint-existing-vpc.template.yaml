@@ -4,6 +4,9 @@ Description:
   This template uses and existing VPC to deploy WordPress in a Serverless architecture. **WARNING** You will be billed for the AWS resources used if you create a stack from this template. (qs-1sn331dqf)
 
 Metadata:
+  QuickStartDocumentation:
+    EntrypointName: "Parameters for deploying into an existing VPC"
+    Order: 1
   LICENSE: Apache License Version 2.0
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -43,7 +46,7 @@ Metadata:
           - DBBackupRetentionPeriod
           - DBPreferredBackupWindow
       - Label:
-          default: AWS ECS configuration
+          default: Amazon ECS configuration
         Parameters:
           - ContainerImage
           - ContainerMemory
@@ -53,7 +56,7 @@ Metadata:
           - ContainerDesiredCount
           - ALBAccessCIDR
       - Label:
-          default: AWS EFS configuration
+          default: Amazon EFS configuration
         Parameters:
           - EFSPerformanceMode
           - EFSThroughputMode
@@ -70,13 +73,13 @@ Metadata:
       QSS3KeyPrefix:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 bucket region
+        default: Quick Start S3 bucket Region
       DomainName:
         default: Domain Name
       UseSSL:
         default: Use SSL
       CertificateArn:
-        default: SSL certificate Arn
+        default: SSL certificate ARN
       HostedZoneID:
         default: Route 53 Hosted Zone ID
       ALBAccessCIDR:
@@ -108,58 +111,69 @@ Metadata:
       DBPassword:
         default: Database password
       EFSProvisionedThroughputInMibps:
-        default: EFS provisioned throughput in mibps
+        default: File system provisioned throughput
       EFSPerformanceMode:
-        default: EFS performance mode
+        default: File system performance mode
       EFSThroughputMode:
-        default: EFS throughput mode
+        default: File system throughput mode
       PrivateSubnet1AID:
-        default: Private subnet 1 Id
+        default: Private subnet 1 ID
       PrivateSubnet2AID:
-        default: Private subnet 2 Id
+        default: Private subnet 2 ID
       PrivateSubnet3AID:
-        default: Private subnet 3 Id
+        default: Private subnet 3 ID
       PublicSubnet1ID:
-        default: Public subnet 1 Id
+        default: Public subnet 1 ID
       PublicSubnet2ID:
-        default: Public subnet 2 Id
+        default: Public subnet 2 ID
       PublicSubnet3ID:
-        default: Public subnet 3 Id
+        default: Public subnet 3 ID
       VPCID:
-        default: VPC Id
+        default: VPC ID
 Parameters:
   QSS3BucketName:
-    Type: String
-    Default: aws-quickstart
-    Description: >-
-      Alphanumeric String which identifies the S3 bucket name for the Quick
-      Start assets. It's the bucket to store the copy of the Quick Start assets
-      if you decided to customize or extend them for your own use.
     AllowedPattern: '^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$'
-    ConstraintDescription: >-
-      S3 bucket name can include numbers, lowercase letters, uppercase letters,
-      and hyphens (-). It cannot start or end with a hyphen (-).
+    ConstraintDescription:
+      The Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a 
+      hyphen (-).
+    Default: aws-quickstart
+    Description:
+      Name of the S3 bucket for your copy of the Quick Start assets. 
+      Keep the default name unless you are customizing the template. 
+      Changing the name updates code references to point to a new Quick 
+      Start location. This name can include numbers, lowercase letters, 
+      uppercase letters, and hyphens, but do not start or end with a hyphen (-). 
+      See https://aws-quickstart.github.io/option1.html.
+    Type: String
   QSS3KeyPrefix:
-    Type: String
+    AllowedPattern: '^[0-9a-zA-Z-/]*$'
+    ConstraintDescription:
+      The Quick Start S3 key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slashes (/). The prefix should
+      end with a forward slash (/).
     Default: quickstart-wordpress-serverless/
-    Description: >-
-      Alphanumeric String which identifies the S3 key prefix used to simulate a
-      folder for your copy of the Quick Start assets if you decided to customize
-      or extend them for your own use.
-    AllowedPattern: '^[0-9a-zA-Z-/._]*$'
-    ConstraintDescription: >-
-      S3 key prefix can include numbers, lowercase letters, uppercase letters,
-      hyphens (-), and forward slash (/).
-  QSS3BucketRegion:
+    Description:
+      S3 key prefix that is used to simulate a folder for your copy of the 
+      Quick Start assets. Keep the default prefix unless you are customizing 
+      the template. Changing this prefix updates code references to point to 
+      a new Quick Start location. This prefix can include numbers, lowercase 
+      letters, uppercase letters, hyphens (-), and forward slashes (/). End with 
+      a forward slash. See https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingMetadata.html 
+      and https://aws-quickstart.github.io/option1.html.
     Type: String
-    Default: us-east-1
-    Description: >-
-      The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted.
-      When using your own bucket, you must specify this value.
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is 
+    hosted. Keep the default Region unless you are customizing the template. 
+    Changing this Region updates code references to point to a new Quick Start location. 
+    When using your own bucket, specify the Region. 
+    See https://aws-quickstart.github.io/option1.html.'
+    Type: String
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
-    Description: The throughput, measured in MiB/s, that you want to provision for a file system that you're creating. Valid values are 1-1024. Required if ThroughputMode is set to provisioned.
+    Description: The throughput, measured in MiB/s, that you want to provision for the file system. Valid values are 1-1024. Required if `ThroughputMode` is set to `provisioned`.
     MinValue: 0
     MaxValue: 1024
   EFSPerformanceMode:
@@ -172,7 +186,7 @@ Parameters:
   EFSThroughputMode:
     Type: String
     Default: bursting
-    Description: Specifies the throughput mode for the file system, either bursting or provisioned.
+    Description: Specifies the throughput mode for the file system, either `bursting` or `provisioned`.
     AllowedValues:
       - bursting
       - provisioned
@@ -190,7 +204,7 @@ Parameters:
     MinLength: '1'
     MaxLength: '16'
     AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
-    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+    ConstraintDescription: Must begin with a letter and contain only alphanumeric characters.
   DBPassword:
     NoEcho: 'true'
     Description: Password for MySQL database access
@@ -198,12 +212,12 @@ Parameters:
     MinLength: '8'
     MaxLength: '41'
     AllowedPattern: '[a-zA-Z0-9]*'
-    ConstraintDescription: must contain only alphanumeric characters.
+    ConstraintDescription: Must contain only alphanumeric characters.
   DBBackupRetentionPeriod:
     Type: Number
     Default: '1'
     Description: The number of days for which automated backups are retained.
-    ConstraintDescription: Database backup retention period must be between 1 and 35 days.
+    ConstraintDescription: Database backup retention period must be 1–35 days.
     MaxValue: '35'
     MinValue: '1'
   DBMaxCapacity:
@@ -221,11 +235,11 @@ Parameters:
     Default: ''
     Description: (Optional) The daily time range during which automated backups are created.
     AllowedPattern: '^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$'
-    ConstraintDescription: 'Preferred backup window must be left blank or in the form of HH:MM-HH:MM'
+    ConstraintDescription: Preferred backup window must be left blank or in the form `HH:MM-HH:MM`.
   ContainerCpu:
     Type: String
     Default: '256'
-    Description: The number of cpu units used by the task.
+    Description: The number of CPU units used by the task.
     AllowedValues:
       - '256'
       - '512'
@@ -235,7 +249,7 @@ Parameters:
   ContainerMemory:
     Type: String
     Default: 0.5GB
-    Description: The amount (in GiB) of memory used by the task.
+    Description: The amount of memory used by the task (in GB).
     AllowedValues:
       - '0.5GB'
       - '1GB'
@@ -260,7 +274,7 @@ Parameters:
   ContainerImage:
     Type: String
     Default: 'docker.io/wordpress:latest'
-    Description: The image used to start a container. By default uses Wordpress official docker image.
+    Description: The image used to start a container. By default, the Quick Start uses the Wordpress official docker image.
   ContainerMaxCount:
     Type: Number
     Default: '3'
@@ -282,22 +296,20 @@ Parameters:
     Default: ''
   HostedZoneID:
     Description: >-
-      (Optional) Route 53 Hosted Zone ID of the domain name. If left blank route
-      53 will not be configured and DNS must be setup manually. If you specify
-      this, you must also specify a Domain name.
+      (Optional) Route 53 hosted zone ID of the domain name. You must also provide a value for the `DomainName` parameter. Leave blank to setup DNS manually without configuring Route 53.
     Type: String
     Default: ''
     MaxLength: '32'
   ActivateWordPressRule:
     Type: String
-    Description: Activate AWS Managed WordPress WAF Rule, protects against common Wordpress attacks.
+    Description: Activate AWS WAF rule that protects against common Wordpress attacks.
     Default: 'true'
     AllowedValues:
       - 'true'
       - 'false'
   ActivateSQLInjectionRule:
     Type: String
-    Description: Activate AWS Managed SQL Injection WAF Rule, protects against common SQL Injection attacks.
+    Description: Activate AWS WAF rule that protects against common SQL injection attacks.
     Default: 'true'
     AllowedValues:
       - 'true'
@@ -306,13 +318,13 @@ Parameters:
     Type: String
     Default: 0.0.0.0/0
     Description: >-
-      Allowed CIDR block for external web access to the Application Load Balancer (x.x.x.x/x)
+      Allowed CIDR block for external web access to the Application Load Balancer, in the form `x.x.x.x/x`.
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    ConstraintDescription: CIDR block parameter must be in the form `x.x.x.x/x`.
   UseSSL:
     Type: String
-    Description: Use SSL to keep sensitive information sent across the Internet encrypted.
+    Description: Use SSL to encrypt sensitive information sent across the internet.
     Default: 'false'
     AllowedValues:
       - 'true'
@@ -320,27 +332,27 @@ Parameters:
   # Existing VPC parameters
   PrivateSubnet1AID:
     Type: AWS::EC2::Subnet::Id
-    Description: "Id of the private subnet 1A located in Availability Zone 1"
+    Description: ID of the private subnet 1A, located in Availability Zone 1.
   PrivateSubnet2AID:
     Type: AWS::EC2::Subnet::Id
-    Description: "Id of the private subnet 2A located in Availability Zone 2"
+    Description: ID of the private subnet 2A, located in Availability Zone 2.
   PrivateSubnet3AID:
     Type: String
     Default: ""
-    Description: "Id of the private subnet 3A located in Availability Zone 3"
+    Description: ID of the private subnet 3A, located in Availability Zone 3.
   PublicSubnet1ID:
     Type: AWS::EC2::Subnet::Id
-    Description: "Id of the public DMZ subnet 1 located in Availability Zone 1"
+    Description: ID of the public subnet 1, located in Availability Zone 1.
   PublicSubnet2ID:
     Type: AWS::EC2::Subnet::Id
-    Description: "Id of the public DMZ subnet 2 located in Availability Zone 2"
+    Description: ID of the public subnet 2, located in Availability Zone 2.
   PublicSubnet3ID:
     Type: String
     Default: ""
-    Description: "Id of the public DMZ subnet 3 located in Availability Zone 3"
+    Description: ID of the public subnet 3, located in Availability Zone 3.
   VPCID:
     Type: AWS::EC2::VPC::Id
-    Description: "Id for the VPC"
+    Description: VPC ID
 
 Rules:
   ProvisionedThroughput:

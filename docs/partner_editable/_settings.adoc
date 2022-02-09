@@ -1,10 +1,12 @@
 :quickstart-project-name: quickstart-sudo-consultants-serverless-wordpress
-:partner-company-name: SUDO Consultants, Ltd.
-:doc-month: December
-:doc-year: 2021
+:partner-company-name: Sudo Consultants Limited
+:doc-month: February
+:doc-year: 2022
 :deployment_time: 30 minutes / 1 hour
 :default_deployment_region: us-east-1
-:partner-product-name: Wordpress Serverless
-:partner-product-short-name: Wordpress
-:partner-contributors: Saif Ali, SUDO & Hameedullah Khan, SUDO
-:quickstart-contributors: Dattaprasad Sadwelkar, AWS & Sriram Mohan, AWS
+:parameters_as_appendix:
+:partner-product-name: Sudo Consultants Serverless WordPress
+:partner-product-short-name: Serverless WordPress
+:partner-contributors: Saif Ali and Hameedullah Khan, Sudo
+:quickstart-contributors: Dattaprasad Sadwelkar, AWS Integration & Automation team, and Sriram Mohan, AWS Managed Cloud
+// :no_parameters:

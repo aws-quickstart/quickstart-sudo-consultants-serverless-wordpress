@@ -15,11 +15,11 @@ Each deployment takes about {deployment_time} to complete.
 
 [cols="3,1"]
 |===
-^|http://qs_launch_link[Deploy {partner-product-short-name} into a new VPC on AWS^]
-^|http://qs_launch_link[View template^]
+^|https://fwd.aws/xkye7?[Deploy {partner-product-short-name} into a new VPC on AWS^]
+^|https://fwd.aws/QDJza?[View template^]
 
-^|http://qs_launch_link[Deploy {partner-product-short-name} into an existing VPC on AWS^]
-^|http://qs_launch_link[View template^]
+^|https://fwd.aws/k4MBW?[Deploy {partner-product-short-name} into an existing VPC on AWS^]
+^|https://fwd.aws/EYQWk?[View template^]
 |===
 
 [start=2]
@@ -48,3 +48,23 @@ image::capability_options.png[Capability Options, width=100%]
 . Use the URLs displayed in the Outputs tab for the stack to view the resources that were created.
 
 image::output_ApplicationURL.png[Output Application URL, width=100%]
+
+When you see that the deployment has completed successfully, you can test it by 
+accessing the WordPress user interface and logging in to the dashboard.
+
+[start=8]
+. Access the WordPress user interface by visiting the Application URL
+
+image::setup_page.png[Wordpress Setup page]
+
+[start=9]
+. Access the Admin page for WordPress site to manage your blog posts
+
+1. Open the WordPress dashboard by adding /wp-admin to the URL you used to access WordPress.
+2. Log in with the user name and password you specified during the setup process.
+
+image::admin_login_page.png[Wordpress Login page]
+
+This will display the WordPress dashboard, which allows you to manage posts, pages, and
+comments; customize your blog with themes and plugins; import and export content;
+manage navigation menus; add or delete new user accounts; and much more.
