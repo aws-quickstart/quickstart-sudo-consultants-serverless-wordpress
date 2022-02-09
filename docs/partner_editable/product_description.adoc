@@ -2,11 +2,6 @@
 // Briefly describe the software. Use consistent and clear branding. 
 // Include the benefits of using the software on AWS, and provide details on usage scenarios.
 
-WordPress is a web publishing platform for building blogs and websites. It can be
-customized via a wide selection of themes, extensions, and plugins.
+This Quick Start deploys Sudo Consultants Serverless WordPress in the Amazon Web Services (AWS) Cloud. It is for organizations that want to run their WordPress applications and sites in an AWS managed serverless container environment. 
 
-WordPress provides a development framework, extensive feature set, flexibility, rapid and
-multilingual publishing ability, multi-author support, and thriving community. For more
-information about these features, see the WordPress website.
-
-WordPress Serverless by SUDO enables you to deploy a containerized WordPress application and serverless database. The Quick Start uses AWS Relational Database Service (Amazon RDS) with Amazon Aurora serverless to set up a relational database and AWS Elastic Container Service (Amazon ECS) with Amazon Fargate in the AWS Cloud thus helping you reduce costs, simplify configuration tasks, and scale with ease.
+This Quick Start runs WordPress on Amazon Elastic Container Service (Amazon ECS) containers on AWS Fargate. Amazon ECS on AWS Fargate helps you operate a scalable WordPress installation without managing servers. Container-mounted Amazon Elastic File System (Amazon EFS) allows your WordPress sites to scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.
