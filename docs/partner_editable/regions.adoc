@@ -1,5 +1,0 @@
-- _us-east-1 (N. Virginia)_
-- _us-east-2 (Ohio)_
-- _us-west-1 (California)_
-- _us-west-2 (Oregon)_
-- _ca-central-1 (Canada Central)_

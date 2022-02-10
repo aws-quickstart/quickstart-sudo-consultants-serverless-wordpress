@@ -1,7 +1,0 @@
-// Replace the content in <>
-// Briefly describe the software. Use consistent and clear branding. 
-// Include the benefits of using the software on AWS, and provide details on usage scenarios.
-
-This Quick Start deploys Sudo Consultants Serverless WordPress in the Amazon Web Services (AWS) Cloud. It is for organizations that want to run their WordPress applications and sites in an AWS managed serverless container environment. 
-
-This Quick Start runs WordPress on Amazon Elastic Container Service (Amazon ECS) containers on AWS Fargate. Amazon ECS on AWS Fargate helps you operate a scalable WordPress installation without managing servers. Container-mounted Amazon Elastic File System (Amazon EFS) allows your WordPress sites to scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.
