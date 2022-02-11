@@ -1,0 +1,8 @@
+// Replace the content in <>
+// Describe or link to specific knowledge requirements; for example: “familiarity with basic concepts in the areas of networking, database operations, and data encryption” or “familiarity with <software>.”
+
+This Quick Start assumes familiarity with WordPress content management system.
+
+This deployment guide also requires a moderate level of familiarity with
+AWS services. If you’re new to AWS, visit the https://aws.amazon.com/getting-started/[Getting Started Resource Center] and the https://aws.amazon.com/training/[AWS Training and Certification website]. 
+These sites provide materials for learning how to design, deploy, and operate your infrastructure and applications on the AWS Cloud.

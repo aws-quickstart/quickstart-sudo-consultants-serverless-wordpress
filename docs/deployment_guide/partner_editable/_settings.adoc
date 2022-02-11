@@ -1,14 +1,14 @@
-:quickstart-project-name: quickstart-repo-name
+:quickstart-project-name: quickstart-sudo-consultants-serverless-wordpress
 :quickstart-github-org: aws-quickstart
-:partner-product-name: Full Product Name
-:partner-product-short-name: Product Name
-:partner-company-name: Example Company Name, Ltd.
-:doc-month: January
+:partner-product-name: Sudo Consultants Serverless WordPress
+:partner-product-short-name: Serverless WordPress
+:partner-company-name: Sudo Consultants Limited
+:doc-month: February
 :doc-year: 2022
-:partner-contributors: John Smith, {partner-company-name}
+:partner-contributors: Saif Ali and Hameedullah Khan, Sudo Consultants
 //:other-contributors: Akua Mansa, Trek10
-:aws-contributors: Janine Singh, AWS IoT Partner team
-:aws-ia-contributors: Toni Jones, AWS Integration & Automation team
+:aws-contributors: Sriram Mohan, AWS Managed Cloud
+:aws-ia-contributors: Dattaprasad Sadwelkar, AWS Integration & Automation team
 :deployment_time: 15 minutes
 :default_deployment_region: us-east-1
 // :private_repo:

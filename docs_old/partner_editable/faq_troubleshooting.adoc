@@ -1,0 +1,35 @@
+// Add any tips or answers to anticipated questions. This could include the following troubleshooting information. If you don’t have any other Q&A to add, change “FAQ” to “Troubleshooting.”
+
+== FAQ
+
+*Q.* I encounter the following error when I deploy the AWS CloudFormation templates.
+
+`The maximum number of Elastic IP addresses has been reached.`
+
+*A.* When you deploy the Quick Start into a new VPC, the template allocates an Elastic IP address for each NAT gateway. All AWS accounts are limited to five Elastic IP addresses per Region. Verify how many Elastic IP address you're using and what the limit is for your account. If you need additional Elastic IP addresses, request a quota increase.
+
+*Q.* I encounter a `Heads Up!` warning when I visit the WordPress site URL.
+
+*A.* You deployed the CloudFormation stack correctly, but did not setup your Wordpress site. Redeploy the stack or follow these steps to empty and recreate the database in the Amazon RDS console Query Editor.
+
+. Open the https://us-west-2.console.aws.amazon.com/rds/home?region=us-west-2#[Amazon RDS console].
+. In the navigation pane, choose *Query Editor*.
+. On the *Connect to database* dialog box, enter the database username, database password, and database name you specified during the setup process.
+. Choose *Connect to database*. 
+. In the Query Editor, run the following query to empty and recreate your database with the same name. Substitute `database_name` with your database name.
++
+`DROP DATABASE <database_name>; CREATE DATABASE <database_name>;`
++
+You can now visit your Wordpress site URL to setup your Wordpress site.
+
+*Q.* I encountered a *CREATE_FAILED* error when I launched the Quick Start.
+
+*A.* If AWS CloudFormation fails to create the stack, we recommend that you relaunch the template with *Rollback on failure* set to *No*. (This setting is under *Advanced* in the AWS CloudFormation console, *Options* page.) With this setting, the stack’s state is retained so you can troubleshoot the issue.
+
+*Important:* When you set *Rollback on failure* to *No*, you continue to incur AWS charges for this stack. Please make sure to delete the stack when you finish troubleshooting.
+
+For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html[Troubleshooting AWS CloudFormation] on the AWS website.
+
+*Q.* I encountered a size limitation error when I deployed the AWS CloudFormation templates.
+
+*A.* We recommend that you launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information about AWS CloudFormation quotas, see the http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html[AWS CloudFormation quotas].
