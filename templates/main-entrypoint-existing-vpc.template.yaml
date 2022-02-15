@@ -177,7 +177,7 @@ Parameters:
   EFSProvisionedThroughputInMibps:
     Type: Number
     Default: 0
-    Description: The throughput, measured in MiB/s, that you want to provision for the file system. Valid values are 1-1024. Required if `ThroughputMode` is set to `provisioned`.
+    Description: The throughput, measured in MiB/s, that you want to provision for the file system. Valid values are 1-1024. Required if ThroughputMode is set to provisioned.
     MinValue: 0
     MaxValue: 1024
   EFSPerformanceMode:
@@ -190,7 +190,7 @@ Parameters:
   EFSThroughputMode:
     Type: String
     Default: bursting
-    Description: Specifies the throughput mode for the file system, either `bursting` or `provisioned`.
+    Description: Specifies the throughput mode for the file system.
     AllowedValues:
       - bursting
       - provisioned
@@ -239,7 +239,7 @@ Parameters:
     Default: ''
     Description: (Optional) The daily time range during which automated backups are created.
     AllowedPattern: '^(|([0-1][0-9]|2[0-3]):[0-5][0-9]-([0-1][0-9]|2[0-3]):[0-5][0-9])$'
-    ConstraintDescription: Preferred backup window must be left blank or in the form `HH:MM-HH:MM`.
+    ConstraintDescription: Preferred backup window must be left blank or in the form HH:MM-HH:MM.
   ContainerCpu:
     Type: String
     Default: '256'
@@ -300,7 +300,7 @@ Parameters:
     Default: ''
   HostedZoneID:
     Description: >-
-      (Optional) Route 53 hosted zone ID of the domain name. You must also provide a value for the `DomainName` parameter. Leave blank to setup DNS manually without configuring Route 53.
+      (Optional) Route 53 hosted zone ID of the domain name. You must also provide a value for the DomainName parameter. Leave blank to setup DNS manually without configuring Route 53.
     Type: String
     Default: ''
     MaxLength: '32'
@@ -322,10 +322,10 @@ Parameters:
     Type: String
     Default: 0.0.0.0/0
     Description: >-
-      Allowed CIDR block for external web access to the Application Load Balancer, in the form `x.x.x.x/x`.
+      Allowed CIDR block for external web access to the Application Load Balancer, in the form x.x.x.x/x.
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
-    ConstraintDescription: CIDR block parameter must be in the form `x.x.x.x/x`.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x.
   UseSSL:
     Type: String
     Description: Use SSL to encrypt sensitive information sent across the internet.
@@ -535,8 +535,11 @@ Resources:
 Outputs:
   ApplicationURL:
     Condition: AddDNSRecord
-    Description: The URL of the Application.
+    Description: The URL of the application.
     Value: !GetAtt WordPressStack.Outputs.ApplicationURL
   ApplicationLoadBalancerDNSName:
-    Description: The URL of the ELB. Point your domain to it by using a CNAME/ALIAS record.
+    Description: The URL of the Application Load Balancer. Point your domain to it using a CNAME or alias record.
     Value: !GetAtt WordPressStack.Outputs.ApplicationLoadBalancerDNSName
+  Postdeployment:
+    Description: See the deployment guide for postdeployment steps.
+    Value: https://fwd.aws/JeM3V? 
