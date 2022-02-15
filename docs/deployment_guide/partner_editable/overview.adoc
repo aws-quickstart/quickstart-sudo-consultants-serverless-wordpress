@@ -1,7 +1,17 @@
-This Quick Start deploys {partner-product-name} on the AWS Cloud. If you are unfamiliar with AWS Quick Starts we recommend that you read the https://aws-ia.github.io/content/qs_info.html[AWS Quick Start General Content Guide].
-
 // This deployment guide covers the steps necessary to deploy the Quick Start. For more advanced information on the product, troubleshooting, or additional functionality, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational guide].
 
 // For information on using this Quick Start for migrations, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration guide].
 
-This Quick Start is for users who want to deploy a highly available and scalable WordPress website.
+This Quick Start deploys {partner-product-name} in the Amazon Web Services (AWS) Cloud. It is for organizations that want to deploy highly available and scalable WordPress sites without managing servers. 
+
+This Quick Start uses Amazon Elastic Container Service (Amazon ECS) to build containers with the official WordPress Docker image. AWS Fargate runs, scales, and manages the containerized WordPress workload and an Amazon Aurora serverless database. A container-mounted Amazon Elastic File System (Amazon EFS) helps your WordPress sites scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.
+
+If you are unfamiliar with AWS Quick Starts we recommend that you read the https://aws-ia.github.io/content/qs_info.html[AWS Quick Start General Content Guide^].
+
+{partner-product-name} includes these security features:
+
+* https://aws.amazon.com/waf/[AWS WAF^] to prevent SQL injection and common WordPress exploits.
+* Port-hardened security groups and unnecessary ports closed by default. For more information, see https://wordpress.org/support/article/hardening-wordpress/[Hardening WordPress^].
+* Periodic database backups.
+* A virtual private cloud (VPC) configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.
+
