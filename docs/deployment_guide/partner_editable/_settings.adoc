@@ -8,7 +8,7 @@
 :partner-contributors: Saif Ali and Hameedullah Khan, Sudo Consultants
 //:other-contributors: Akua Mansa, Trek10
 :aws-contributors: Sriram Mohan, AWS Managed Cloud
-:aws-ia-contributors: Dattaprasad Sadwelkar, AWS Integration & Automation team
+:aws-ia-contributors: Dattaprasad Sadwelkar and Vinod Shukla, AWS Integration & Automation team
 :deployment_time: 15 minutes
 :default_deployment_region: us-east-1
 // :private_repo:
