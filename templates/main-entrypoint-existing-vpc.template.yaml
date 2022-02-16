@@ -302,7 +302,7 @@ Parameters:
     MaxLength: '32'
   ActivateWordPressRule:
     Type: String
-    Description: Activate AWS WAF rule that protects against common Wordpress attacks.
+    Description: Activate AWS WAF rule that protects against common WordPress attacks.
     Default: 'true'
     AllowedValues:
       - 'true'
