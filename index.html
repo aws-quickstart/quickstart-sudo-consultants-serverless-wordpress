@@ -838,6 +838,7 @@ p.footer-text a{color:#d7d8d8}
 <li><a href="#_costs_and_licenses">Costs and licenses</a></li>
 <li><a href="#_architecture">Architecture</a></li>
 <li><a href="#_deployment_options">Deployment options</a></li>
+<li><a href="#_predeployment_steps">Predeployment steps</a></li>
 <li><a href="#_deployment_steps">Deployment steps</a></li>
 <li><a href="#_troubleshooting">Troubleshooting</a></li>
 <li><a href="#_feedback_on_this_guide">Feedback on this guide</a></li>
@@ -864,7 +865,7 @@ p.footer-text a{color:#d7d8d8}
 <p><strong>February 2022</strong><br>
 <em>Saif Ali and Hameedullah Khan, Sudo Consultants</em><br>
 <em>Sriram Mohan, AWS Managed Cloud</em><br>
-<em>Dattaprasad Sadwelkar, AWS Integration &amp; Automation team</em><br></p>
+<em>Dattaprasad Sadwelkar and Vinod Shukla, AWS Integration &amp; Automation team</em><br></p>
 </div>
 <div class="admonitionblock tip text-left">
 <table>
@@ -887,65 +888,53 @@ Visit our <a href="https://github.com/aws-quickstart/quickstart-sudo-consultants
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/overview.adoc</code></strong></em></p>
+<p>This Quick Start deploys Sudo Consultants Serverless WordPress in the Amazon Web Services (AWS) Cloud. It is for organizations that want to deploy highly available and scalable WordPress sites without managing servers.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>This Quick Start deploys Sudo Consultants Serverless WordPress on the AWS Cloud. If you are unfamiliar with AWS Quick Starts we recommend that you read the <a href="https://aws-ia.github.io/content/qs_info.html">AWS Quick Start General Content Guide</a>.</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
+<div class="paragraph">
+<p>This Quick Start uses Amazon Elastic Container Service (Amazon ECS) to build containers with the official WordPress Docker image. AWS Fargate runs, scales, and manages the containerized WordPress workload and an Amazon Aurora serverless database. A container-mounted Amazon Elastic File System (Amazon EFS) helps your WordPress sites scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.</p>
+</div>
+<div class="paragraph">
+<p>If you are unfamiliar with AWS Quick Starts we recommend that you read the <a href="https://aws-ia.github.io/content/qs_info.html" target="_blank" rel="noopener">AWS Quick Start General Content Guide</a>.</p>
+</div>
+<div class="paragraph">
+<p>Sudo Consultants Serverless WordPress includes these security features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://aws.amazon.com/waf/" target="_blank" rel="noopener">AWS WAF</a> to prevent SQL injection and common WordPress exploits.</p>
+</li>
+<li>
+<p>Port-hardened security groups and unnecessary ports closed by default. For more information, see <a href="https://wordpress.org/support/article/hardening-wordpress/" target="_blank" rel="noopener">Hardening WordPress</a>.</p>
+</li>
+<li>
+<p>Periodic database backups.</p>
+</li>
+<li>
+<p>A virtual private cloud (VPC) configured with public and private subnets, according to AWS best practices, to provide you with your own virtual network on AWS.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_costs_and_licenses">Costs and licenses</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/licenses.adoc</code></strong></em></p>
+<p>There are no additional licenses required to use this Quick Start. There is no cost to use this Quick Start; however, you will be billed for the resources deployed. For more information see the <a href="http://general-content-file" target="_blank" rel="noopener">AWS Quick Start General Content Guide</a>.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>There are no additional licenses required to use this Quick Start.</p>
-</div>
-<div class="paragraph">
-<p>There is no cost to use this Quick Start, however you will be billed for the resources deployed. For more information see the <a href="http://general-content-file">AWS Quick Start General Content Guide</a>.</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_architecture">Architecture</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/architecture.adoc</code></strong></em></p>
-</div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>Deploying this Quick Start for a new virtual private cloud (VPC) with
-default parameters builds the following Serverless WordPress environment in the
-AWS Cloud.</p>
+default parameters builds the following Serverless WordPress environment in the AWS Cloud.</p>
 </div>
 <div id="architecture1" class="imageblock">
 <div class="content">
-<img src="docs/deployment_guide/images/architecture_diagram.png" alt="Architecture">
+<img src="docs/deployment_guide/images/architecture-diagram-sudo-serverless-wordpress.png" alt="Architecture">
 </div>
 <div class="title">Figure 1. Quick Start architecture for Serverless WordPress on AWS</div>
 </div>
@@ -958,14 +947,13 @@ AWS Cloud.</p>
 <p>A highly available architecture that spans two Availability Zones.*</p>
 </li>
 <li>
-<p>A VPC configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.*</p>
+<p>A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS.*</p>
 </li>
 <li>
-<p>An optional Amazon Route 53 record entry, if you enter a hosted zone ID during Quick Start deployment.</p>
+<p>(Optional) An Amazon Route 53 record entry if you enter a hosted zone ID during Quick Start deployment.</p>
 </li>
 <li>
-<p>An AWS Web Application Firewall using AWS WAF managed rules to protect against SQL injection attacks and common WordPress exploits.</p>
+<p>AWS WAF for managing rules to protect against SQL injection attacks and common WordPress exploits.</p>
 </li>
 <li>
 <p>In the public subnets:</p>
@@ -975,8 +963,7 @@ best practices, to provide you with your own virtual network on AWS.*</p>
 <p>Elastic IP addresses for outbound traffic for AWS Fargate tasks.*</p>
 </li>
 <li>
-<p>Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.*</p>
+<p>Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*</p>
 </li>
 </ul>
 </div>
@@ -986,19 +973,19 @@ internet access for resources in the private subnets.*</p>
 <div class="ulist">
 <ul>
 <li>
-<p>AWS Fargate, in an Auto Scaling group, to launch and manage WordPress containers.</p>
-</li>
-<li>
-<p>An Application Load Balancer to manage traffic to AWS Fargate in the private subnets.</p>
+<p>AWS Fargate tasks in an Auto Scaling group to launch and manage WordPress containers.</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Amazon ECS to provision WordPress containers run on AWS Fargate.</p>
+<p>An Application Load Balancer to manage traffic to AWS Fargate in the private subnets.</p>
 </li>
 <li>
-<p>Amazon Certificate Manager (ACM) for an optional public certificate for HTTPS connection.</p>
+<p>Amazon ECS to deploy the WordPress container image to AWS Fargate.</p>
+</li>
+<li>
+<p>(Optional) AWS Certificate Manager (ACM) for a public certificate for HTTPS connection.</p>
 </li>
 <li>
 <p>AWS Secrets Manager to store the RDS Aurora database password.</p>
@@ -1013,67 +1000,49 @@ internet access for resources in the private subnets.*</p>
 </div>
 <div class="paragraph">
 <p><span class="small">* The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.</span></p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_deployment_options">Deployment options</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/deployment_options.adoc</code></strong></em></p>
-</div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>This Quick Start provides two deployment options:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="http://qs_launch_permalink">Deploy Serverless WordPress into a new VPC</a>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Serverless WordPress into this new VPC.</p>
+<p><a href="https://fwd.aws/xkye7?" target="_blank" rel="noopener">Deploy Serverless WordPress into a new VPC</a>. This option builds a new AWS environment consisting of the VPC, subnets, NAT gateways, security groups, bastion hosts, and other infrastructure components. It then deploys Serverless WordPress into this new VPC.</p>
 </li>
 <li>
-<p><a href="http://qs_launch_permalink">Deploy Serverless WordPress into an existing VPC</a>. This option provisions Serverless WordPress in your existing AWS infrastructure.</p>
+<p><a href="https://fwd.aws/k4MBW?" target="_blank" rel="noopener">Deploy Serverless WordPress into an existing VPC</a>. This option provisions Serverless WordPress in your existing AWS infrastructure.</p>
 </li>
 </ul>
 </div>
 <div class="paragraph">
 <p>The Quick Start provides separate templates for these options. It also lets you configure Classless Inter-Domain Routing (CIDR) blocks, instance types, and Serverless WordPress settings.</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/pre_deployment.adoc</code></strong></em></p>
 </div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div id="toc" class="toc">
-<div id="toctitle"></div>
-<ul class="sectlevel1">
-<li><a href="#_predeployment_steps">Predeployment steps</a></li>
-</ul>
+</div>
 </div>
 <div class="sect1">
 <h2 id="_predeployment_steps">Predeployment steps</h2>
 <div class="sectionbody">
-
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>If you don&#8217;t have an account, sign up at <a href="https://aws.amazon.com" class="bare">https://aws.amazon.com</a>.</p>
+</li>
+<li>
+<p>Choose the Region from the top toolbar where you want to deploy.</p>
+</li>
+<li>
+<p>To create a Route 53 DNS entry, set up a Route 53 hosted zone, then enter the hosted zone ID during deployment. For more information, see <a href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-working-with.html" target="_blank" rel="noopener">Working with hosted zones</a>.</p>
+</li>
+</ol>
 </div>
-</div></div></td>
-</tr>
-</tbody>
-</table>
+<div class="paragraph">
+<p><strong>Important:</strong> This Quick Start includes Amazon EFS and Amazon Aurora Serverless, which are not available in all AWS Regions. For a list of supported Amazon EFS Regions, see <a href="https://docs.aws.amazon.com/general/latest/gr/elasticfilesystem.html" target="_blank" rel="noopener">Amazon Elastic File System endpoints and quotas</a>. For a list of supported Aurora Serverless Regions, see <a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraFeaturesRegionsDBEngines.grids.html#Concepts.Aurora_Fea_Regions_DB-eng.Feature.Serverless" target="_blank" rel="noopener">Aurora Serverless v1</a>.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1113,50 +1082,14 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/post_deployment.adoc</code></strong></em></p>
-</div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div id="toc" class="toc">
-<div id="toctitle"></div>
-<ul class="sectlevel1">
-<li><a href="#_postdeployment_steps">Postdeployment steps</a></li>
-</ul>
-</div>
-<div class="sect1">
-<h2 id="_postdeployment_steps">Postdeployment steps</h2>
-<div class="sectionbody">
-
-</div>
-</div></div></td>
-</tr>
-</tbody>
-</table>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_troubleshooting">Troubleshooting</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em><strong>This portion of the deployment guide is located at <code>docs/deployment_guide/partner_editable/troubleshooting.adoc</code></strong></em></p>
+<p>For troubleshooting common Quick Start issues visit the <a href="http://general-content-file" target="_blank" rel="noopener">AWS Quick Start General Content Guide</a> and <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html" target="_blank" rel="noopener">Troubleshooting CloudFormation</a>.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch preview_mode">
-<colgroup>
-<col style="width: 100%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>For troubleshooting common Quick Start issues visit the <a href="http://general-content-file">AWS Quick Start General Content Guide</a> or the <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html">Troubleshooting CloudFormation</a> page in the AWS documentation.</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
 <div class="paragraph">
 <p>After you successfully deploy a Quick Start, confirm that your resources and services are updated and configured — including any required patches — to meet your security and other needs. For more information, see the <a href="https://aws.amazon.com/compliance/shared-responsibility-model/">AWS Shared Responsibility Model</a>.</p>
 </div>
@@ -1208,3 +1141,12 @@ Unless you are customizing the Quick Start templates for your own deployment pro
 </footer>
 </body>
 </html>
+<!--
+repo commit:
+8f34146982632d8df395cdfe3920db8e4288fdaf
+
+submodule config:
+ 340aace2c14aabf8fd66ee1f49f44a017d8ddfb0 docs/boilerplate (heads/main)
+ a49d9b514d7640bbd7d772367a0961542581cde2 submodules/quickstart-aws-acm-certificate (heads/main)
+ b7aefd089e944d77cdc2b083886cdc498d2a6ee4 submodules/quickstart-aws-vpc (v1.0-59-gb7aefd0)
+-->

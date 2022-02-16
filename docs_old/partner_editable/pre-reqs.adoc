@@ -1,9 +1,0 @@
-// If no preparation is required, remove all content from here
-
-==== Prepare your AWS account
-
-1. If you don't have an account, sign up at https://aws.amazon.com.
-2. Choose the Region from the top toolbar where you want to deploy.
-3. To create a Route 53 DNS entry, set up a Route 53 hosted zone, then enter the hosted zone ID during deployment. For more information, see https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-working-with.html[Working with hosted zones].
-
-*Important:* This Quick Start includes Amazon EFS and Amazon Aurora Serverless, which are not available in all AWS Regions. For a list of supported Amazon EFS Regions, see https://docs.aws.amazon.com/general/latest/gr/elasticfilesystem.html[Amazon Elastic File System endpoints and quotas^]. For a list of supported Aurora Serverless Regions, see https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraFeaturesRegionsDBEngines.grids.html#Concepts.Aurora_Fea_Regions_DB-eng.Feature.Serverless[Aurora Serverless v1^].
