@@ -1,11 +1,11 @@
 :quickstart-project-name: quickstart-sudo-consultants-serverless-wordpress
 :quickstart-github-org: aws-quickstart
-:partner-product-name: Sudo Consultants Serverless WordPress
+:partner-product-name: SUDO Consultants Serverless WordPress
 :partner-product-short-name: Serverless WordPress
-:partner-company-name: Sudo Consultants Limited
+:partner-company-name: SUDO Consultants Limited
 :doc-month: February
 :doc-year: 2022
-:partner-contributors: Saif Ali and Hameedullah Khan, Sudo Consultants
+:partner-contributors: Saif Ali and Hameedullah Khan, SUDO Consultants
 //:other-contributors: Akua Mansa, Trek10
 :aws-contributors: Sriram Mohan, AWS Managed Cloud
 :aws-ia-contributors: Dattaprasad Sadwelkar and Vinod Shukla, AWS Integration & Automation team
