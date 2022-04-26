@@ -355,7 +355,7 @@ Resources:
       LaunchType: FARGATE
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           Subnets: !If 
             - 3AZDeployment
             - - !Ref PrivateSubnet1AID
