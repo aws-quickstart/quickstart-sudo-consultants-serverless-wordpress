@@ -1,12 +1,12 @@
-// This deployment guide covers the steps necessary to deploy the Quick Start. For more advanced information on the product, troubleshooting, or additional functionality, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational guide].
+// This deployment guide covers the steps necessary to deploy the Partner Solution. For more advanced information on the product, troubleshooting, or additional functionality, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational guide].
 
-// For information on using this Quick Start for migrations, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration guide].
+// For information on using this Partner Solution for migrations, see the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration guide].
 
-This Quick Start deploys {partner-product-name} in the Amazon Web Services (AWS) Cloud. It is for organizations that want to deploy highly available and scalable WordPress sites without managing servers. 
+This Partner Solution deploys {partner-product-name} in the Amazon Web Services (AWS) Cloud. It is for organizations that want to deploy highly available and scalable WordPress sites without managing servers. 
 
-This Quick Start uses Amazon Elastic Container Service (Amazon ECS) to build containers with the official WordPress Docker image. AWS Fargate runs, scales, and manages the containerized WordPress workload and an Amazon Aurora serverless database. A container-mounted Amazon Elastic File System (Amazon EFS) helps your WordPress sites scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.
+This Partner Solution uses Amazon Elastic Container Service (Amazon ECS) to build containers with the official WordPress Docker image. AWS Fargate runs, scales, and manages the containerized WordPress workload and an Amazon Aurora serverless database. A container-mounted Amazon Elastic File System (Amazon EFS) helps your WordPress sites scale automatically, saving you money during quiet hours and ensuring high availability during peak request times. In addition, you get AWS managed security against SQL injection and common WordPress exploits, helping keep your sites safe.
 
-If you are unfamiliar with AWS Quick Starts we recommend that you read the https://aws-ia.github.io/content/qs_info.html[AWS Quick Start General Content Guide^].
+If you are unfamiliar with AWS Partner Solutions we recommend that you read the https://aws-ia.github.io/content/qs_info.html[AWS Partner Solution General Content Guide^].
 
 {partner-product-name} includes these security features:
 

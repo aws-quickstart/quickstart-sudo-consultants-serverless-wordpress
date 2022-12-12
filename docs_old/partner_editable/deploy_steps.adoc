@@ -4,10 +4,10 @@
 . Sign in to your AWS account at https://aws.amazon.com with an IAM user role that has the necessary permissions. For details, see link:#_planning_the_deployment[Planning the deployment] earlier in this guide.
 . Make sure that your AWS account is configured correctly, as discussed in the link:#_technical_requirements[Technical requirements] section.
 
-=== Launch the Quick Start
-// Adapt the following warning to your Quick Start.
+=== Launch the Partner Solution
+// Adapt the following warning to your Partner Solution.
 
-WARNING: When deploying this Quick Start into an existing VPC, ensure that your VPC has two private subnets in different Availability Zones for the workload instances and that the subnets are not shared. This Quick Start does not support https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html[shared subnets^]. These subnets require https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html[NAT gateways^] in their route tables to allow the instances to download packages and software without exposing them to the internet. Also ensure that the domain name option is configured as explained in http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html[DHCP options sets^]. You provide your VPC settings when you launch the Quick Start.
+WARNING: When deploying this Partner Solution into an existing VPC, ensure that your VPC has two private subnets in different Availability Zones for the workload instances and that the subnets are not shared. This Partner Solution does not support https://docs.aws.amazon.com/vpc/latest/userguide/vpc-sharing.html[shared subnets^]. These subnets require https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html[NAT gateways^] in their route tables to allow the instances to download packages and software without exposing them to the internet. Also ensure that the domain name option is configured as explained in http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_DHCP_Options.html[DHCP options sets^]. You provide your VPC settings when you launch the Partner Solution.
 
 Each deployment takes about {deployment_time} to complete.
 

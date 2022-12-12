@@ -1,17 +1,17 @@
 :xrefstyle: short
 
-Deploying this Quick Start for a new virtual private cloud (VPC) with
+Deploying this Partner Solution for a new virtual private cloud (VPC) with
 default parameters builds the following {partner-product-short-name} environment in the AWS Cloud.
 
 [#architecture1]
-.Quick Start architecture for {partner-product-short-name} on AWS
+.Partner Solution architecture for {partner-product-short-name} on AWS
 image::../docs/deployment_guide/images/architecture-diagram-sudo-serverless-wordpress.png[Architecture]
 
-As shown in <<architecture1>>, the Quick Start sets up the following:
+As shown in <<architecture1>>, the Partner Solution sets up the following:
 
 * A highly available architecture that spans two Availability Zones.*
 * A VPC configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS.*
-* (Optional) An Amazon Route 53 record entry if you enter a hosted zone ID during Quick Start deployment.
+* (Optional) An Amazon Route 53 record entry if you enter a hosted zone ID during Partner Solution deployment.
 * AWS WAF for managing rules to protect against SQL injection attacks and common WordPress exploits.
 * In the public subnets:
 ** Elastic IP addresses for outbound traffic for AWS Fargate tasks.*
@@ -28,4 +28,4 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 // Add bullet points for any additional components that are included in the deployment. Ensure that the additional components are also represented in the architecture diagram. End each bullet with a period.
 //* <describe any additional components>.
 
-[.small]#* The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
+[.small]#* The template that deploys the Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#

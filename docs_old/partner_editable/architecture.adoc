@@ -1,18 +1,18 @@
-Deploying this Quick Start for a new virtual private cloud (VPC) with
+Deploying this Partner Solution for a new virtual private cloud (VPC) with
 *default parameters* builds the following _{partner-product-name}_ environment in the
 AWS Cloud.
 
 // Replace this example diagram with your own. Send us your source PowerPoint file. Be sure to follow our guidelines here : http://(we should include these points on our contributors giude)
 :xrefstyle: short
 [#architecture1]
-.Quick Start architecture for _{partner-product-name}_ on AWS
+.Partner Solution architecture for _{partner-product-name}_ on AWS
 image::../images/architecture-diagram-sudo-serverless-wordpress.png[Architecture]
 
-As shown in <<architecture1>>, the Quick Start sets up the following:
+As shown in <<architecture1>>, the Partner Solution sets up the following:
 
 * A highly available architecture that spans two Availability Zones.*
 * A virtual private cloud (VPC) configured with public and private subnets according to AWS best practices, to provide you with your own virtual network on AWS.*
-* An optional Amazon Route 53 record entry, if you enter a hosted zone ID during Quick Start deployment.
+* An optional Amazon Route 53 record entry, if you enter a hosted zone ID during Partner Solution deployment.
 * An AWS Web Application Firewall using AWS WAF managed rules to protect against SQL injection attacks and common WordPress exploits.
 * In the public subnets:
 ** Elastic IP addresses for outbound traffic for AWS Fargate tasks.*
@@ -26,5 +26,5 @@ As shown in <<architecture1>>, the Quick Start sets up the following:
 * Amazon Aurora serverless database connected to containers on AWS Fargate.
 * An Amazon Elastic File System (Amazon EFS) file system for storing WordPress files, themes, and plugins.
 
-[.small]#* The template that deploys the Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.
+[.small]#* The template that deploys the Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.
 
